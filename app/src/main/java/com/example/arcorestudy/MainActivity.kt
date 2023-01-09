@@ -2,7 +2,6 @@ package com.example.arcorestudy
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.opengl.GLSurfaceView
@@ -18,7 +17,7 @@ import com.google.ar.core.Config
 import com.google.ar.core.Session
 import java.lang.UnsupportedOperationException
 
-class MainActivity2 : Activity() {
+class MainActivity : Activity() {
     private var mSurfaceView: GLSurfaceView? = null
     private var mRenderer: MainRenderer? = null
     private var mUserRequestedInstall = true
@@ -29,22 +28,19 @@ class MainActivity2 : Activity() {
         hideStatusBarAndTitleBar()
         setContentView(R.layout.activity_main)
         mSurfaceView = findViewById<View>(R.id.gl_surface_view) as GLSurfaceView?
-        val displayManager: DisplayManager? =
-            getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
-        if (displayManager != null) {
-            displayManager.registerDisplayListener(object : DisplayManager.DisplayListener {
-                override fun onDisplayAdded(displayId: Int) {}
-                override fun onDisplayChanged(displayId: Int) {
-                    synchronized(this) { mRenderer!!.onDisplayChanged() }
-                }
+        (getSystemService(DISPLAY_SERVICE) as DisplayManager?)?.registerDisplayListener(object :
+            DisplayManager.DisplayListener {
+            override fun onDisplayAdded(displayId: Int) {}
+            override fun onDisplayChanged(displayId: Int) {
+                synchronized(this) { mRenderer!!.onDisplayChanged() }
+            }
 
-                override fun onDisplayRemoved(displayId: Int) {}
-            }, null)
-        }
+            override fun onDisplayRemoved(displayId: Int) {}
+        }, null)
         mRenderer = MainRenderer(object : MainRenderer.RenderCallback {
             override fun preRender() {
                 if (mRenderer!!.isViewportChanged) {
-                    val display: Display = getWindowManager().getDefaultDisplay()
+                    val display: Display = windowManager.defaultDisplay
                     val displayRotation = display.rotation
                     mRenderer!!.updateSession(mSession!!, displayRotation)
                 }
@@ -55,19 +51,19 @@ class MainActivity2 : Activity() {
                 }
             }
         })
-        mSurfaceView?.setPreserveEGLContextOnPause(true)
+        mSurfaceView?.preserveEGLContextOnPause = true
         mSurfaceView?.setEGLContextClientVersion(2)
         mSurfaceView?.setRenderer(mRenderer)
-        mSurfaceView?.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY)
+        mSurfaceView?.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
     }
 
-    protected override fun onPause() {
+     override fun onPause() {
         super.onPause()
         mSurfaceView?.onPause()
         mSession!!.pause()
     }
 
-    protected override fun onResume() {
+     override fun onResume() {
         super.onResume()
         requestCameraPermission()
         try {
@@ -81,7 +77,7 @@ class MainActivity2 : Activity() {
                     }
                 }
             }
-        } catch (e: UnsupportedOperationException) {
+        } catch (_: UnsupportedOperationException) {
 
         }
         mConfig = Config(mSession)
