@@ -109,7 +109,4 @@ class MainActivity2 : Activity() {
         )
     }
 
-    companion object {
-        private val TAG = MainActivity::class.java.simpleName
-    }
 }
