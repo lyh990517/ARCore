@@ -4,7 +4,6 @@ import com.google.ar.core.PointCloud
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.util.Log
-import com.example.arcorestudy.PointCloudRenderer
 
 class PointCloudRenderer {
     private val vertexShaderString = """uniform mat4 uMvpMatrix;
@@ -65,7 +64,10 @@ void main() {
     fun update(pointCloud: PointCloud?) {
         mPointCloud = pointCloud
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, mVbo[0])
+
+        // TODO : size...
         mNumPoints = mPointCloud!!.points.remaining() / 4
+        //GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, mNumPoints * 16, null, GLES20.GL_DYNAMIC_DRAW);
         GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, 0, mNumPoints * 16, mPointCloud!!.points)
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0)
     }
