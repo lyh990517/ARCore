@@ -1,6 +1,5 @@
 package com.example.arcorestudy
 
-import com.example.arcorestudy.CameraPreview
 import android.opengl.GLES20
 import android.opengl.GLES11Ext
 import android.util.Log
@@ -9,7 +8,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 
-class CameraPreview {
+class CameraRenderer {
     private val vertexShaderString = """attribute vec4 aPosition;
 attribute vec2 aTexCoord;
 varying vec2 vTexCoord;
@@ -126,7 +125,7 @@ void main() {
     }
 
     companion object {
-        private val TAG = CameraPreview::class.java.simpleName
+        private val TAG = CameraRenderer::class.java.simpleName
         private val QUAD_COORDS =
             floatArrayOf(-1.0f, -1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f)
         private val QUAD_TEXCOORDS = floatArrayOf(0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f)

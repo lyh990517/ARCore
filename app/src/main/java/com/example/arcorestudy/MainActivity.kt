@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.opengl.GLSurfaceView
 import android.os.Bundle
+import android.util.Log
 import android.view.Display
 import android.view.View
 import android.view.Window
@@ -14,6 +15,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.ar.core.ArCoreApk
 import com.google.ar.core.Config
+import com.google.ar.core.PointCloud
 import com.google.ar.core.Session
 import java.lang.UnsupportedOperationException
 
@@ -40,7 +42,7 @@ class MainActivity : Activity() {
         mRenderer = MainRenderer(object : MainRenderer.RenderCallback {
             override fun preRender() {
                 if (mRenderer!!.isViewportChanged) {
-                    val display: Display = windowManager.defaultDisplay
+                    val display: Display = getWindowManager().getDefaultDisplay()
                     val displayRotation = display.rotation
                     mRenderer!!.updateSession(mSession!!, displayRotation)
                 }
@@ -49,21 +51,30 @@ class MainActivity : Activity() {
                 if (frame.hasDisplayGeometryChanged()) {
                     mRenderer!!.transformDisplayGeometry(frame)
                 }
+                val pointCloud: PointCloud = frame.acquirePointCloud()
+                mRenderer!!.updatePointCloud(pointCloud)
+                pointCloud.release()
+                val camera = frame.camera
+                val projMatrix = FloatArray(16)
+                camera.getProjectionMatrix(projMatrix, 0, 0.1f, 100.0f)
+                val viewMatrix = FloatArray(16)
+                camera.getViewMatrix(viewMatrix, 0)
+                mRenderer!!.setProjectionMatrix(projMatrix)
+                mRenderer!!.updateViewMatrix(viewMatrix)
             }
         })
-        mSurfaceView?.preserveEGLContextOnPause = true
+        mSurfaceView?.setPreserveEGLContextOnPause(true)
         mSurfaceView?.setEGLContextClientVersion(2)
         mSurfaceView?.setRenderer(mRenderer)
-        mSurfaceView?.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
     }
 
-     override fun onPause() {
+    override fun onPause() {
         super.onPause()
         mSurfaceView?.onPause()
         mSession!!.pause()
     }
 
-     override fun onResume() {
+    override fun onResume() {
         super.onResume()
         requestCameraPermission()
         try {
@@ -71,22 +82,25 @@ class MainActivity : Activity() {
                 when (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
                     ArCoreApk.InstallStatus.INSTALLED -> {
                         mSession = Session(this)
+                        Log.d(TAG, "ARCore Session created.")
                     }
                     ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
                         mUserRequestedInstall = false
+                        Log.d(TAG, "ARCore should be installed.")
                     }
                 }
             }
-        } catch (_: UnsupportedOperationException) {
-
+        } catch (e: UnsupportedOperationException) {
+            Log.e(TAG, e.message!!)
         }
         mConfig = Config(mSession)
         if (!mSession!!.isSupported(mConfig)) {
-
+            Log.d(TAG, "This device is not support ARCore.")
         }
         mSession!!.configure(mConfig)
         mSession!!.resume()
         mSurfaceView?.onResume()
+        mSurfaceView?.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
     }
 
     private fun requestCameraPermission() {
@@ -105,4 +119,7 @@ class MainActivity : Activity() {
         )
     }
 
+    companion object {
+        private val TAG = MainActivity::class.java.simpleName
+    }
 }
