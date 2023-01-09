@@ -1,13 +1,19 @@
 package com.example.arcorestudy
 
 import android.graphics.Color
+import com.example.arcorestudy.MainRenderer.RenderCallback
 import android.opengl.GLSurfaceView
+import com.example.arcorestudy.CameraRenderer
+import com.example.arcorestudy.PointCloudRenderer
+import com.example.arcorestudy.Sphere
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES20
 import android.opengl.Matrix
-import com.google.ar.core.Frame
 import com.google.ar.core.PointCloud
+import com.example.arcorestudy.MainRenderer
+import com.google.ar.core.Frame
 import com.google.ar.core.Session
+import java.util.ArrayList
 import javax.microedition.khronos.egl.EGLConfig
 
 class MainRenderer(callback: RenderCallback) : GLSurfaceView.Renderer {
@@ -17,10 +23,9 @@ class MainRenderer(callback: RenderCallback) : GLSurfaceView.Renderer {
     private var mViewportHeight = 0
     private val mCamera: CameraRenderer?
     private val mPointCloud: PointCloudRenderer
-    private val mPoint: Sphere
-    private var mLineX: Line? = null
-    private var mLineY: Line? = null
-    private var mLineZ: Line? = null
+    private val mShperes: MutableList<Sphere> = ArrayList()
+    private val mPoints: MutableList<FloatArray> = ArrayList()
+    private val mLines: MutableList<Line> = ArrayList()
     private val mProjMatrix = FloatArray(16)
     private val mRenderCallback: RenderCallback
 
@@ -31,7 +36,6 @@ class MainRenderer(callback: RenderCallback) : GLSurfaceView.Renderer {
     init {
         mCamera = CameraRenderer()
         mPointCloud = PointCloudRenderer()
-        mPoint = Sphere(0.01f, Color.YELLOW)
         mRenderCallback = callback
     }
 
@@ -40,7 +44,6 @@ class MainRenderer(callback: RenderCallback) : GLSurfaceView.Renderer {
         GLES20.glClearColor(1.0f, 1.0f, 0.0f, 1.0f)
         mCamera!!.init()
         mPointCloud.init()
-        mPoint.init()
     }
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) {
@@ -57,24 +60,19 @@ class MainRenderer(callback: RenderCallback) : GLSurfaceView.Renderer {
         mCamera!!.draw()
         GLES20.glDepthMask(true)
         mPointCloud.draw()
-        mPoint.draw()
-        if (mLineX != null) {
-            if (!mLineX!!.isInitialized) {
-                mLineX!!.init()
+        for (i in mShperes.indices) {
+            val sphere = mShperes[i]
+            if (!sphere.isInitialized) {
+                sphere.init()
             }
-            mLineX!!.draw()
+            sphere.draw()
         }
-        if (mLineY != null) {
-            if (!mLineY!!.isInitialized) {
-                mLineY!!.init()
+        for (i in mLines.indices) {
+            val line = mLines[i]
+            if (!line.isInitialized) {
+                line.init()
             }
-            mLineY!!.draw()
-        }
-        if (mLineZ != null) {
-            if (!mLineZ!!.isInitialized) {
-                mLineZ!!.init()
-            }
-            mLineZ!!.draw()
+            line.draw()
         }
     }
 
@@ -103,59 +101,53 @@ class MainRenderer(callback: RenderCallback) : GLSurfaceView.Renderer {
     fun setProjectionMatrix(matrix: FloatArray?) {
         System.arraycopy(matrix, 0, mProjMatrix, 0, 16)
         mPointCloud.setProjectionMatrix(matrix)
-        mPoint.setProjectionMatrix(matrix)
     }
 
     fun updateViewMatrix(matrix: FloatArray?) {
         mPointCloud.setViewMatrix(matrix)
-        mPoint.setViewMatrix(matrix)
-        if (mLineX != null) {
-            mLineX!!.setViewMatrix(matrix)
+        for (i in mShperes.indices) {
+            mShperes[i].setViewMatrix(matrix)
         }
-        if (mLineY != null) {
-            mLineY!!.setViewMatrix(matrix)
-        }
-        if (mLineZ != null) {
-            mLineZ!!.setViewMatrix(matrix)
+        for (i in mLines.indices) {
+            mLines[i].setViewMatrix(matrix)
         }
     }
 
-    fun setModelMatrix(matrix: FloatArray?) {
-        mPoint.setModelMatrix(matrix)
-        mLineX!!.setModelMatrix(matrix)
-        mLineY!!.setModelMatrix(matrix)
-        mLineZ!!.setModelMatrix(matrix)
+    fun setModelMatrix(matrix: FloatArray?) {}
+    fun addPoint(point: FloatArray): Int {
+        mPoints.add(point)
+        val currentPoint = Sphere(0.01f, Color.GREEN)
+        currentPoint.setProjectionMatrix(mProjMatrix)
+        val translation = FloatArray(16)
+        Matrix.setIdentityM(translation, 0)
+        Matrix.translateM(translation, 0, point[0], point[1], point[2])
+        currentPoint.setModelMatrix(translation)
+        mShperes.add(currentPoint)
+        if (mPoints.size >= 2) {
+            val start = mPoints[mPoints.size - 2]
+            val end = mPoints[mPoints.size - 1]
+            val currentLine =
+                Line(start[0], start[1], start[2], end[0], end[1], end[2], 10, Color.YELLOW)
+            currentLine.setProjectionMatrix(mProjMatrix)
+            val identity = FloatArray(16)
+            Matrix.setIdentityM(identity, 0)
+            currentLine.setModelMatrix(identity)
+            mLines.add(currentLine)
+        }
+        return mShperes.size
     }
 
-    fun addPoint(x: Float, y: Float, z: Float) {
-        val matrix = FloatArray(16)
-        Matrix.setIdentityM(matrix, 0)
-        Matrix.translateM(matrix, 0, x, y, z)
-        mPoint.setModelMatrix(matrix)
-    }
-
-    fun addLineX(x1: Float, y1: Float, z1: Float, x2: Float, y2: Float, z2: Float) {
-        mLineX = Line(x1, y1, z1, x2, y2, z2, 10, Color.RED)
-        mLineX!!.setProjectionMatrix(mProjMatrix)
-        val identity = FloatArray(16)
-        Matrix.setIdentityM(identity, 0)
-        mLineX!!.setModelMatrix(identity)
-    }
-
-    fun addLineY(x1: Float, y1: Float, z1: Float, x2: Float, y2: Float, z2: Float) {
-        mLineY = Line(x1, y1, z1, x2, y2, z2, 10, Color.GREEN)
-        mLineY!!.setProjectionMatrix(mProjMatrix)
-        val identity = FloatArray(16)
-        Matrix.setIdentityM(identity, 0)
-        mLineY!!.setModelMatrix(identity)
-    }
-
-    fun addLineZ(x1: Float, y1: Float, z1: Float, x2: Float, y2: Float, z2: Float) {
-        mLineZ = Line(x1, y1, z1, x2, y2, z2, 10, Color.BLUE)
-        mLineZ!!.setProjectionMatrix(mProjMatrix)
-        val identity = FloatArray(16)
-        Matrix.setIdentityM(identity, 0)
-        mLineZ!!.setModelMatrix(identity)
+    fun removePoint(): Int {
+        if (mPoints.size >= 1) {
+            mPoints.removeAt(mPoints.size - 1)
+        }
+        if (mShperes.size >= 1) {
+            mShperes.removeAt(mShperes.size - 1)
+        }
+        if (mLines.size >= 1) {
+            mLines.removeAt(mLines.size - 1)
+        }
+        return mShperes.size
     }
 
     companion object {

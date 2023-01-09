@@ -25,4 +25,13 @@
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/remove_button"
+        android:text="remove"
+        android:onClick="onRemoveButtonClick"
+        android:layout_width="100dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="50dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,7 +1,6 @@
 package com.example.arcorestudy
 
 import android.graphics.Color
-import com.example.arcorestudy.Sphere
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.util.Log

@@ -2,7 +2,6 @@ package com.example.arcorestudy
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.opengl.GLSurfaceView
@@ -14,6 +13,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.ar.core.*
 import java.lang.UnsupportedOperationException
+import java.util.*
 
 class MainActivity : Activity() {
     private var mTextString: String? = null
@@ -23,27 +23,25 @@ class MainActivity : Activity() {
     private var mUserRequestedInstall = true
     private var mSession: Session? = null
     private var mConfig: Config? = null
-    private var mCurrentX = 0f
-    private var mCurrentY = 0f
-    private var mTouched = false
-    override fun onCreate(savedInstanceState: Bundle?) {
+    private val mPoints: MutableList<FloatArray> = ArrayList()
+    private var mLastX = 0f
+    private var mLastY = 0f
+    private var mPointAdded = false
+    protected override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hideStatusBarAndTitleBar()
         setContentView(R.layout.activity_main)
         mTextView = findViewById<View>(R.id.ar_core_text) as TextView?
         mSurfaceView = findViewById<View>(R.id.gl_surface_view) as GLSurfaceView?
-        val displayManager: DisplayManager? =
-            getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
-        if (displayManager != null) {
-            displayManager.registerDisplayListener(object : DisplayManager.DisplayListener {
-                override fun onDisplayAdded(displayId: Int) {}
-                override fun onDisplayChanged(displayId: Int) {
-                    synchronized(this) { mRenderer!!.onDisplayChanged() }
-                }
+        (getSystemService(DISPLAY_SERVICE) as DisplayManager?)?.registerDisplayListener(object :
+            DisplayManager.DisplayListener {
+            override fun onDisplayAdded(displayId: Int) {}
+            override fun onDisplayChanged(displayId: Int) {
+                synchronized(this) { mRenderer!!.onDisplayChanged() }
+            }
 
-                override fun onDisplayRemoved(displayId: Int) {}
-            }, null)
-        }
+            override fun onDisplayRemoved(displayId: Int) {}
+        }, null)
         mRenderer = MainRenderer(object : MainRenderer.RenderCallback {
             override fun preRender() {
                 if (mRenderer!!.isViewportChanged) {
@@ -59,37 +57,16 @@ class MainActivity : Activity() {
                 val pointCloud: PointCloud = frame.acquirePointCloud()
                 mRenderer!!.updatePointCloud(pointCloud)
                 pointCloud.release()
-                if (mTouched) {
-                    mTextString = ""
-                    val results: List<HitResult> = frame.hitTest(mCurrentX, mCurrentY)
-                    var i = 0
+                if (mPointAdded) {
+                    val results: List<HitResult> = frame.hitTest(mLastX, mLastY)
                     for (result in results) {
-                        val distance: Float = result.getDistance()
                         val pose: Pose = result.getHitPose()
-                        val xAxis: FloatArray = pose.getXAxis()
-                        val yAxis: FloatArray = pose.getYAxis()
-                        val zAxis: FloatArray = pose.getZAxis()
-                        mRenderer!!.addPoint(pose.tx(), pose.ty(), pose.tz())
-                        mRenderer!!.addLineX(
-                            pose.tx(), pose.ty(), pose.tz(),
-                            xAxis[0], xAxis[1], xAxis[2]
-                        )
-                        mRenderer!!.addLineY(
-                            pose.tx(), pose.ty(), pose.tz(),
-                            yAxis[0], yAxis[1], yAxis[2]
-                        )
-                        mRenderer!!.addLineZ(
-                            pose.tx(), pose.ty(), pose.tz(),
-                            zAxis[0], zAxis[1], zAxis[2]
-                        )
-                        mTextString += """
-                            [$i] distance : $distance, Pose : ${pose.toString()}
-                            
-                            """.trimIndent()
-                        i++
+                        val points = floatArrayOf(pose.tx(), pose.ty(), pose.tz())
+                        mPoints.add(points)
+                        mRenderer!!.addPoint(points)
+                        updateDistance()
                     }
-                    runOnUiThread(Runnable { mTextView?.setText(mTextString) })
-                    mTouched = false
+                    mPointAdded = false
                 }
                 val camera = frame.camera
                 val projMatrix = FloatArray(16)
@@ -100,9 +77,10 @@ class MainActivity : Activity() {
                 mRenderer!!.updateViewMatrix(viewMatrix)
             }
         })
-        mSurfaceView?.setPreserveEGLContextOnPause(true)
+        mSurfaceView?.preserveEGLContextOnPause = true
         mSurfaceView?.setEGLContextClientVersion(2)
         mSurfaceView?.setRenderer(mRenderer)
+        mSurfaceView?.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
     }
 
     protected override fun onPause() {
@@ -116,7 +94,10 @@ class MainActivity : Activity() {
         requestCameraPermission()
         try {
             if (mSession == null) {
-                when (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
+                when (ArCoreApk.getInstance().requestInstall(
+                    this,
+                    mUserRequestedInstall
+                )) {
                     ArCoreApk.InstallStatus.INSTALLED -> {
                         mSession = Session(this)
                         Log.d(TAG, "ARCore Session created.")
@@ -137,18 +118,47 @@ class MainActivity : Activity() {
         mSession!!.configure(mConfig)
         mSession!!.resume()
         mSurfaceView?.onResume()
-        mSurfaceView?.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.getAction()) {
             MotionEvent.ACTION_DOWN -> {
-                mCurrentX = event.getX()
-                mCurrentY = event.getY()
-                mTouched = true
+                mLastX = event.getX()
+                mLastY = event.getY()
+                mPointAdded = true
             }
         }
         return true
+    }
+
+    fun onRemoveButtonClick(view: View?) {
+        if (!mPoints.isEmpty()) {
+            mPoints.removeAt(mPoints.size - 1)
+            mRenderer!!.removePoint()
+            updateDistance()
+        }
+    }
+
+    fun updateDistance() {
+        runOnUiThread(Runnable {
+            var totalDistance = 0.0
+            if (mPoints.size >= 2) {
+                for (i in 0 until mPoints.size - 1) {
+                    val start = mPoints[i]
+                    val end = mPoints[i + 1]
+                    val distance = Math.sqrt(
+                        (
+                                (start[0] - end[0]) * (start[0] - end[0]) + (start[1] - end[1]) * (start[1] - end[1]) + (start[2] - end[2]) * (start[2] - end[2])).toDouble()
+                    )
+                    totalDistance += distance
+                }
+            }
+            val distanceString = String.format(
+                Locale.getDefault(),
+                "%.2f", totalDistance
+            ) + getString(R.string.distance_unit_text)
+            mTextView?.text = distanceString
+        })
     }
 
     private fun requestCameraPermission() {

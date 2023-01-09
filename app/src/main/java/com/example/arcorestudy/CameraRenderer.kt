@@ -24,15 +24,15 @@ void main() {
     gl_FragColor = texture2D(sTexture, vTexCoord);
 }"""
     private lateinit var mTextures: IntArray
-    private val mVertices: FloatBuffer
+    private val mVertices: FloatBuffer =
+        ByteBuffer.allocateDirect(QUAD_COORDS.size * java.lang.Float.SIZE / 8).order(
+            ByteOrder.nativeOrder()
+        ).asFloatBuffer()
     private val mTexCoords: FloatBuffer
     private val mTexCoordsTransformed: FloatBuffer
     private var mProgram = 0
 
     init {
-        mVertices = ByteBuffer.allocateDirect(QUAD_COORDS.size * java.lang.Float.SIZE / 8).order(
-            ByteOrder.nativeOrder()
-        ).asFloatBuffer()
         mVertices.put(QUAD_COORDS)
         mVertices.position(0)
         mTexCoords =
