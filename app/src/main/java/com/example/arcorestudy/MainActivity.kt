@@ -23,11 +23,13 @@ class MainActivity : Activity() {
     private var mUserRequestedInstall = true
     private var mSession: Session? = null
     private var mConfig: Config? = null
+    private lateinit var sessionManager: SessionManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hideStatusBarAndTitleBar()
         setContentView(R.layout.activity_main)
         mSurfaceView = findViewById<View>(R.id.gl_surface_view) as GLSurfaceView?
+        sessionManager = SessionManager(mSurfaceView?.context!!.applicationContext, this)
         (getSystemService(DISPLAY_SERVICE) as DisplayManager?)?.registerDisplayListener(object :
             DisplayManager.DisplayListener {
             override fun onDisplayAdded(displayId: Int) {}
@@ -37,55 +39,23 @@ class MainActivity : Activity() {
 
             override fun onDisplayRemoved(displayId: Int) {}
         }, null)
-        mRenderer = MainRenderer(object : MainRenderer.RenderCallback {
-            override fun preRender() {
-                if (mRenderer!!.isViewportChanged) {
-                    val display: Display = windowManager.defaultDisplay
-                    val displayRotation = display.rotation
-                    mRenderer!!.updateSession(mSession!!, displayRotation)
-                }
-                mSession!!.setCameraTextureName(mRenderer!!.textureId)
-                val frame = mSession!!.update()
-                if (frame.hasDisplayGeometryChanged()) {
-                    mRenderer!!.transformDisplayGeometry(frame)
-                }
-            }
-        })
+        mRenderer = MainRenderer(this, sessionManager)
         mSurfaceView?.preserveEGLContextOnPause = true
         mSurfaceView?.setEGLContextClientVersion(2)
         mSurfaceView?.setRenderer(mRenderer)
         mSurfaceView?.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
     }
 
-     override fun onPause() {
+    override fun onPause() {
         super.onPause()
         mSurfaceView?.onPause()
         mSession!!.pause()
     }
 
-     override fun onResume() {
+    override fun onResume() {
         super.onResume()
         requestCameraPermission()
-        try {
-            if (mSession == null) {
-                when (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
-                    ArCoreApk.InstallStatus.INSTALLED -> {
-                        mSession = Session(this)
-                    }
-                    ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
-                        mUserRequestedInstall = false
-                    }
-                }
-            }
-        } catch (_: UnsupportedOperationException) {
-
-        }
-        mConfig = Config(mSession)
-        if (!mSession!!.isSupported(mConfig)) {
-
-        }
-        mSession!!.configure(mConfig)
-        mSession!!.resume()
+        sessionManager.resume()
         mSurfaceView?.onResume()
     }
 
