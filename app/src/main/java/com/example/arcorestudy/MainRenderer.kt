@@ -19,8 +19,6 @@ class MainRenderer(private val context: Context, private val sessionManager: Ses
     private var mViewportHeight = 0
 
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST)
-        GLES20.glClearColor(1.0f, 1.0f, 0.0f, 1.0f)
         sessionManager.mCamera!!.init()
     }
 
@@ -58,9 +56,6 @@ class MainRenderer(private val context: Context, private val sessionManager: Ses
     val textureId: Int
         get() = sessionManager.mCamera?.textureId ?: -1
 
-    fun onDisplayChanged() {
-        sessionManager.isViewportChanged = true
-    }
 
     fun updateSession(session: Session, displayRotation: Int) {
         if (sessionManager.isViewportChanged) {

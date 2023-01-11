@@ -2,6 +2,7 @@ package com.example.arcorestudy
 
 import android.app.Activity
 import android.content.Context
+import android.hardware.display.DisplayManager
 import android.os.Build
 import android.view.Display
 import androidx.annotation.RequiresApi
@@ -10,19 +11,27 @@ import com.google.ar.core.Config
 import com.google.ar.core.Session
 import java.lang.UnsupportedOperationException
 
-class SessionManager(private val context: Context,private val activity: Activity) {
+class SessionManager(private val context: Context) {
     var mSession: Session? = null
     private var mConfig: Config? = null
     private var mUserRequestedInstall = true
     var isViewportChanged = false
+    val displayListener = object :
+        DisplayManager.DisplayListener {
+        override fun onDisplayAdded(displayId: Int) {}
+        override fun onDisplayChanged(displayId: Int) {
+            synchronized(this) { isViewportChanged = true }
+        }
 
+        override fun onDisplayRemoved(displayId: Int) {}
+    }
     val mCamera: CameraPreview?
 
     init {
         mCamera = CameraPreview()
     }
 
-    fun resume(){
+    fun resume(activity: Activity) {
         try {
             if (mSession == null) {
                 when (ArCoreApk.getInstance().requestInstall(activity, mUserRequestedInstall)) {
@@ -43,12 +52,5 @@ class SessionManager(private val context: Context,private val activity: Activity
         }
         mSession!!.configure(mConfig)
         mSession!!.resume()
-    }
-    @RequiresApi(Build.VERSION_CODES.R)
-    fun updateSession(displayRotation: Int, width: Int, height: Int) {
-        if (isViewportChanged) {
-            mSession?.setDisplayGeometry(displayRotation, width, height)
-            isViewportChanged = false
-        }
     }
 }
