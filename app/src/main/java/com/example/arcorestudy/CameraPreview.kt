@@ -8,20 +8,25 @@ import java.nio.FloatBuffer
 
 class CameraPreview {
     private val vertexShaderString = """
-attribute vec4 aPosition;
-attribute vec2 aTexCoord;
-varying vec2 vTexCoord;
+#version 300 es
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+
+out vec2 TexCoord;
+
 void main() {
-   vTexCoord = aTexCoord;
-   gl_Position = aPosition;
+    gl_Position =  vec4(aPos, 1.0);
+    TexCoord = aTexCoord;
 }"""
     private val fragmentShaderString = """
-#extension GL_OES_EGL_image_external : require
+#version 300 es
+#extension GL_OES_EGL_image_external_essl3 : require
 precision mediump float;
 uniform samplerExternalOES sTexture;
-varying vec2 vTexCoord;
+in vec2 TexCoord;
+out vec4 FragColor;
 void main() {
-    gl_FragColor = texture2D(sTexture, vTexCoord);
+    FragColor = texture(sTexture, TexCoord);
 }"""
 
     private val mVertices: FloatBuffer
@@ -43,12 +48,9 @@ void main() {
     }
 
     fun init() {
-        //텍스쳐
         cameraTexture.load()
-
-        //쉐이더
         program = Program.create(vertexShaderString, fragmentShaderString)
-        vertexData.addAttribute(program.getAttributeLocation("aPosition"), 3, 0)
+        vertexData.addAttribute(program.getAttributeLocation("aPos"), 3, 0)
         vertexData.addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
         vertexData.bind()
         program.use()
