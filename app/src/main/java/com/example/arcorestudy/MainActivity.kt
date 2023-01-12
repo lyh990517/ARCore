@@ -47,6 +47,11 @@ class MainActivity : Activity() {
         binding.glSurfaceView.onResume()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        sessionManager.destroy()
+    }
+
     private fun requestCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             !== PackageManager.PERMISSION_GRANTED

@@ -20,7 +20,10 @@ class SessionManager(private val context: Context) {
         DisplayManager.DisplayListener {
         override fun onDisplayAdded(displayId: Int) {}
         override fun onDisplayChanged(displayId: Int) {
-            synchronized(this) { isViewportChanged = true }
+            synchronized(this) {
+                isViewportChanged = true
+                Log.e("session", "rotate!!")
+            }
         }
 
         override fun onDisplayRemoved(displayId: Int) {}
@@ -31,16 +34,20 @@ class SessionManager(private val context: Context) {
         mCamera = CameraTextureRendering.create(context)
     }
 
-    fun create(){
-        getSystemService(context,DisplayManager::class.java)!!.registerDisplayListener(displayListener,null)
+    fun create() {
+        getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(
+            displayListener,
+            null
+        )
     }
+
     fun resume() {
         try {
-            if(isSupported()){
-                Log.e("session","support device")
+            if (isSupported()) {
+                Log.e("session", "support device")
                 mSession = Session(context)
-            }else{
-                Log.e("session","install arcore")
+            } else {
+                Log.e("session", "install arcore")
             }
         } catch (_: UnsupportedOperationException) {
 
@@ -49,16 +56,26 @@ class SessionManager(private val context: Context) {
         mSession!!.configure(mConfig)
         mSession!!.resume()
     }
+
+    fun destroy() {
+        getSystemService(context, DisplayManager::class.java)!!.unregisterDisplayListener(displayListener)
+        mSession?.close()
+    }
+
     @RequiresApi(Build.VERSION_CODES.M)
-    fun updateSession(width:Int, height:Int) {
+    fun updateSession(width: Int, height: Int) {
         if (isViewportChanged) {
-            val display = context.getSystemService(DisplayManager::class.java).displays[Display.DEFAULT_DISPLAY]
+            val display =
+                context.getSystemService(DisplayManager::class.java).displays[Display.DEFAULT_DISPLAY]
             mSession?.setDisplayGeometry(display.rotation, width, height)
             isViewportChanged = false
         }
     }
-    fun isSupported() = ArCoreApk.getInstance().checkAvailability(context) == ArCoreApk.Availability.SUPPORTED_INSTALLED
-    companion object{
+
+    fun isSupported() = ArCoreApk.getInstance()
+        .checkAvailability(context) == ArCoreApk.Availability.SUPPORTED_INSTALLED
+
+    companion object {
         fun create(context: Context) = SessionManager(context)
     }
 }
