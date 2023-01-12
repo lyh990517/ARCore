@@ -7,7 +7,7 @@ import com.example.gllibrary.*
 import com.google.ar.core.Frame
 import java.nio.FloatBuffer
 
-class CameraPreview(
+class CameraTextureRendering(
     private val vertexShaderCode: String,
     private val fragmentShaderCode: String
 ) : Scene(){
@@ -31,6 +31,7 @@ class CameraPreview(
     }
 
     override fun draw() {
+        glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
         glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, cameraTexture.getId())
         glBindVertexArray(vertexData.getVaoId())
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
@@ -75,9 +76,9 @@ class CameraPreview(
                 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
                 1.0f, 1.0f, 0.0f, 0.0f, 0.0f
             )
-        fun create(context: Context): CameraPreview{
+        fun create(context: Context): CameraTextureRendering{
             val resource = context.resources
-            return CameraPreview(
+            return CameraTextureRendering(
                 resource.readRawTextFile(R.raw.camera_vertex),
                 resource.readRawTextFile(R.raw.camera_fragment)
             )

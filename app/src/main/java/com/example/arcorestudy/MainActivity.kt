@@ -24,11 +24,8 @@ class MainActivity : Activity() {
     }
 
     private fun initialize() {
-        sessionManager = SessionManager(binding.glSurfaceView.context!!.applicationContext)
-        (getSystemService(DISPLAY_SERVICE) as DisplayManager).registerDisplayListener(
-            sessionManager.displayListener,
-            null
-        )
+        sessionManager = SessionManager.create(binding.glSurfaceView.context!!.applicationContext)
+        sessionManager.create()
         binding.glSurfaceView.apply {
             preserveEGLContextOnPause = true
             setEGLContextClientVersion(3)
@@ -46,7 +43,7 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
         requestCameraPermission()
-        sessionManager.resume(this)
+        sessionManager.resume()
         binding.glSurfaceView.onResume()
     }
 
