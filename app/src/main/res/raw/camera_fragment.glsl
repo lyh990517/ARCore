@@ -1,7 +1,9 @@
-#extension GL_OES_EGL_image_external : require
+#version 300 es
+#extension GL_OES_EGL_image_external_essl3 : require
 precision mediump float;
 uniform samplerExternalOES sTexture;
-varying vec2 vTexCoord;
+in vec2 vTexCoord;
+out vec4 FragColor;
 void main() {
-    gl_FragColor = texture2D(sTexture, vTexCoord);
+    FragColor = texture(sTexture, vTexCoord);
 }

@@ -31,8 +31,8 @@ class MainActivity : Activity() {
         )
         binding.glSurfaceView.apply {
             preserveEGLContextOnPause = true
-            setEGLContextClientVersion(2)
-            setRenderer(MainRenderer(this@MainActivity, sessionManager))
+            setEGLContextClientVersion(3)
+            setRenderer(MainRenderer(sessionManager))
             renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
         }
     }

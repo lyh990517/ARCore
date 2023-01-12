@@ -13,17 +13,16 @@ import com.google.ar.core.Frame
 import com.google.ar.core.Session
 import javax.microedition.khronos.egl.EGLConfig
 
-class MainRenderer(private val context: Context, private val sessionManager: SessionManager) :
+class MainRenderer(private val sessionManager: SessionManager) :
     GLSurfaceView.Renderer {
     private var mViewportWidth = 0
     private var mViewportHeight = 0
 
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {
-        sessionManager.mCamera!!.init()
     }
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) {
-        GLES20.glViewport(0, 0, width, height)
+        sessionManager.mCamera!!.init(width, height)
         sessionManager.isViewportChanged = true
         mViewportWidth = width
         mViewportHeight = height
@@ -40,33 +39,17 @@ class MainRenderer(private val context: Context, private val sessionManager: Ses
 
     @RequiresApi(Build.VERSION_CODES.R)
     fun preRender() {
-
-        if (sessionManager.isViewportChanged) {
-            val display: Display = context.display!!
-            val displayRotation = display.rotation
-            updateSession(sessionManager.mSession!!, displayRotation)
-        }
+        sessionManager.updateSession(mViewportWidth, mViewportHeight)
         sessionManager.mSession?.setCameraTextureName(textureId)
-        val frame = sessionManager.mSession!!.update()
-        if (frame.hasDisplayGeometryChanged()) {
-            transformDisplayGeometry(frame)
+        sessionManager.mSession!!.update().run {
+            if (this.hasDisplayGeometryChanged()) {
+                sessionManager.mCamera!!.transformDisplayGeometry(this)
+            }
         }
     }
 
     val textureId: Int
         get() = sessionManager.mCamera?.textureId ?: -1
-
-
-    fun updateSession(session: Session, displayRotation: Int) {
-        if (sessionManager.isViewportChanged) {
-            session.setDisplayGeometry(displayRotation, mViewportWidth, mViewportHeight)
-            sessionManager.isViewportChanged = false
-        }
-    }
-
-    fun transformDisplayGeometry(frame: Frame?) {
-        sessionManager.mCamera!!.transformDisplayGeometry(frame!!)
-    }
 
     companion object {
         private val TAG = MainRenderer::class.java.simpleName

@@ -6,6 +6,7 @@ import android.hardware.display.DisplayManager
 import android.os.Build
 import android.view.Display
 import androidx.annotation.RequiresApi
+import androidx.core.content.getSystemService
 import com.google.ar.core.ArCoreApk
 import com.google.ar.core.Config
 import com.google.ar.core.Session
@@ -28,7 +29,7 @@ class SessionManager(private val context: Context) {
     val mCamera: CameraPreview?
 
     init {
-        mCamera = CameraPreview()
+        mCamera = CameraPreview.create(context)
     }
 
     fun resume(activity: Activity) {
@@ -52,5 +53,13 @@ class SessionManager(private val context: Context) {
         }
         mSession!!.configure(mConfig)
         mSession!!.resume()
+    }
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun updateSession(width:Int, height:Int) {
+        if (isViewportChanged) {
+            val display = context.getSystemService(DisplayManager::class.java).displays[Display.DEFAULT_DISPLAY]
+            mSession?.setDisplayGeometry(display.rotation, width, height)
+            isViewportChanged = false
+        }
     }
 }
