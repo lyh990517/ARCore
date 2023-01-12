@@ -17,7 +17,6 @@ class CameraTextureRendering(
     private val mTexCoordsTransformed: FloatBuffer
     private val cameraTexture = CameraTexture()
     private lateinit var program: Program
-    private val vertexData: VertexData
 
     init {
         mVertices = createFloatBuffer(QUAD_COORDS.size * java.lang.Float.SIZE / 8)
@@ -27,24 +26,21 @@ class CameraTextureRendering(
         mTexCoords.put(QUAD_TEXCOORDS)
         mTexCoords.position(0)
         mTexCoordsTransformed = createFloatBuffer(QUAD_TEXCOORDS.size * java.lang.Float.SIZE / 8)
-        vertexData = VertexData(vertex, null, 5)
+
     }
 
     override fun draw() {
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
         glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, cameraTexture.getId())
-        glBindVertexArray(vertexData.getVaoId())
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
-
     }
 
     override fun init(width: Int, height: Int) {
         glViewport(0, 0, width, height)
         cameraTexture.load()
         program = Program.create(vertexShaderCode, fragmentShaderCode)
-        vertexData.addAttribute(program.getAttributeLocation("aPosition"), 3, 0)
-        vertexData.addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
-        vertexData.bind()
+        VertexData.applyAttributes(program.getAttributeLocation("aPosition"),3,mVertices)
+        VertexData.applyAttributes(program.getAttributeLocation("aTexCoord"),2,mTexCoordsTransformed)
         program.use()
     }
 
@@ -69,13 +65,6 @@ class CameraTextureRendering(
             1.0f, 1.0f,
             1.0f, 0.0f
         )
-        private val vertex =
-            floatArrayOf(
-                -1.0f, -1.0f, 0.0f, 1.0f, 1.0f,
-                -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-                1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-                1.0f, 1.0f, 0.0f, 0.0f, 0.0f
-            )
         fun create(context: Context): CameraTextureRendering{
             val resource = context.resources
             return CameraTextureRendering(
