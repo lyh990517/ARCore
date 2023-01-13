@@ -29,9 +29,11 @@ class SessionManager(private val context: Context) {
         override fun onDisplayRemoved(displayId: Int) {}
     }
     val mCamera: CameraTextureRendering?
+    val mPointCloud: PointCloudRendering?
 
     init {
         mCamera = CameraTextureRendering.create(context)
+        mPointCloud = PointCloudRendering.create(context)
     }
 
     fun create() {

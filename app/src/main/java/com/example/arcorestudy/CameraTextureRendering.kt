@@ -2,6 +2,7 @@ package com.example.arcorestudy
 
 import android.content.Context
 import android.opengl.GLES11Ext
+import android.opengl.GLES20
 import android.opengl.GLES30.*
 import com.example.gllibrary.*
 import com.google.ar.core.Frame
@@ -30,18 +31,18 @@ class CameraTextureRendering(
     }
 
     override fun draw() {
-        glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
         glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, cameraTexture.getId())
+        program.use()
+        VertexData.applyAttributes(program.getAttributeLocation("aPosition"),3,mVertices)
+        VertexData.applyAttributes(program.getAttributeLocation("aTexCoord"),2,mTexCoordsTransformed)
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
+        GLES20.glDisableVertexAttribArray(program.getAttributeLocation("aPosition"))
+        GLES20.glDisableVertexAttribArray(program.getAttributeLocation("aTexCoord"))
     }
 
     override fun init(width: Int, height: Int) {
-        glViewport(0, 0, width, height)
         cameraTexture.load()
         program = Program.create(vertexShaderCode, fragmentShaderCode)
-        VertexData.applyAttributes(program.getAttributeLocation("aPosition"),3,mVertices)
-        VertexData.applyAttributes(program.getAttributeLocation("aTexCoord"),2,mTexCoordsTransformed)
-        program.use()
     }
 
     val textureId: Int
