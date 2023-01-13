@@ -1,6 +1,7 @@
 #version 300 es
-in vec4 uColor;
+precision mediump float;
+in vec4 vColor;
 out vec4 FragColor;
-void main(){
-    FragColor = uColor;
+void main() {
+    FragColor = vColor;
 }

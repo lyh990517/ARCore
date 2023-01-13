@@ -11,7 +11,7 @@ import java.nio.FloatBuffer
 class CameraTextureRendering(
     private val vertexShaderCode: String,
     private val fragmentShaderCode: String
-) : Scene(){
+){
 
     private val mVertices: FloatBuffer
     private val mTexCoords: FloatBuffer
@@ -30,7 +30,7 @@ class CameraTextureRendering(
 
     }
 
-    override fun draw() {
+    fun draw() {
         glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, cameraTexture.getId())
         program.use()
         VertexData.applyAttributes(program.getAttributeLocation("aPosition"),3,mVertices)
@@ -40,7 +40,7 @@ class CameraTextureRendering(
         GLES20.glDisableVertexAttribArray(program.getAttributeLocation("aTexCoord"))
     }
 
-    override fun init(width: Int, height: Int) {
+    fun init() {
         cameraTexture.load()
         program = Program.create(vertexShaderCode, fragmentShaderCode)
     }

@@ -5,6 +5,7 @@ import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES30.*
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.gllibrary.toFloatBuffer
 import com.example.gllibrary.toMat4
 import com.google.ar.core.PointCloud
 import javax.microedition.khronos.egl.EGLConfig
@@ -18,8 +19,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
     }
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) {
-        sessionManager.mCamera!!.init(width, height)
-        sessionManager.mPointCloud!!.init(width, height)
+        glViewport(0,0,width,height)
+        sessionManager.mCamera!!.init()
+        sessionManager.mPointCloud!!.init()
         sessionManager.isViewportChanged = true
         mViewportWidth = width
         mViewportHeight = height
