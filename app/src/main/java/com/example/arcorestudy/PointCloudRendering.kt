@@ -5,6 +5,7 @@ import android.opengl.GLES20
 import android.opengl.GLES30.*
 import com.example.gllibrary.*
 import com.google.ar.core.PointCloud
+import glm_.glm
 import glm_.mat4x4.Mat4
 import glm_.size
 import java.nio.FloatBuffer
@@ -14,7 +15,7 @@ import javax.microedition.khronos.opengles.GL
 class PointCloudRendering(
     private val vertexShaderCode: String,
     private val fragmentShaderCode: String
-) {
+) : Scene() {
     private lateinit var program: Program
     private var mViewMatrix: Mat4 = Mat4()
     private var mProjMatrix: Mat4 = Mat4()
@@ -31,7 +32,7 @@ class PointCloudRendering(
         glBindBuffer(GL_ARRAY_BUFFER, 0)
     }
 
-    fun draw() {
+    override fun draw() {
         program.use()
         val position = program.getAttributeLocation("aPosition")
         val color = program.getUniformLocation("uColor")
@@ -41,14 +42,17 @@ class PointCloudRendering(
         program.setUniformMat4("proj", mProjMatrix)
         program.setUniformMat4("view", mViewMatrix)
         glVertexAttribPointer(position, 4, GL_FLOAT, false, 16, 0)
-        glUniform4f(color, 1f, 0f, 0f, 1f)
-        glUniform1f(size, 10f)
+        val red = glm.sin(timer.sinceStartSecs() * 0.5).toFloat()
+        val green = glm.sin(timer.sinceStartSecs() * 0.2).toFloat()
+        val blue = glm.sin(timer.sinceStartSecs() * 0.3).toFloat()
+        glUniform4f(color, red, green, blue, 1f)
+        glUniform1f(size, 20f)
         glDrawArrays(GL_POINTS, 0, mNumPoints)
         glDisableVertexAttribArray(position)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
     }
 
-    fun init() {
+    override fun init(width: Int, height: Int) {
         bindOnlyVBO()
         program = Program.create(vertexShaderCode, fragmentShaderCode)
     }

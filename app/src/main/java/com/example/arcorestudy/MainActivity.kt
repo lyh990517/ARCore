@@ -6,15 +6,18 @@ import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.opengl.GLSurfaceView
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.Window
 import android.view.WindowManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.arcorestudy.databinding.ActivityMainBinding
 
+@Suppress("UNREACHABLE_CODE")
 class MainActivity : Activity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var sessionManager: SessionManager
+    private lateinit var renderer: MainRenderer
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hideStatusBarAndTitleBar()
@@ -26,10 +29,11 @@ class MainActivity : Activity() {
     private fun initialize() {
         sessionManager = SessionManager.create(binding.glSurfaceView.context!!.applicationContext)
         sessionManager.create()
+        renderer = MainRenderer(sessionManager)
         binding.glSurfaceView.apply {
             preserveEGLContextOnPause = true
             setEGLContextClientVersion(3)
-            setRenderer(MainRenderer(sessionManager))
+            setRenderer(renderer)
             renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
         }
     }
@@ -52,6 +56,14 @@ class MainActivity : Activity() {
         sessionManager.destroy()
     }
 
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        when(event?.action){
+            MotionEvent.ACTION_DOWN -> {
+                renderer.getXY(event.x,event.y)
+            }
+        }
+        return true
+    }
     private fun requestCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             !== PackageManager.PERMISSION_GRANTED
