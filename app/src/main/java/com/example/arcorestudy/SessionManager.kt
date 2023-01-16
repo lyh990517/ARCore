@@ -30,10 +30,12 @@ class SessionManager(private val context: Context) {
     }
     val mCamera: CameraTextureRendering?
     val mPointCloud: PointCloudRendering?
+    val cubeScene: CubeScene?
 
     init {
         mCamera = CameraTextureRendering.create(context)
         mPointCloud = PointCloudRendering.create(context)
+        cubeScene = CubeScene.create(context)
     }
 
     fun create() {
@@ -60,7 +62,9 @@ class SessionManager(private val context: Context) {
     }
 
     fun destroy() {
-        getSystemService(context, DisplayManager::class.java)!!.unregisterDisplayListener(displayListener)
+        getSystemService(context, DisplayManager::class.java)!!.unregisterDisplayListener(
+            displayListener
+        )
         mSession?.close()
     }
 
