@@ -57,13 +57,21 @@ class MainActivity : Activity() {
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        when(event?.action){
+        when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
-                renderer.getXY(event.x,event.y)
+                renderer.onTouch = true
+                renderer.getXY(event.x, event.y)
+            }
+            MotionEvent.ACTION_MOVE -> {
+                renderer.getXY(event.x, event.y)
+            }
+            MotionEvent.ACTION_UP -> {
+                renderer.onTouch = false
             }
         }
         return true
     }
+
     private fun requestCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             !== PackageManager.PERMISSION_GRANTED

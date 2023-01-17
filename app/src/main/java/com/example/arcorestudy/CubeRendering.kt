@@ -67,9 +67,7 @@ class CubeRendering(
     var proj = Mat4()
     var view = Mat4()
     var model = Mat4()
-    var cubePositions = mutableListOf(
-        Vec3(0.0f, 0.0f, -2.0f),
-    )
+    var cubePositions = mutableListOf<Vec3>()
     var vboId = -1
 
     private fun getRandomPosition() {
@@ -111,12 +109,8 @@ class CubeRendering(
         glActiveTexture(GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_2D, texture1.getId())
         cubePositions.forEachIndexed { index, vec3 ->
-            val model = glm.translate(Mat4(), vec3) * glm.rotate(
-                Mat4(),
-                timer.sinceStartSecs(),
-                Vec3(1, 1, 0)
-            ) * glm.scale(
-                Mat4(), Vec3(0.1, 0.1, 0.1)
+            val model = glm.translate(Mat4(), vec3) * glm.scale(
+                Mat4(), Vec3(0.05  , 0.05, 0.05)
             )
             program.setUniformMat4("model", model)
             glDrawArrays(GL_TRIANGLES, 0, 36)
@@ -131,7 +125,7 @@ class CubeRendering(
             Texture(
                 BitmapFactory.decodeResource(
                     context.resources,
-                    R.raw.bonobono,
+                    R.raw.green,
                     BitmapFactory.Options().apply { inScaled = false })
             )
         )

@@ -46,7 +46,7 @@ class PointCloudRendering(
         val green = glm.sin(timer.sinceStartSecs() * 0.2).toFloat()
         val blue = glm.sin(timer.sinceStartSecs() * 0.3).toFloat()
         glUniform4f(color, red, green, blue, 1f)
-        glUniform1f(size, 20f)
+        glUniform1f(size, 5f)
         glDrawArrays(GL_POINTS, 0, mNumPoints)
         glDisableVertexAttribArray(position)
         glBindBuffer(GL_ARRAY_BUFFER, 0)

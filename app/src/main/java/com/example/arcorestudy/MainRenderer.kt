@@ -21,7 +21,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
     private var mViewportHeight = 0
     private var currentX = 0f
     private var currentY = 0f
-    private var onTouch = false
+    var onTouch = false
 
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {
     }
@@ -73,9 +73,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         val matrix = glm.translate(Mat4(), Vec3(x, y, z))
         if (onTouch) {
             //sessionManager.cubeScene!!.model = matrix
-            sessionManager.cubeScene!!.cubePositions.add(Vec3(x,y,z))
-        } else {
-
+            sessionManager.cubeScene!!.cubePositions.add(Vec3(x, y, z))
         }
     }
 
@@ -104,7 +102,6 @@ class MainRenderer(private val sessionManager: SessionManager) :
     fun getXY(x: Float, y: Float) {
         currentX = x
         currentY = y
-        onTouch = onTouch == false
         Log.e("touch", "$onTouch")
     }
 
