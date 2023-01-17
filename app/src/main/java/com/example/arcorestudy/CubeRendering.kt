@@ -61,11 +61,12 @@ class CubeRendering(
     )
     private lateinit var program: Program
     private var cube: VBOData =
-        VBOData(cubeVertices, GL_STATIC_DRAW,5)
+        VBOData(cubeVertices, GL_STATIC_DRAW, 5)
     private var width: Int = 0
     private var height: Int = 0
     var proj = Mat4()
     var view = Mat4()
+    var model = Mat4()
     var cubePositions = listOf(
         Vec3(0.0f, 0.0f, -2.0f),
     )
@@ -97,8 +98,8 @@ class CubeRendering(
             fragmentShaderCode = fragmentShaderCode
         )
         cube.bind()
-        cube.addAttribute(program.getAttributeLocation("aPos"),3,0)
-        cube.addAttribute(program.getAttributeLocation("aTexCoord"),2,3)
+        cube.addAttribute(program.getAttributeLocation("aPos"), 3, 0)
+        cube.addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
     }
 
     override fun draw() {
@@ -110,7 +111,7 @@ class CubeRendering(
         glActiveTexture(GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_2D, texture1.getId())
         cubePositions.forEachIndexed { index, vec3 ->
-            var model = glm.translate(Mat4(), vec3) * glm.rotate(
+            model *= glm.rotate(
                 Mat4(),
                 timer.sinceStartSecs(),
                 Vec3(1, 1, 0)

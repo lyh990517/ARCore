@@ -4,17 +4,23 @@ import android.opengl.GLSurfaceView
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES30.*
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.gllibrary.toFloatBuffer
 import com.example.gllibrary.toMat4
 import com.google.ar.core.Frame
 import com.google.ar.core.PointCloud
+import glm_.glm
+import glm_.mat4x4.Mat4
+import glm_.vec3.Vec3
 import javax.microedition.khronos.egl.EGLConfig
 
 class MainRenderer(private val sessionManager: SessionManager) :
     GLSurfaceView.Renderer {
     private var mViewportWidth = 0
     private var mViewportHeight = 0
+    private var currentX = 0f
+    private var currentY = 0f
 
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {
     }
@@ -49,9 +55,22 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 sessionManager.mCamera!!.transformDisplayGeometry(this)
             }
             renderPointCloud()
-            val (projMatrix, viewMatrix) = extractMatrixFromCamera()
-            setMatrix(projMatrix, viewMatrix)
+            extractMatrixFromCamera().let {
+                setMatrix(it.first, it.second)
+            }
+            val results = this.hitTest(currentX, currentY)
+            results.forEach { hitResult ->
+                val pose = hitResult.hitPose
+                addPoint(pose.tx(), pose.ty(), pose.tz())
+                Log.e("result","${hitResult.hitPose}")
+            }
         }
+        Log.e("model","${sessionManager.cubeScene!!.model}")
+    }
+
+    fun addPoint(x: Float, y: Float, z: Float) {
+        val matrix = glm.translate(Mat4(), Vec3(x, y, z))
+        sessionManager.cubeScene!!.model = matrix
     }
 
     private fun setMatrix(projection: FloatArray, view: FloatArray) {
@@ -74,6 +93,11 @@ class MainRenderer(private val sessionManager: SessionManager) :
         val pointCloud: PointCloud = this.acquirePointCloud()
         sessionManager.mPointCloud!!.update(pointCloud)
         pointCloud.release()
+    }
+
+    fun getXY(x: Float, y: Float) {
+        currentX = x
+        currentY = y
     }
 
     val textureId: Int

@@ -59,7 +59,7 @@ class MainActivity : Activity() {
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when(event?.action){
             MotionEvent.ACTION_DOWN -> {
-                renderer.preRender()
+                renderer.getXY(event.x,event.y)
             }
         }
         return true
