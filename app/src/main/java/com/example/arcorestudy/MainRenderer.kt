@@ -21,6 +21,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
     private var mViewportHeight = 0
     private var currentX = 0f
     private var currentY = 0f
+    private var onTouch = false
 
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {
     }
@@ -62,15 +63,20 @@ class MainRenderer(private val sessionManager: SessionManager) :
             results.forEach { hitResult ->
                 val pose = hitResult.hitPose
                 addPoint(pose.tx(), pose.ty(), pose.tz())
-                Log.e("result","${hitResult.hitPose}")
+                //Log.e("result", "${hitResult.hitPose}")
             }
         }
-        Log.e("model","${sessionManager.cubeScene!!.model}")
+        //Log.e("model", "${sessionManager.cubeScene!!.model}")
     }
 
     fun addPoint(x: Float, y: Float, z: Float) {
         val matrix = glm.translate(Mat4(), Vec3(x, y, z))
-        sessionManager.cubeScene!!.model = matrix
+        if (onTouch) {
+            //sessionManager.cubeScene!!.model = matrix
+            sessionManager.cubeScene!!.cubePositions.add(Vec3(x,y,z))
+        } else {
+
+        }
     }
 
     private fun setMatrix(projection: FloatArray, view: FloatArray) {
@@ -98,6 +104,8 @@ class MainRenderer(private val sessionManager: SessionManager) :
     fun getXY(x: Float, y: Float) {
         currentX = x
         currentY = y
+        onTouch = onTouch == false
+        Log.e("touch", "$onTouch")
     }
 
     val textureId: Int

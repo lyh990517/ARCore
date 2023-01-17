@@ -67,7 +67,7 @@ class CubeRendering(
     var proj = Mat4()
     var view = Mat4()
     var model = Mat4()
-    var cubePositions = listOf(
+    var cubePositions = mutableListOf(
         Vec3(0.0f, 0.0f, -2.0f),
     )
     var vboId = -1
@@ -111,7 +111,7 @@ class CubeRendering(
         glActiveTexture(GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_2D, texture1.getId())
         cubePositions.forEachIndexed { index, vec3 ->
-            model *= glm.rotate(
+            val model = glm.translate(Mat4(), vec3) * glm.rotate(
                 Mat4(),
                 timer.sinceStartSecs(),
                 Vec3(1, 1, 0)
