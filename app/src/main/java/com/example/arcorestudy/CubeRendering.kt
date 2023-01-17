@@ -7,8 +7,6 @@ import com.example.gllibrary.*
 import glm_.glm
 import glm_.mat4x4.Mat4
 import glm_.vec3.Vec3
-import java.nio.IntBuffer
-import com.example.arcorestudy.tools.*
 import com.example.arcorestudy.tools.VBOData
 
 class CubeRendering(
