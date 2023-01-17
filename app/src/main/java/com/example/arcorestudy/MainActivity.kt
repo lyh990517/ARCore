@@ -8,12 +8,13 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.Window
 import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.arcorestudy.databinding.ActivityMainBinding
 
 @Suppress("UNREACHABLE_CODE")
-class MainActivity : Activity() {
+class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var sessionManager: SessionManager
     private lateinit var renderer: MainRenderer
@@ -37,6 +38,10 @@ class MainActivity : Activity() {
         }
         binding.reset.setOnClickListener {
             sessionManager.cubeScene!!.cubePositions.clear()
+            renderer.liveData.value = 0f
+        }
+        renderer.liveData.observe(this) {
+            binding.distance.text = it.toString() + " m"
         }
     }
 

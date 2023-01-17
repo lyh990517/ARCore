@@ -4,7 +4,9 @@ import android.opengl.GLSurfaceView
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES30.*
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.MutableLiveData
 import com.example.gllibrary.toMat4
 import com.google.ar.core.Frame
 import com.google.ar.core.PointCloud
@@ -18,7 +20,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
     private var currentX = 0f
     private var currentY = 0f
     var onTouch = false
-
+    val liveData = MutableLiveData<Float>()
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {
     }
 
@@ -57,6 +59,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
             }
             val results = this.hitTest(currentX, currentY)
             if (results.size > 0) {
+                val distance = results[results.size - 1].distance
+                liveData.postValue(distance)
+                Log.e("distance", "${distance}")
                 val pose = results[results.size - 1].hitPose
                 addPoint(pose.tx(), pose.ty(), pose.tz())
             }
