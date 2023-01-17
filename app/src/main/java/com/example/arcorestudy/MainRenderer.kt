@@ -4,14 +4,10 @@ import android.opengl.GLSurfaceView
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES30.*
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import com.example.gllibrary.toFloatBuffer
 import com.example.gllibrary.toMat4
 import com.google.ar.core.Frame
 import com.google.ar.core.PointCloud
-import glm_.glm
-import glm_.mat4x4.Mat4
 import glm_.vec3.Vec3
 import javax.microedition.khronos.egl.EGLConfig
 
@@ -60,19 +56,16 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 setMatrix(it.first, it.second)
             }
             val results = this.hitTest(currentX, currentY)
-            results.forEach { hitResult ->
-                val pose = hitResult.hitPose
+            if (results.size > 0) {
+                val pose = results[results.size - 1].hitPose
                 addPoint(pose.tx(), pose.ty(), pose.tz())
-                //Log.e("result", "${hitResult.hitPose}")
             }
         }
-        //Log.e("model", "${sessionManager.cubeScene!!.model}")
+
     }
 
     fun addPoint(x: Float, y: Float, z: Float) {
-        val matrix = glm.translate(Mat4(), Vec3(x, y, z))
         if (onTouch) {
-            //sessionManager.cubeScene!!.model = matrix
             sessionManager.cubeScene!!.cubePositions.add(Vec3(x, y, z))
         }
     }
@@ -102,7 +95,6 @@ class MainRenderer(private val sessionManager: SessionManager) :
     fun getXY(x: Float, y: Float) {
         currentX = x
         currentY = y
-        Log.e("touch", "$onTouch")
     }
 
     val textureId: Int

@@ -1,16 +1,12 @@
 package com.example.arcorestudy
 
 import android.content.Context
-import android.opengl.GLES20
 import android.opengl.GLES30.*
 import com.example.gllibrary.*
 import com.google.ar.core.PointCloud
 import glm_.glm
 import glm_.mat4x4.Mat4
-import glm_.size
-import java.nio.FloatBuffer
 import java.nio.IntBuffer
-import javax.microedition.khronos.opengles.GL
 
 class PointCloudRendering(
     private val vertexShaderCode: String,

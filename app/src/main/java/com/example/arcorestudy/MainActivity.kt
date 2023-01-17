@@ -3,7 +3,6 @@ package com.example.arcorestudy
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
-import android.hardware.display.DisplayManager
 import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.view.MotionEvent
@@ -35,6 +34,9 @@ class MainActivity : Activity() {
             setEGLContextClientVersion(3)
             setRenderer(renderer)
             renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
+        }
+        binding.reset.setOnClickListener {
+            sessionManager.cubeScene!!.cubePositions.clear()
         }
     }
 

@@ -22,7 +22,6 @@ class SessionManager(private val context: Context) {
         override fun onDisplayChanged(displayId: Int) {
             synchronized(this) {
                 isViewportChanged = true
-                Log.e("session", "rotate!!")
             }
         }
 
