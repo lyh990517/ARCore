@@ -59,7 +59,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
             }
             val results = this.hitTest(currentX, currentY)
             if (results.size > 0) {
-                val distance = results[results.size - 1].distance
+                val distance = results[0].distance
                 liveData.postValue(distance)
                 Log.e("distance", "${distance}")
                 val pose = results[results.size - 1].hitPose
