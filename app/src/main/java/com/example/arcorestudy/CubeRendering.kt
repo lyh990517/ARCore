@@ -2,14 +2,16 @@ package com.example.arcorestudy
 
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.opengl.GLES30
+import android.opengl.GLES30.*
 import com.example.gllibrary.*
 import glm_.glm
 import glm_.mat4x4.Mat4
 import glm_.vec3.Vec3
 import java.nio.IntBuffer
+import com.example.arcorestudy.tools.*
+import com.example.arcorestudy.tools.VBOData
 
-class CubeScene(
+class CubeRendering(
     private val vertexShaderCode: String,
     private val fragmentShaderCode: String,
     private val texture1: Texture,
@@ -58,17 +60,35 @@ class CubeScene(
         -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
     )
     private lateinit var program: Program
-    private lateinit var cube: VertexData
+    private var cube: VBOData =
+        VBOData(cubeVertices, GL_STATIC_DRAW,5)
     private var width: Int = 0
     private var height: Int = 0
     var proj = Mat4()
     var view = Mat4()
-    val cubePositions = listOf(
-        Vec3(0.0f, 0.0f, -1.0f),
+    var cubePositions = listOf(
+        Vec3(0.0f, 0.0f, -2.0f),
     )
+    var vboId = -1
+
+    private fun getRandomPosition() {
+        val random = java.util.Random()
+        val list = mutableListOf<Vec3>()
+        repeat(40) {
+            val x = random.nextFloat() * 2 - 1
+            val z = random.nextFloat() * 2 - 1
+            val y = random.nextFloat() * 2 - 1
+            list.add(Vec3(x, y, z))
+        }
+        cubePositions = list
+    }
+
+    init {
+        //getRandomPosition()
+    }
 
     override fun init(width: Int, height: Int) {
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST)
+        glEnable(GL_DEPTH_TEST)
         this.width = width
         this.height = height
         texture1.load()
@@ -76,42 +96,19 @@ class CubeScene(
             vertexShaderCode = vertexShaderCode,
             fragmentShaderCode = fragmentShaderCode
         )
+        cube.bind()
+        cube.addAttribute(program.getAttributeLocation("aPos"),3,0)
+        cube.addAttribute(program.getAttributeLocation("aTexCoord"),2,3)
     }
 
     override fun draw() {
-        val vbo = IntBuffer.allocate(1)
-        GLES30.glGenBuffers(1, vbo)
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, vbo[0])
-        GLES30.glBufferData(
-            GLES30.GL_ARRAY_BUFFER,
-            Float.SIZE_BYTES * cubeVertices.toFloatBuffer().capacity(),
-            cubeVertices.toFloatBuffer(),
-            GLES30.GL_STATIC_DRAW
-        )
-        GLES30.glEnableVertexAttribArray(0)
-        GLES30.glVertexAttribPointer(
-            0,
-            3,
-            GLES30.GL_FLOAT,
-            false,
-            5 * Float.SIZE_BYTES,
-            0 * Float.SIZE_BYTES
-        )
-        GLES30.glEnableVertexAttribArray(1)
-        GLES30.glVertexAttribPointer(
-            1,
-            2,
-            GLES30.GL_FLOAT,
-            false,
-            5 * Float.SIZE_BYTES,
-            3 * Float.SIZE_BYTES
-        )
+        cube.draw()
         program.use()
         program.setUniformMat4("projection", proj.transpose_())
         program.setUniformMat4("view", view.transpose_())
         //cube
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, texture1.getId())
+        glActiveTexture(GL_TEXTURE0)
+        glBindTexture(GL_TEXTURE_2D, texture1.getId())
         cubePositions.forEachIndexed { index, vec3 ->
             var model = glm.translate(Mat4(), vec3) * glm.rotate(
                 Mat4(),
@@ -121,20 +118,13 @@ class CubeScene(
                 Mat4(), Vec3(0.1, 0.1, 0.1)
             )
             program.setUniformMat4("model", model)
-            GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
+            glDrawArrays(GL_TRIANGLES, 0, 36)
         }
-    }
-
-    fun getView(view: Mat4) {
-        this.view = view
-    }
-
-    fun getProj(projMat4: Mat4) {
-        this.proj = projMat4
+        cube.disabledAttributes()
     }
 
     companion object {
-        fun create(context: Context) = CubeScene(
+        fun create(context: Context) = CubeRendering(
             context.resources.readRawTextFile(R.raw.cube_vertex_shader),
             context.resources.readRawTextFile(R.raw.cube_fragment_shader),
             Texture(

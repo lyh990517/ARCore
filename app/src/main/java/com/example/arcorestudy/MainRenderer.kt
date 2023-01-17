@@ -7,6 +7,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.gllibrary.toFloatBuffer
 import com.example.gllibrary.toMat4
+import com.google.ar.core.Frame
 import com.google.ar.core.PointCloud
 import javax.microedition.khronos.egl.EGLConfig
 
@@ -21,7 +22,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) {
         glViewport(0, 0, width, height)
         sessionManager.mCamera!!.init()
-        sessionManager.mPointCloud!!.init(0,0)
+        sessionManager.mPointCloud!!.init(0, 0)
         sessionManager.cubeScene!!.init(0, 0)
         sessionManager.isViewportChanged = true
         mViewportWidth = width
@@ -47,19 +48,32 @@ class MainRenderer(private val sessionManager: SessionManager) :
             if (this.hasDisplayGeometryChanged()) {
                 sessionManager.mCamera!!.transformDisplayGeometry(this)
             }
-            val pointCloud: PointCloud = this.acquirePointCloud()
-            sessionManager.mPointCloud!!.update(pointCloud)
-            pointCloud.release()
-            val camera = this.camera
-            val projMatrix = FloatArray(16)
-            camera.getProjectionMatrix(projMatrix, 0, 0.1f, 100.0f)
-            val viewMatrix = FloatArray(16)
-            camera.getViewMatrix(viewMatrix, 0)
-            sessionManager.mPointCloud.setProjectionMatrix(projMatrix)
-            sessionManager.mPointCloud.setViewMatrix(viewMatrix)
-            sessionManager.cubeScene!!.view = viewMatrix.toMat4()
-            sessionManager.cubeScene!!.proj = projMatrix.toMat4()
+            renderPointCloud()
+            val (projMatrix, viewMatrix) = extractMatrixFromCamera()
+            setMatrix(projMatrix, viewMatrix)
         }
+    }
+
+    private fun setMatrix(projection: FloatArray, view: FloatArray) {
+        sessionManager.mPointCloud!!.setProjectionMatrix(projection)
+        sessionManager.mPointCloud.setViewMatrix(view)
+        sessionManager.cubeScene!!.view = view.toMat4()
+        sessionManager.cubeScene.proj = projection.toMat4()
+    }
+
+    private fun Frame.extractMatrixFromCamera(): Pair<FloatArray, FloatArray> {
+        val camera = this.camera
+        val projMatrix = FloatArray(16)
+        camera.getProjectionMatrix(projMatrix, 0, 0.1f, 100.0f)
+        val viewMatrix = FloatArray(16)
+        camera.getViewMatrix(viewMatrix, 0)
+        return Pair(projMatrix, viewMatrix)
+    }
+
+    private fun Frame.renderPointCloud() {
+        val pointCloud: PointCloud = this.acquirePointCloud()
+        sessionManager.mPointCloud!!.update(pointCloud)
+        pointCloud.release()
     }
 
     val textureId: Int

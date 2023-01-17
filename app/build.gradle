@@ -46,5 +46,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation 'com.google.ar:core:1.35.0'
     implementation 'com.github.kotlin-graphics:glm:v1.0.1'
-    implementation 'com.github.rsupport-yhlee2:GLLibrary:1.0.8'
+    implementation 'com.github.rsupport-yhlee2:GLLibrary:1.1.1'
 }
