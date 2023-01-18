@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
         }
         binding.reset.setOnClickListener {
             sessionManager.cubeScene!!.cubePositions.clear()
+            sessionManager.arObjectScene!!.objPosition.clear()
             renderer.distanceLiveData.value = 0f
         }
         renderer.distanceLiveData.observe(this) {
@@ -45,6 +46,16 @@ class MainActivity : AppCompatActivity() {
         }
         renderer.planeLiveData.observe(this) {
             binding.plane.text = it
+        }
+        renderer.mode.observe(this) {
+            binding.change.text = it
+        }
+        binding.change.setOnClickListener {
+            if (renderer.mode.value == "arObject") {
+                renderer.mode.value = "cube"
+            } else {
+                renderer.mode.value = "arObject"
+            }
         }
     }
 

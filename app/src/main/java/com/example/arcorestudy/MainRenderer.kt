@@ -22,6 +22,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
     private var currentX = 0f
     private var currentY = 0f
     var onTouch = false
+    var mode = MutableLiveData("cube")
     val distanceLiveData = MutableLiveData<Float>()
     val planeLiveData = MutableLiveData<String>()
 
@@ -41,12 +42,19 @@ class MainRenderer(private val sessionManager: SessionManager) :
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onDrawFrame(gl10: GL10) {
+        glEnable(GL_DEPTH_TEST)
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
         preRender()
         glDepthMask(false)
         sessionManager.mCamera!!.draw()
         glDepthMask(true)
         sessionManager.mPointCloud!!.draw()
+//        when(mode.value){
+//            "cube" -> {
+//            }
+//            "arObject" -> {
+//            }
+//        }
         sessionManager.cubeScene!!.draw()
         sessionManager.arObjectScene!!.draw()
     }
@@ -87,7 +95,14 @@ class MainRenderer(private val sessionManager: SessionManager) :
 
     fun addPoint(x: Float, y: Float, z: Float) {
         if (onTouch) {
-            sessionManager.cubeScene!!.cubePositions.add(Vec3(x, y, z))
+            when(mode.value){
+                "cube" -> {
+                    sessionManager.cubeScene!!.cubePositions.add(Vec3(x, y, z))
+                }
+                "arObject" -> {
+                    sessionManager.arObjectScene!!.objPosition.add(Vec3(x, y, z))
+                }
+            }
         }
     }
 
