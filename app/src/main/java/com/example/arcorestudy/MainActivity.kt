@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.Window
 import android.view.WindowManager
+import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -69,30 +70,63 @@ class MainActivity : AppCompatActivity() {
                 renderer.pointCloudLiveData.value = false
             }
         }
+        binding.red.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+            }
 
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                Log.e("progress", "${seekBar?.progress}")
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+        })
+        binding.green.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                Log.e("progress", "${seekBar?.progress}")
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+        })
+        binding.blue.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                Log.e("progress", "${seekBar?.progress}")
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+        })
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
         onDestroy()
     }
+
     override fun onPause() {
         super.onPause()
-        Log.e("activity","onPause")
+        Log.e("activity", "onPause")
         binding.glSurfaceView.onPause()
         sessionManager.mSession?.pause()
     }
 
     override fun onResume() {
         super.onResume()
-        Log.e("activity","onResume")
+        Log.e("activity", "onResume")
         requestCameraPermission()
         sessionManager.resume()
         binding.glSurfaceView.onResume()
     }
 
     override fun onDestroy() {
-        Log.e("activity","onDestroy")
+        Log.e("activity", "onDestroy")
         sessionManager.destroy()
         super.onDestroy()
     }
