@@ -72,22 +72,29 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        onDestroy()
+    }
     override fun onPause() {
         super.onPause()
+        Log.e("activity","onPause")
         binding.glSurfaceView.onPause()
         sessionManager.mSession?.pause()
     }
 
     override fun onResume() {
         super.onResume()
+        Log.e("activity","onResume")
         requestCameraPermission()
         sessionManager.resume()
         binding.glSurfaceView.onResume()
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        Log.e("activity","onDestroy")
         sessionManager.destroy()
+        super.onDestroy()
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
