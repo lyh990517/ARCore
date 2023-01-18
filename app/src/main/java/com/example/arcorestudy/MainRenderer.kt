@@ -97,7 +97,6 @@ class MainRenderer(private val sessionManager: SessionManager) :
         sessionManager.cubeScene!!.view = view.toMat4()
         sessionManager.cubeScene.proj = projection.toMat4()
         sessionManager.arObjectScene!!.view = view.toMat4()
-        sessionManager.cubeScene.proj = projection.toMat4()
     }
 
     private fun Frame.extractMatrixFromCamera(): Pair<FloatArray, FloatArray> {
