@@ -11,7 +11,7 @@ import java.nio.IntBuffer
 class PointCloudRendering(
     private val vertexShaderCode: String,
     private val fragmentShaderCode: String
-) : Scene() {
+) {
     private lateinit var program: Program
     private var mViewMatrix: Mat4 = Mat4()
     private var mProjMatrix: Mat4 = Mat4()
@@ -28,7 +28,7 @@ class PointCloudRendering(
         glBindBuffer(GL_ARRAY_BUFFER, 0)
     }
 
-    override fun draw() {
+    fun draw() {
         program.use()
         val position = program.getAttributeLocation("aPosition")
         val color = program.getUniformLocation("uColor")
@@ -38,17 +38,14 @@ class PointCloudRendering(
         program.setUniformMat4("proj", mProjMatrix)
         program.setUniformMat4("view", mViewMatrix)
         glVertexAttribPointer(position, 4, GL_FLOAT, false, 16, 0)
-        val red = glm.sin(timer.sinceStartSecs() * 0.5).toFloat()
-        val green = glm.sin(timer.sinceStartSecs() * 0.2).toFloat()
-        val blue = glm.sin(timer.sinceStartSecs() * 0.3).toFloat()
-        glUniform4f(color, red, green, blue, 1f)
+        glUniform4f(color, 1f, 0f, 0.5f, 1f)
         glUniform1f(size, 5f)
         glDrawArrays(GL_POINTS, 0, mNumPoints)
         glDisableVertexAttribArray(position)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
     }
 
-    override fun init(width: Int, height: Int) {
+    fun init() {
         bindOnlyVBO()
         program = Program.create(vertexShaderCode, fragmentShaderCode)
     }

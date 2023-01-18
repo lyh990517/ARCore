@@ -32,8 +32,8 @@ class MainRenderer(private val sessionManager: SessionManager) :
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) {
         glViewport(0, 0, width, height)
         sessionManager.mCamera!!.init()
-        sessionManager.mPointCloud!!.init(0, 0)
-        sessionManager.cubeScene!!.init(0, 0)
+        sessionManager.mPointCloud!!.init()
+        sessionManager.cubeScene!!.init()
         sessionManager.arObjectScene!!.init()
         sessionManager.isViewportChanged = true
         mViewportWidth = width
@@ -45,16 +45,14 @@ class MainRenderer(private val sessionManager: SessionManager) :
         glEnable(GL_DEPTH_TEST)
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
         preRender()
+        render()
+    }
+
+    private fun render() {
         glDepthMask(false)
         sessionManager.mCamera!!.draw()
         glDepthMask(true)
         sessionManager.mPointCloud!!.draw()
-//        when(mode.value){
-//            "cube" -> {
-//            }
-//            "arObject" -> {
-//            }
-//        }
         sessionManager.cubeScene!!.draw()
         sessionManager.arObjectScene!!.draw()
     }
@@ -63,22 +61,17 @@ class MainRenderer(private val sessionManager: SessionManager) :
     fun preRender() {
         sessionManager.updateSession(mViewportWidth, mViewportHeight)
         sessionManager.mSession?.setCameraTextureName(textureId)
-        sessionManager.mSession!!.update().run {
-            if (this.hasDisplayGeometryChanged()) {
-                sessionManager.mCamera!!.transformDisplayGeometry(this)
-            }
-            renderPointCloud()
-            extractMatrixFromCamera().let {
-                setMatrix(it.first, it.second)
-            }
-            val results = this.hitTest(currentX, currentY)
-            if (results.size > 0) {
-                val distance = results[0].distance
-                distanceLiveData.postValue(distance)
-                val pose = results[0].hitPose
-                addPoint(pose.tx(), pose.ty(), pose.tz())
-            }
+        val frame = sessionManager.mSession!!.update()
+        if (frame.hasDisplayGeometryChanged()) {
+            sessionManager.mCamera!!.transformDisplayGeometry(frame)
         }
+        renderPointCloud(frame)
+        extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }
+        getHitPose(frame)
+        detectPlane()
+    }
+
+    private fun detectPlane() {
         var isPlane = false
         val planes = sessionManager.mSession!!.getAllTrackables(Plane::class.java)
         planes.forEach { plane ->
@@ -93,9 +86,19 @@ class MainRenderer(private val sessionManager: SessionManager) :
         }
     }
 
-    fun addPoint(x: Float, y: Float, z: Float) {
+    private fun getHitPose(frame: Frame) {
+        val results = frame.hitTest(currentX, currentY)
+        if (results.size > 0) {
+            val distance = results[0].distance
+            distanceLiveData.postValue(distance)
+            val pose = results[0].hitPose
+            addPoint(pose.tx(), pose.ty(), pose.tz())
+        }
+    }
+
+    private fun addPoint(x: Float, y: Float, z: Float) {
         if (onTouch) {
-            when(mode.value){
+            when (mode.value) {
                 "cube" -> {
                     sessionManager.cubeScene!!.cubePositions.add(Vec3(x, y, z))
                 }
@@ -109,14 +112,14 @@ class MainRenderer(private val sessionManager: SessionManager) :
     private fun setMatrix(projection: FloatArray, view: FloatArray) {
         sessionManager.mPointCloud!!.setProjectionMatrix(projection)
         sessionManager.mPointCloud.setViewMatrix(view)
-        sessionManager.cubeScene!!.view = view.toMat4()
-        sessionManager.cubeScene.proj = projection.toMat4()
-        sessionManager.arObjectScene!!.view = view.toMat4()
-        sessionManager.arObjectScene.proj = projection.toMat4()
+        sessionManager.cubeScene!!.setProjectionMatrix(projection)
+        sessionManager.cubeScene.setViewMatrix(view)
+        sessionManager.arObjectScene!!.setProjectionMatrix(projection)
+        sessionManager.arObjectScene.setViewMatrix(view)
     }
 
-    private fun Frame.extractMatrixFromCamera(): Pair<FloatArray, FloatArray> {
-        val camera = this.camera
+    private fun extractMatrixFromCamera(frame: Frame): Pair<FloatArray, FloatArray> {
+        val camera = frame.camera
         val projMatrix = FloatArray(16)
         camera.getProjectionMatrix(projMatrix, 0, 0.1f, 100.0f)
         val viewMatrix = FloatArray(16)
@@ -124,8 +127,8 @@ class MainRenderer(private val sessionManager: SessionManager) :
         return Pair(projMatrix, viewMatrix)
     }
 
-    private fun Frame.renderPointCloud() {
-        val pointCloud: PointCloud = this.acquirePointCloud()
+    private fun renderPointCloud(frame: Frame) {
+        val pointCloud: PointCloud = frame.acquirePointCloud()
         sessionManager.mPointCloud!!.update(pointCloud)
         pointCloud.release()
     }
@@ -135,10 +138,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         currentY = y
     }
 
-    val textureId: Int
+    private val textureId: Int
         get() = sessionManager.mCamera?.textureId ?: -1
 
-    companion object {
-        private val TAG = MainRenderer::class.java.simpleName
-    }
 }

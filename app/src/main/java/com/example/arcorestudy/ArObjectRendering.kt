@@ -20,8 +20,8 @@ class ArObjectRendering(
     private val diffuse: Texture,
     private val specular: Texture
 ) {
-    var view = Mat4()
-    var proj = Mat4()
+    private var view = Mat4()
+    private var proj = Mat4()
     private lateinit var program: Program
     var objPosition = mutableListOf<Vec3>()
 
@@ -48,7 +48,7 @@ class ArObjectRendering(
             mesh.data.applyAttributes()
             objPosition.forEach {
                 val model = glm.translate(Mat4(), it) * glm.scale(Mat4(), Vec3(0.05  , 0.05, 0.05))
-                program.setUniformMat4("mvp", proj.transpose_() * view.transpose_() * model)
+                program.setUniformMat4("mvp", proj * view * model)
                 GLES20.glDrawElements(
                     GLES30.GL_TRIANGLES,
                     mesh.indices.capacity(),
@@ -63,6 +63,13 @@ class ArObjectRendering(
         finally {
             Log.e("error","error")
         }
+    }
+    fun setProjectionMatrix(projMatrix: FloatArray) {
+        proj = projMatrix.toMat4().transpose_()
+    }
+
+    fun setViewMatrix(viewMatrix: FloatArray) {
+        view = viewMatrix.toMat4().transpose_()
     }
 
     companion object {
