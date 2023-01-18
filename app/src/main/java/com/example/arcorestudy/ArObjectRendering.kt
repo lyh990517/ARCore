@@ -46,10 +46,8 @@ class ArObjectRendering(
                 program.setUniformMat4("mvp", proj * view * model)
                 mesh.draw()
             }
-        } catch (e: Exception) {
-            Log.e("error", "${e.message}")
         } finally {
-            Log.e("error", "error")
+            //nothing
         }
     }
 

@@ -50,10 +50,8 @@ class CubeRendering(
                 glDrawArrays(GL_TRIANGLES, 0, 36)
             }
             cube.disabledAttributes()
-        } catch (e: Exception) {
-            Log.e("error", "${e.message}")
         } finally {
-            Log.e("error", "error")
+            //nothing
         }
     }
 
@@ -68,7 +66,8 @@ class CubeRendering(
     fun addPosition(vec3: Vec3) {
         cubePositions.add(vec3)
     }
-    fun clear(){
+
+    fun clear() {
         cubePositions.clear()
     }
 

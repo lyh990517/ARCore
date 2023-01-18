@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.opengl.GLSurfaceView
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.Window
 import android.view.WindowManager
@@ -59,6 +60,16 @@ class MainActivity : AppCompatActivity() {
                 renderer.mode.value = "arObject"
             }
         }
+        binding.pointCloud.setOnClickListener {
+            if (binding.pointCloud.isChecked) {
+                Log.e("123", "check")
+                renderer.pointCloudLiveData.value = true
+            } else {
+                Log.e("123", "not check")
+                renderer.pointCloudLiveData.value = false
+            }
+        }
+
     }
 
     override fun onPause() {

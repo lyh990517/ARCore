@@ -22,9 +22,10 @@ class MainRenderer(private val sessionManager: SessionManager) :
     private var currentX = 0f
     private var currentY = 0f
     var onTouch = false
-    var mode = MutableLiveData("cube")
+    val mode = MutableLiveData("cube")
     val distanceLiveData = MutableLiveData<Float>()
     val planeLiveData = MutableLiveData<String>()
+    val pointCloudLiveData = MutableLiveData(false)
 
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {}
 
@@ -51,7 +52,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
         glDepthMask(false)
         mCamera.draw()
         glDepthMask(true)
-        mPointCloud.draw()
+        if (pointCloudLiveData.value == true) {
+            mPointCloud.draw()
+        }
         cubeScene.draw()
         arObjectScene.draw()
     }
