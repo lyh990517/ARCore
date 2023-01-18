@@ -23,9 +23,13 @@ class MainRenderer(private val sessionManager: SessionManager) :
     private var currentY = 0f
     var onTouch = false
     val mode = MutableLiveData("cube")
+    val drawingMode = MutableLiveData("near")
     val distanceLiveData = MutableLiveData<Float>()
     val planeLiveData = MutableLiveData<String>()
     val pointCloudLiveData = MutableLiveData(false)
+    val xLiveData = MutableLiveData<Float>()
+    val yLiveData = MutableLiveData<Float>()
+    val zLiveData = MutableLiveData<Float>()
 
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {}
 
@@ -90,11 +94,40 @@ class MainRenderer(private val sessionManager: SessionManager) :
 
     private fun getHitPose(frame: Frame) {
         val results = frame.hitTest(currentX, currentY)
-        if (results.size > 0) {
-            val distance = results[0].distance
-            distanceLiveData.postValue(distance)
-            val pose = results[0].hitPose
-            addPoint(Vec3(pose.tx(), pose.ty(), pose.tz()))
+        when (drawingMode.value) {
+            "near" -> {
+                if (results.size > 0) {
+                    val distance = results[0].distance
+                    distanceLiveData.postValue(distance)
+                    val pose = results[0].hitPose
+                    addPoint(Vec3(pose.tx(), pose.ty(), pose.tz()))
+                    xLiveData.postValue(pose.tx())
+                    yLiveData.postValue(pose.ty())
+                    zLiveData.postValue(pose.tz())
+                }
+            }
+            "far" -> {
+                if (results.size > 0) {
+                    val distance = results[results.size - 1].distance
+                    distanceLiveData.postValue(distance)
+                    val pose = results[results.size - 1].hitPose
+                    addPoint(Vec3(pose.tx(), pose.ty(), pose.tz()))
+                    xLiveData.postValue(pose.tx())
+                    yLiveData.postValue(pose.ty())
+                    zLiveData.postValue(pose.tz())
+                }
+            }
+            "all" -> {
+                results.forEach { hitResult ->
+                    val distance = hitResult.distance
+                    distanceLiveData.postValue(distance)
+                    val pose = hitResult.hitPose
+                    addPoint(Vec3(pose.tx(), pose.ty(), pose.tz()))
+                    xLiveData.postValue(pose.tx())
+                    yLiveData.postValue(pose.ty())
+                    zLiveData.postValue(pose.tz())
+                }
+            }
         }
     }
 

@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.arcorestudy.databinding.ActivityMainBinding
+import glm_.toLong
 
 @Suppress("UNREACHABLE_CODE", "DEPRECATED_IDENTITY_EQUALS")
 class MainActivity : AppCompatActivity() {
@@ -72,6 +73,15 @@ class MainActivity : AppCompatActivity() {
                 Log.e("123", "not check")
                 renderer.pointCloudLiveData.value = false
             }
+        }
+        renderer.xLiveData.observe(this) {
+            binding.xVal.text = it.toString()
+        }
+        renderer.yLiveData.observe(this) {
+            binding.yVal.text = it.toString()
+        }
+        renderer.zLiveData.observe(this) {
+            binding.zVal.text = it.toString()
         }
         binding.red.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
