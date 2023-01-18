@@ -83,6 +83,16 @@ class MainActivity : AppCompatActivity() {
         renderer.zLiveData.observe(this) {
             binding.zVal.text = it.toString()
         }
+        var arr = arrayOf("near", "far", "all")
+        var idx = 0
+        binding.draw.setOnClickListener {
+            idx++
+            if (idx == 3) idx = 0
+            renderer.drawingMode.value = arr[idx]
+        }
+        renderer.drawingMode.observe(this) {
+            binding.draw.text = it
+        }
         binding.red.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 r = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f

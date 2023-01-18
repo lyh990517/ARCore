@@ -152,35 +152,67 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/r"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="R"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/red"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/red" />
+
     <SeekBar
         android:id="@+id/red"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:max="100"
         android:layout_marginTop="10dp"
+        android:max="100"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/r"
         app:layout_constraintTop_toTopOf="@+id/bottomView" />
+
+    <TextView
+        android:id="@+id/g"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="G"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/green"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/green" />
 
     <SeekBar
         android:id="@+id/green"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:max="100"
         android:layout_marginTop="10dp"
+        android:max="100"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/g"
         app:layout_constraintTop_toBottomOf="@+id/red" />
 
     <SeekBar
         android:id="@+id/blue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:max="100"
-
         android:layout_marginTop="10dp"
+        android:max="100"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/b"
         app:layout_constraintTop_toBottomOf="@+id/green" />
+
+    <TextView
+        android:id="@+id/b"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="B"
+        app:layout_constraintEnd_toStartOf="@+id/blue"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/blue" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
