@@ -30,11 +30,13 @@ class SessionManager(private val context: Context) {
     val mCamera: CameraTextureRendering?
     val mPointCloud: PointCloudRendering?
     val cubeScene: CubeRendering?
+    val arObjectScene: ArObjectRendering?
 
     init {
         mCamera = CameraTextureRendering.create(context)
         mPointCloud = PointCloudRendering.create(context)
         cubeScene = CubeRendering.create(context)
+        arObjectScene = ArObjectRendering.create(context)
     }
 
     fun create() {

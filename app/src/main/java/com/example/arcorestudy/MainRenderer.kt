@@ -33,6 +33,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         sessionManager.mCamera!!.init()
         sessionManager.mPointCloud!!.init(0, 0)
         sessionManager.cubeScene!!.init(0, 0)
+        sessionManager.arObjectScene!!.init()
         sessionManager.isViewportChanged = true
         mViewportWidth = width
         mViewportHeight = height
@@ -47,6 +48,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         glDepthMask(true)
         sessionManager.mPointCloud!!.draw()
         sessionManager.cubeScene!!.draw()
+        sessionManager.arObjectScene!!.draw()
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -93,6 +95,8 @@ class MainRenderer(private val sessionManager: SessionManager) :
         sessionManager.mPointCloud!!.setProjectionMatrix(projection)
         sessionManager.mPointCloud.setViewMatrix(view)
         sessionManager.cubeScene!!.view = view.toMat4()
+        sessionManager.cubeScene.proj = projection.toMat4()
+        sessionManager.arObjectScene!!.view = view.toMat4()
         sessionManager.cubeScene.proj = projection.toMat4()
     }
 
