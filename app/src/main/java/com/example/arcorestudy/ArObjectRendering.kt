@@ -19,7 +19,9 @@ class ArObjectRendering(
     private val diffuse: Texture,
     private val specular: Texture
 ) {
-    var model = glm.translate(Mat4(), Vec3(0,0,-2)) * glm.scale(Mat4(),Vec3(0.2f,0.2f,0.2f))
+    var model = glm.translate(Mat4(), Vec3(0, 0, -2)) * glm.scale(Mat4(), Vec3(0.2f, 0.2f, 0.2f))
+    var view = Mat4()
+    var proj = Mat4()
     private lateinit var program: Program
 
     fun init() {
@@ -31,18 +33,24 @@ class ArObjectRendering(
     }
 
     fun draw() {
+        program.use()
         diffuse.load()
         specular.load()
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, specular.getId())
-        program.setUniformMat4("mvp", model)
+        program.setUniformMat4("mvp", proj.transpose_() * view.transpose_() * model)
         program.setInt("diffuse", 0)
         program.setInt("bump", 1)
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, mesh.data.getVBO())
         mesh.data.applyAttributes()
-        GLES20.glDrawElements(GLES30.GL_TRIANGLES, mesh.indices.capacity(), GLES30.GL_UNSIGNED_INT, 0)
+        GLES20.glDrawElements(
+            GLES30.GL_TRIANGLES,
+            mesh.indices.capacity(),
+            GLES30.GL_UNSIGNED_INT,
+            0
+        )
         mesh.data.disabledAttributes()
     }
 
@@ -57,6 +65,7 @@ class ArObjectRendering(
                 Texture(loadBitmap(context, R.raw.specular))
             )
         }
+
         private fun fromAssets(context: Context, assetPath: String): Mesh {
             val obj = context.assets.open(assetPath)
                 .let { stream -> ObjReader.read(stream) }
