@@ -21,6 +21,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var sessionManager: SessionManager
     private lateinit var renderer: MainRenderer
+    private var r = 0f
+    private var g = 0f
+    private var b = 0f
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hideStatusBarAndTitleBar()
@@ -72,10 +75,13 @@ class MainActivity : AppCompatActivity() {
         }
         binding.red.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                r = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
+                renderer.getRGB(r, g, b)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                Log.e("progress", "${seekBar?.progress}")
+                r = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
+                renderer.getRGB(r, g, b)
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
@@ -83,10 +89,13 @@ class MainActivity : AppCompatActivity() {
         })
         binding.green.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                g = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
+                renderer.getRGB(r, g, b)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                Log.e("progress", "${seekBar?.progress}")
+                g = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
+                renderer.getRGB(r, g, b)
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
@@ -94,10 +103,13 @@ class MainActivity : AppCompatActivity() {
         })
         binding.blue.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                b = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
+                renderer.getRGB(r, g, b)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                Log.e("progress", "${seekBar?.progress}")
+                b = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
+                renderer.getRGB(r, g, b)
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {

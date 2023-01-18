@@ -21,7 +21,9 @@ class CubeRendering(
     private var proj = Mat4()
     private var view = Mat4()
     private var cubePositions = mutableListOf<Vec3>()
-
+    private var red = 0f
+    private var green = 0f
+    private var blue = 0f
     fun init() {
         program = Program.create(
             vertexShaderCode = vertexShaderCode,
@@ -37,7 +39,7 @@ class CubeRendering(
             program.use()
             program.setUniformMat4("projection", proj)
             program.setUniformMat4("view", view)
-            glUniform4f(program.getUniformLocation("vColor"), 1f, 0f, 0f, 1f)
+            glUniform4f(program.getUniformLocation("vColor"), red, green, blue, 1f)
             cubePositions.forEachIndexed { index, vec3 ->
                 val model = glm.translate(Mat4(), vec3) * glm.scale(
                     Mat4(), Vec3(0.05, 0.05, 0.05)
@@ -49,6 +51,12 @@ class CubeRendering(
         } finally {
             //nothing
         }
+    }
+
+    fun cubeRGB(red: Float, green: Float, blue: Float) {
+        this.red = red
+        this.green = green
+        this.blue = blue
     }
 
     fun setProjectionMatrix(projMatrix: FloatArray) {

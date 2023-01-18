@@ -21,6 +21,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
     private var mViewportHeight = 0
     private var currentX = 0f
     private var currentY = 0f
+    private var currentRed = 0f
+    private var currentGreen = 0f
+    private var currentBlue = 0f
     var onTouch = false
     val mode = MutableLiveData("cube")
     val distanceLiveData = MutableLiveData<Float>()
@@ -67,6 +70,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         if (frame.hasDisplayGeometryChanged()) {
             mCamera.transformDisplayGeometry(frame)
         }
+        cubeScene.cubeRGB(currentRed, currentGreen, currentBlue)
         renderPointCloud(frame)
         extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }
         getHitPose(frame)
@@ -111,13 +115,13 @@ class MainRenderer(private val sessionManager: SessionManager) :
         }
     }
 
-    private fun setMatrix(projection: FloatArray, view: FloatArray) {
-        sessionManager.mPointCloud.setProjectionMatrix(projection)
-        sessionManager.mPointCloud.setViewMatrix(view)
-        sessionManager.cubeScene.setProjectionMatrix(projection)
-        sessionManager.cubeScene.setViewMatrix(view)
-        sessionManager.arObjectScene.setProjectionMatrix(projection)
-        sessionManager.arObjectScene.setViewMatrix(view)
+    private fun setMatrix(projection: FloatArray, view: FloatArray) = with(sessionManager) {
+        mPointCloud.setProjectionMatrix(projection)
+        mPointCloud.setViewMatrix(view)
+        cubeScene.setProjectionMatrix(projection)
+        cubeScene.setViewMatrix(view)
+        arObjectScene.setProjectionMatrix(projection)
+        arObjectScene.setViewMatrix(view)
     }
 
     private fun extractMatrixFromCamera(frame: Frame): Pair<FloatArray, FloatArray> {
@@ -138,6 +142,12 @@ class MainRenderer(private val sessionManager: SessionManager) :
     fun getXY(x: Float, y: Float) {
         currentX = x
         currentY = y
+    }
+
+    fun getRGB(red: Float, green: Float, blue: Float) {
+        currentRed = red
+        currentBlue = blue
+        currentGreen = green
     }
 
     private val textureId: Int
