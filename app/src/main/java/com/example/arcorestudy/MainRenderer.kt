@@ -21,9 +21,6 @@ class MainRenderer(private val sessionManager: SessionManager) :
     private var mViewportHeight = 0
     private var currentX = 0f
     private var currentY = 0f
-    private var currentRed = 0f
-    private var currentGreen = 0f
-    private var currentBlue = 0f
     var onTouch = false
     val mode = MutableLiveData("cube")
     val distanceLiveData = MutableLiveData<Float>()
@@ -70,7 +67,6 @@ class MainRenderer(private val sessionManager: SessionManager) :
         if (frame.hasDisplayGeometryChanged()) {
             mCamera.transformDisplayGeometry(frame)
         }
-        cubeScene.cubeRGB(currentRed, currentGreen, currentBlue)
         renderPointCloud(frame)
         extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }
         getHitPose(frame)
@@ -145,9 +141,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
     }
 
     fun getRGB(red: Float, green: Float, blue: Float) {
-        currentRed = red
-        currentBlue = blue
-        currentGreen = green
+        sessionManager.cubeScene.cubeRGB(red, green, blue)
     }
 
     private val textureId: Int
