@@ -9,7 +9,9 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import com.example.gllibrary.toMat4
 import com.google.ar.core.Frame
+import com.google.ar.core.Plane
 import com.google.ar.core.PointCloud
+import com.google.ar.core.TrackingState
 import glm_.vec3.Vec3
 import javax.microedition.khronos.egl.EGLConfig
 
@@ -20,7 +22,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
     private var currentX = 0f
     private var currentY = 0f
     var onTouch = false
-    val liveData = MutableLiveData<Float>()
+    val distanceLiveData = MutableLiveData<Float>()
+    val planeLiveData = MutableLiveData<String>()
+
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {
     }
 
@@ -60,13 +64,23 @@ class MainRenderer(private val sessionManager: SessionManager) :
             val results = this.hitTest(currentX, currentY)
             if (results.size > 0) {
                 val distance = results[0].distance
-                liveData.postValue(distance)
-                Log.e("distance", "${distance}")
-                val pose = results[results.size - 1].hitPose
+                distanceLiveData.postValue(distance)
+                val pose = results[0].hitPose
                 addPoint(pose.tx(), pose.ty(), pose.tz())
             }
         }
-
+        var isPlane = false
+        val planes = sessionManager.mSession!!.getAllTrackables(Plane::class.java)
+        planes.forEach { plane ->
+            if (plane.trackingState == TrackingState.TRACKING && plane.subsumedBy == null) {
+                isPlane = true
+            }
+        }
+        if (isPlane) {
+            planeLiveData.postValue("plane is detected!!")
+        } else {
+            planeLiveData.postValue("nothing detected!!")
+        }
     }
 
     fun addPoint(x: Float, y: Float, z: Float) {

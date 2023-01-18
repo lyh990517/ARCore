@@ -38,10 +38,13 @@ class MainActivity : AppCompatActivity() {
         }
         binding.reset.setOnClickListener {
             sessionManager.cubeScene!!.cubePositions.clear()
-            renderer.liveData.value = 0f
+            renderer.distanceLiveData.value = 0f
         }
-        renderer.liveData.observe(this) {
+        renderer.distanceLiveData.observe(this) {
             binding.distance.text = it.toString() + " m"
+        }
+        renderer.planeLiveData.observe(this) {
+            binding.plane.text = it
         }
     }
 
