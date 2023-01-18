@@ -1,6 +1,7 @@
 package com.example.arcorestudy
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.opengl.GLSurfaceView
@@ -13,7 +14,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.arcorestudy.databinding.ActivityMainBinding
 
-@Suppress("UNREACHABLE_CODE")
+@Suppress("UNREACHABLE_CODE", "DEPRECATED_IDENTITY_EQUALS")
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var sessionManager: SessionManager
@@ -26,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         initialize()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun initialize() {
         sessionManager = SessionManager.create(binding.glSurfaceView.context!!.applicationContext)
         sessionManager.create()
@@ -37,12 +39,12 @@ class MainActivity : AppCompatActivity() {
             renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
         }
         binding.reset.setOnClickListener {
-            sessionManager.cubeScene!!.cubePositions.clear()
-            sessionManager.arObjectScene!!.objPosition.clear()
+            sessionManager.cubeScene.clear()
+            sessionManager.arObjectScene.clear()
             renderer.distanceLiveData.value = 0f
         }
         renderer.distanceLiveData.observe(this) {
-            binding.distance.text = it.toString() + " m"
+            binding.distance.text = "$it m"
         }
         renderer.planeLiveData.observe(this) {
             binding.plane.text = it
@@ -103,7 +105,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun hideStatusBarAndTitleBar() {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        getWindow().setFlags(
+        window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )

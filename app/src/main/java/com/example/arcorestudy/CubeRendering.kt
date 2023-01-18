@@ -21,7 +21,7 @@ class CubeRendering(
         VBOData(cubeVertices, GL_STATIC_DRAW, 5)
     private var proj = Mat4()
     private var view = Mat4()
-    var cubePositions = mutableListOf<Vec3>()
+    private var cubePositions = mutableListOf<Vec3>()
 
     fun init() {
         texture1.load()
@@ -63,6 +63,13 @@ class CubeRendering(
 
     fun setViewMatrix(viewMatrix: FloatArray) {
         view = viewMatrix.toMat4().transpose_()
+    }
+
+    fun addPosition(vec3: Vec3) {
+        cubePositions.add(vec3)
+    }
+    fun clear(){
+        cubePositions.clear()
     }
 
     companion object {

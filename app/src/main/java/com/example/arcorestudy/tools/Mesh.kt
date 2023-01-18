@@ -15,8 +15,8 @@ data class Mesh(
     val indices: IntBuffer,
 ) {
     val data: VBOData
-    val capacity = vertices.capacity() + texCoords.capacity()
-    val buffer = createFloatBuffer(capacity)
+    private val capacity = vertices.capacity() + texCoords.capacity()
+    private val buffer = createFloatBuffer(capacity)
 
     init {
 
@@ -38,7 +38,14 @@ data class Mesh(
         bindIndices()
     }
 
-    fun bindIndices() = indices.takeIf { it.capacity() > 0 }?.also {
+    fun draw() {
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, data.getVBO())
+        data.applyAttributes()
+        GLES20.glDrawElements(GLES30.GL_TRIANGLES, indices.capacity(), GLES30.GL_UNSIGNED_INT, 0)
+        data.disabledAttributes()
+    }
+
+    private fun bindIndices() = indices.takeIf { it.capacity() > 0 }?.also {
         val ebo = IntBuffer.allocate(1)
         GLES30.glGenBuffers(1, ebo)
         GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, ebo[0])
@@ -48,12 +55,5 @@ data class Mesh(
             indices,
             GLES30.GL_STATIC_DRAW
         )
-    }
-
-    fun draw() {
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, data.getVBO())
-        data.applyAttributes()
-        GLES20.glDrawElements(GLES30.GL_TRIANGLES, indices.capacity(), GLES30.GL_UNSIGNED_INT, 0)
-        data.disabledAttributes()
     }
 }

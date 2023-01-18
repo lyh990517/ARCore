@@ -23,53 +23,50 @@ class ArObjectRendering(
     private var view = Mat4()
     private var proj = Mat4()
     private lateinit var program: Program
-    var objPosition = mutableListOf<Vec3>()
+    private var objPosition = mutableListOf<Vec3>()
 
     fun init() {
         program = Program.create(vShader, fShader)
-        mesh.data.bind()
-        mesh.data.addAttribute(program.getAttributeLocation("aPos"), 3, 0)
-        mesh.data.addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
-        mesh.bindIndices()
+        diffuse.load()
+        specular.load()
+        mesh.bind(program)
     }
 
     fun draw() {
         try {
             program.use()
-            diffuse.load()
-            specular.load()
             GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
             GLES30.glActiveTexture(GLES30.GL_TEXTURE1)
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, specular.getId())
             program.setInt("diffuse", 0)
             program.setInt("bump", 1)
-            GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, mesh.data.getVBO())
-            mesh.data.applyAttributes()
             objPosition.forEach {
-                val model = glm.translate(Mat4(), it) * glm.scale(Mat4(), Vec3(0.05  , 0.05, 0.05))
+                val model = glm.translate(Mat4(), it) * glm.scale(Mat4(), Vec3(0.05, 0.05, 0.05))
                 program.setUniformMat4("mvp", proj * view * model)
-                GLES20.glDrawElements(
-                    GLES30.GL_TRIANGLES,
-                    mesh.indices.capacity(),
-                    GLES30.GL_UNSIGNED_INT,
-                    0
-                )
+                mesh.draw()
             }
-            mesh.data.disabledAttributes()
-        }catch (e: Exception){
-            Log.e("error","${e.message}")
-        }
-        finally {
-            Log.e("error","error")
+        } catch (e: Exception) {
+            Log.e("error", "${e.message}")
+        } finally {
+            Log.e("error", "error")
         }
     }
+
     fun setProjectionMatrix(projMatrix: FloatArray) {
         proj = projMatrix.toMat4().transpose_()
     }
 
     fun setViewMatrix(viewMatrix: FloatArray) {
         view = viewMatrix.toMat4().transpose_()
+    }
+
+    fun addPosition(vec3: Vec3) {
+        objPosition.add(vec3)
+    }
+
+    fun clear() {
+        objPosition.clear()
     }
 
     companion object {

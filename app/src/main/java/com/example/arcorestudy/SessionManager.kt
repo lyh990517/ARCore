@@ -27,17 +27,11 @@ class SessionManager(private val context: Context) {
 
         override fun onDisplayRemoved(displayId: Int) {}
     }
-    val mCamera: CameraTextureRendering?
-    val mPointCloud: PointCloudRendering?
-    val cubeScene: CubeRendering?
-    val arObjectScene: ArObjectRendering?
 
-    init {
-        mCamera = CameraTextureRendering.create(context)
-        mPointCloud = PointCloudRendering.create(context)
-        cubeScene = CubeRendering.create(context)
-        arObjectScene = ArObjectRendering.create(context)
-    }
+    val mCamera: CameraTextureRendering = CameraTextureRendering.create(context)
+    val mPointCloud: PointCloudRendering = PointCloudRendering.create(context)
+    val cubeScene: CubeRendering = CubeRendering.create(context)
+    val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
 
     fun create() {
         getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(

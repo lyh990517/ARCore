@@ -46,8 +46,8 @@ class PointCloudRendering(
     }
 
     fun init() {
-        bindOnlyVBO()
         program = Program.create(vertexShaderCode, fragmentShaderCode)
+        bindOnlyVBO()
     }
 
     fun setProjectionMatrix(projMatrix: FloatArray) {
