@@ -34,6 +34,7 @@ class SessionManager(private val context: Context) {
     val cubeScene: CubeRendering = CubeRendering.create(context)
     val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
     val depthTexture = DepthTexture()
+    val depthRendering: DepthRendering = DepthRendering.create(context,depthTexture.getDepthTexture())
     fun create() {
         getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(
             displayListener,
@@ -80,7 +81,9 @@ class SessionManager(private val context: Context) {
 
     fun isSupported() = ArCoreApk.getInstance()
         .checkAvailability(context) == ArCoreApk.Availability.SUPPORTED_INSTALLED
+
     fun isDepthSupported() = mSession!!.isDepthModeSupported(Config.DepthMode.AUTOMATIC)
+
     companion object {
         fun create(context: Context) = SessionManager(context)
     }
