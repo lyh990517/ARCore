@@ -1,7 +1,9 @@
 package com.example.arcorestudy.tools
 
 import android.opengl.GLES30.*
+import android.util.Log
 import com.google.ar.core.Frame
+import com.google.ar.core.exceptions.NotYetAvailableException
 import java.nio.IntBuffer
 
 class DepthTexture {
@@ -21,22 +23,26 @@ class DepthTexture {
     }
 
     fun update(frame: Frame) {
-        val depthImage = frame.acquireDepthImage16Bits()
-        depthTextureWidth = depthImage.width
-        depthTextureHeight = depthImage.height
-        glBindTexture(GL_TEXTURE_2D, depthTextureId)
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RG8,
-            depthTextureWidth,
-            depthTextureHeight,
-            0,
-            GL_RG,
-            GL_UNSIGNED_BYTE,
-            depthImage.planes[0].buffer
-        )
-        depthImage.close()
+        try {
+            val depthImage = frame.acquireDepthImage16Bits()
+            depthTextureWidth = depthImage.width
+            depthTextureHeight = depthImage.height
+            glBindTexture(GL_TEXTURE_2D, depthTextureId)
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                GL_RG8,
+                depthTextureWidth,
+                depthTextureHeight,
+                0,
+                GL_RG,
+                GL_UNSIGNED_BYTE,
+                depthImage.planes[0].buffer
+            )
+            depthImage.close()
+        } catch (e: NotYetAvailableException) {
+            Log.e("error","${e.message}")
+        }
     }
 
     fun getDepthTexture() = depthTextureId

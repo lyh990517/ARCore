@@ -31,7 +31,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
     val yLiveData = MutableLiveData<Float>()
     val zLiveData = MutableLiveData<Float>()
 
-    override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {}
+    override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) = with(sessionManager) {
+        depthTexture.createTexture()
+    }
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
         glViewport(0, 0, width, height)
@@ -70,6 +72,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
         val frame = mSession!!.update()
         if (frame.hasDisplayGeometryChanged()) {
             mCamera.transformDisplayGeometry(frame)
+        }
+        if (isDepthSupported()) {
+            depthTexture.update(frame)
         }
         renderPointCloud(frame)
         extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }

@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getSystemService
+import com.example.arcorestudy.tools.DepthTexture
 import com.google.ar.core.ArCoreApk
 import com.google.ar.core.Config
 import com.google.ar.core.Session
@@ -32,7 +33,7 @@ class SessionManager(private val context: Context) {
     val mPointCloud: PointCloudRendering = PointCloudRendering.create(context)
     val cubeScene: CubeRendering = CubeRendering.create(context)
     val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
-
+    val depthTexture = DepthTexture()
     fun create() {
         getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(
             displayListener,
@@ -46,7 +47,7 @@ class SessionManager(private val context: Context) {
                 Log.e("session", "support device")
                 mSession = Session(context)
                 mConfig = Config(mSession)
-                if (mSession!!.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
+                if (isDepthSupported()) {
                     mConfig?.depthMode = Config.DepthMode.AUTOMATIC
                     Log.e("session", "support DepthMode")
                 }
@@ -79,7 +80,7 @@ class SessionManager(private val context: Context) {
 
     fun isSupported() = ArCoreApk.getInstance()
         .checkAvailability(context) == ArCoreApk.Availability.SUPPORTED_INSTALLED
-
+    fun isDepthSupported() = mSession!!.isDepthModeSupported(Config.DepthMode.AUTOMATIC)
     companion object {
         fun create(context: Context) = SessionManager(context)
     }
