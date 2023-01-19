@@ -45,15 +45,19 @@ class SessionManager(private val context: Context) {
             if (isSupported()) {
                 Log.e("session", "support device")
                 mSession = Session(context)
+                mConfig = Config(mSession)
+                if (mSession!!.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
+                    mConfig?.depthMode = Config.DepthMode.AUTOMATIC
+                    Log.e("session", "support DepthMode")
+                }
+                mSession!!.configure(mConfig)
+                mSession!!.resume()
             } else {
                 Log.e("session", "install arcore")
             }
         } catch (_: UnsupportedOperationException) {
 
         }
-        mConfig = Config(mSession)
-        mSession!!.configure(mConfig)
-        mSession!!.resume()
     }
 
     fun destroy() {
