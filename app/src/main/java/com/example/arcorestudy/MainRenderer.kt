@@ -8,10 +8,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import com.example.gllibrary.toMat4
-import com.google.ar.core.Frame
-import com.google.ar.core.Plane
-import com.google.ar.core.PointCloud
-import com.google.ar.core.TrackingState
+import com.google.ar.core.*
 import glm_.vec3.Vec3
 import javax.microedition.khronos.egl.EGLConfig
 
@@ -93,7 +90,10 @@ class MainRenderer(private val sessionManager: SessionManager) :
     }
 
     private fun getHitPose(frame: Frame) {
-        val results = frame.hitTest(currentX, currentY)
+        val results = frame.hitTest(currentX, currentY).filter {
+            val trackable = it.trackable
+            trackable is DepthPoint
+        }
         when (drawingMode.value) {
             "near" -> {
                 if (results.size > 0) {
