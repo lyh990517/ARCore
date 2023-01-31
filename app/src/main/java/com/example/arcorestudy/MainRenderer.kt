@@ -176,6 +176,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
     fun getRGB(red: Float, green: Float, blue: Float) {
         sessionManager.cubeScene.cubeRGB(red, green, blue)
     }
+    fun setSize(size: Float){
+        sessionManager.cubeScene.size = size
+    }
 
     private val textureId: Int
         get() = sessionManager.mCamera.textureId ?: -1

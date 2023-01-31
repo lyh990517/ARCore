@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private var r = 0f
     private var g = 0f
     private var b = 0f
+    private var size = 0f
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hideStatusBarAndTitleBar()
@@ -134,6 +135,21 @@ class MainActivity : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
+        })
+        binding.size.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                size = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
+                renderer.setSize(size)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
         })
     }
 

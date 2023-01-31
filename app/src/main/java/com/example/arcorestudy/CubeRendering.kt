@@ -24,6 +24,7 @@ class CubeRendering(
     private var red = 0f
     private var green = 0f
     private var blue = 0f
+    var size = 0.05f
     fun init() {
         program = Program.create(
             vertexShaderCode = vertexShaderCode,
@@ -40,16 +41,20 @@ class CubeRendering(
             program.setUniformMat4("projection", proj)
             program.setUniformMat4("view", view)
             glUniform4f(program.getUniformLocation("vColor"), red, green, blue, 1f)
-            cubePositions.forEachIndexed { index, vec3 ->
-                val model = glm.translate(Mat4(), vec3) * glm.scale(
-                    Mat4(), Vec3(0.05, 0.05, 0.05)
-                )
-                program.setUniformMat4("model", model)
-                glDrawArrays(GL_TRIANGLES, 0, 36)
+            try {
+                cubePositions.forEachIndexed { index, vec3 ->
+                    val model = glm.translate(Mat4(), vec3) * glm.scale(
+                        Mat4(), Vec3(size, size, size)
+                    )
+                    program.setUniformMat4("model", model)
+                    glDrawArrays(GL_TRIANGLES, 0, 36)
+                }
+                cube.disabledAttributes()
+            } catch (e: Exception) {
+
             }
-            cube.disabledAttributes()
-        } finally {
-            //nothing
+        } catch (e: Exception) {
+
         }
     }
 
