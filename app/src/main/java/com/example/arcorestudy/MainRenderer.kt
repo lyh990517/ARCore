@@ -39,6 +39,8 @@ class MainRenderer(private val sessionManager: SessionManager) :
         mPointCloud.init()
         cubeScene.init()
         arObjectScene.init()
+        backgroundRenderer.createOnGlThread()
+        backgroundRenderer.createDepthShaders()
         isViewportChanged = true
         mViewportWidth = width
         mViewportHeight = height
@@ -71,6 +73,8 @@ class MainRenderer(private val sessionManager: SessionManager) :
         if (frame.hasDisplayGeometryChanged()) {
             mCamera.transformDisplayGeometry(frame)
         }
+        backgroundRenderer.depthTexture.update(frame)
+        backgroundRenderer.drawDepth(frame)
         renderPointCloud(frame)
         extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }
         getHitPose(frame)

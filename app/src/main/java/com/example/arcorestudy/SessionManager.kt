@@ -32,7 +32,7 @@ class SessionManager(private val context: Context) {
     val mPointCloud: PointCloudRendering = PointCloudRendering.create(context)
     val cubeScene: CubeRendering = CubeRendering.create(context)
     val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
-
+    val backgroundRenderer: BackgroundRenderer = BackgroundRenderer.create(context)
     fun create() {
         getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(
             displayListener,
