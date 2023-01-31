@@ -138,7 +138,7 @@ class MainActivity : AppCompatActivity() {
         })
         binding.size.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                size = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
+                size = seekBar?.progress?.toFloat()?.times(0.001f) ?: 0f
                 renderer.setSize(size)
             }
 
