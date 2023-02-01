@@ -1,8 +1,7 @@
 package com.example.arcorestudy
 
 import android.content.Context
-import android.opengl.GLES20
-import android.opengl.GLES30
+import android.opengl.GLES30.*
 import android.util.Log
 import com.example.gllibrary.*
 import glm_.glm
@@ -35,16 +34,26 @@ class ArObjectRendering(
     fun draw() {
         try {
             program.use()
-            GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
-            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
-            GLES30.glActiveTexture(GLES30.GL_TEXTURE1)
-            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, specular.getId())
+            glEnable(GL_CULL_FACE)
+            glCullFace(GL_FRONT)
+            glFrontFace(GL_CW)
+            glActiveTexture(GL_TEXTURE0)
+            glBindTexture(GL_TEXTURE_2D, diffuse.getId())
+            glActiveTexture(GL_TEXTURE1)
+            glBindTexture(GL_TEXTURE_2D, specular.getId())
             program.setInt("diffuse", 0)
             program.setInt("bump", 1)
-            objPosition.forEach {
-                val model = glm.translate(Mat4(), it) * glm.scale(Mat4(), Vec3(0.05, 0.05, 0.05))
-                program.setUniformMat4("mvp", proj * view * model)
-                mesh.draw()
+            try {
+                Log.e("object","${objPosition.size}")
+                objPosition.forEach {
+                    val model =
+                        glm.translate(Mat4(), it) * glm.scale(Mat4(), Vec3(0.05, 0.05, 0.05))
+                    program.setUniformMat4("mvp", proj * view * model)
+                    mesh.draw()
+                }
+                glDisable(GL_CULL_FACE)
+            } catch (e: Exception) {
+
             }
         } finally {
             //nothing

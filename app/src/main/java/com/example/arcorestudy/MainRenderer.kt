@@ -4,10 +4,8 @@ import android.opengl.GLSurfaceView
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES30.*
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
-import com.example.gllibrary.toMat4
 import com.google.ar.core.*
 import glm_.vec3.Vec3
 import javax.microedition.khronos.egl.EGLConfig
