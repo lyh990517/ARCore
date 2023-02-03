@@ -15,6 +15,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.arcorestudy.databinding.ActivityMainBinding
+import com.google.ar.core.CameraConfig
+import com.google.ar.core.CameraConfigFilter
+import com.google.ar.core.Config
 import com.google.ar.core.Session
 import glm_.toLong
 
@@ -23,7 +26,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var sessionManager: SessionManager
     private lateinit var renderer: MainRenderer
-    private var isFrontCamera = false
     private var r = 0f
     private var g = 0f
     private var b = 0f
@@ -37,8 +39,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun switchCamera() {
-        isFrontCamera = !isFrontCamera
-        if (isFrontCamera) {
+        // Set a camera configuration that usese the front-facing camera
+        renderer.isFrontCamera = !renderer.isFrontCamera
+        if (renderer.isFrontCamera) {
             sessionManager.pause()
             sessionManager.resume(setOf(Session.Feature.FRONT_CAMERA))
         } else {

@@ -4,6 +4,7 @@ import android.opengl.GLSurfaceView
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES30.*
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import com.google.ar.core.*
@@ -26,7 +27,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
     val xLiveData = MutableLiveData<Float>()
     val yLiveData = MutableLiveData<Float>()
     val zLiveData = MutableLiveData<Float>()
-
+    var isFrontCamera = false
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {}
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
@@ -71,9 +72,26 @@ class MainRenderer(private val sessionManager: SessionManager) :
             renderPointCloud(frame)
             extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }
             getHitPose(frame)
-            detectPlane()
+            if (isFrontCamera) {
+                detectFace()
+            } else {
+                detectPlane()
+            }
         } catch (e: SessionPausedException) {
 
+        }
+    }
+
+    private fun detectFace() {
+        val faces =
+            sessionManager.mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
+        faces?.forEach {
+
+        }
+        if (faces.isNullOrEmpty()) {
+            planeLiveData.postValue("nothing detected...")
+        } else {
+            planeLiveData.postValue("face is detected!!")
         }
     }
 
@@ -88,7 +106,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         if (isPlane) {
             planeLiveData.postValue("plane is detected!!")
         } else {
-            planeLiveData.postValue("nothing detected!!")
+            planeLiveData.postValue("nothing detected...")
         }
     }
 

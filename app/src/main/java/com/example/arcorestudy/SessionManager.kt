@@ -7,10 +7,9 @@ import android.util.Log
 import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getSystemService
-import com.google.ar.core.ArCoreApk
-import com.google.ar.core.Config
-import com.google.ar.core.Session
+import com.google.ar.core.*
 import com.google.ar.core.Session.Feature
+import com.google.ar.core.exceptions.UnsupportedConfigurationException
 import java.lang.UnsupportedOperationException
 
 class SessionManager(private val context: Context) {
@@ -58,6 +57,9 @@ class SessionManager(private val context: Context) {
                     Log.e("session", "support DepthMode")
                 }
                 mSession!!.configure(mConfig)
+                if(feature.isNotEmpty()){
+                    mSession!!.configure(config(mSession!!))
+                }
                 mSession!!.resume()
             } else {
                 Log.e("session", "install arcore")
@@ -67,6 +69,15 @@ class SessionManager(private val context: Context) {
         }
     }
 
+    fun config(session: Session): Config = Config(session).apply {
+        try {
+            updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
+            augmentedFaceMode = Config.AugmentedFaceMode.MESH3D
+            focusMode = Config.FocusMode.AUTO
+        }catch (e : UnsupportedConfigurationException){
+
+        }
+    }
 
     fun destroy() {
         getSystemService(context, DisplayManager::class.java)!!.unregisterDisplayListener(
@@ -75,7 +86,7 @@ class SessionManager(private val context: Context) {
         mSession?.close()
     }
 
-    fun pause(){
+    fun pause() {
         mSession?.pause()
     }
 
