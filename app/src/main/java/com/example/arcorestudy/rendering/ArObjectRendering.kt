@@ -2,6 +2,7 @@ package com.example.arcorestudy.rendering
 
 import android.content.Context
 import android.opengl.GLES30.*
+import android.util.Log
 import com.example.arcorestudy.R
 import com.example.gllibrary.*
 import glm_.glm

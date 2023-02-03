@@ -36,6 +36,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
         mPointCloud.init()
         cubeScene.init()
         arObjectScene.init()
+        if(isFrontCamera){
+            faceRendering.init()
+        }
         isViewportChanged = true
         mViewportWidth = width
         mViewportHeight = height
@@ -58,6 +61,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
         }
         cubeScene.draw()
         arObjectScene.draw()
+        if(isFrontCamera){
+            faceRendering.draw()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -92,6 +98,10 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 val facePose = face.centerPose
                 val faceVertices = face.meshVertices
                 val faceNormals = face.meshNormals
+                sessionManager.faceRendering.setFace(
+                    faceVertices, indices,
+                    Vec3(facePose.tx(), facePose.ty(), facePose.tz()), uvs, faceNormals
+                )
             }
         }
         if (faces.isNullOrEmpty()) {
