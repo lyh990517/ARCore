@@ -1,10 +1,10 @@
-package com.example.arcorestudy
+package com.example.arcorestudy.rendering
 
 import android.content.Context
 import android.opengl.GLES30.*
+import com.example.arcorestudy.R
 import com.example.gllibrary.*
 import com.google.ar.core.PointCloud
-import glm_.glm
 import glm_.mat4x4.Mat4
 import java.nio.IntBuffer
 

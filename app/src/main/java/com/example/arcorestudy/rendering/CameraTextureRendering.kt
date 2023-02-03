@@ -1,9 +1,10 @@
-package com.example.arcorestudy
+package com.example.arcorestudy.rendering
 
 import android.content.Context
 import android.opengl.GLES11Ext
 import android.opengl.GLES20
 import android.opengl.GLES30.*
+import com.example.arcorestudy.R
 import com.example.gllibrary.*
 import com.google.ar.core.Frame
 import java.nio.FloatBuffer
@@ -66,7 +67,7 @@ class CameraTextureRendering(
             1.0f, 1.0f,
             1.0f, 0.0f
         )
-        fun create(context: Context): CameraTextureRendering{
+        fun create(context: Context): CameraTextureRendering {
             val resource = context.resources
             return CameraTextureRendering(
                 resource.readRawTextFile(R.raw.camera_vertex),

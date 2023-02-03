@@ -85,8 +85,14 @@ class MainRenderer(private val sessionManager: SessionManager) :
     private fun detectFace() {
         val faces =
             sessionManager.mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
-        faces?.forEach {
-
+        faces?.forEach { face ->
+            if (face.trackingState == TrackingState.TRACKING) {
+                val uvs = face.meshTextureCoordinates
+                val indices = face.meshTriangleIndices
+                val facePose = face.centerPose
+                val faceVertices = face.meshVertices
+                val faceNormals = face.meshNormals
+            }
         }
         if (faces.isNullOrEmpty()) {
             planeLiveData.postValue("nothing detected...")
@@ -172,6 +178,8 @@ class MainRenderer(private val sessionManager: SessionManager) :
         cubeScene.setViewMatrix(view)
         arObjectScene.setProjectionMatrix(projection)
         arObjectScene.setViewMatrix(view)
+        faceRendering.setViewMatrix(view)
+        faceRendering.setProjectionMatrix(projection)
     }
 
     private fun extractMatrixFromCamera(frame: Frame): Pair<FloatArray, FloatArray> {

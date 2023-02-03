@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getSystemService
+import com.example.arcorestudy.rendering.*
 import com.google.ar.core.*
 import com.google.ar.core.Session.Feature
 import com.google.ar.core.exceptions.UnsupportedConfigurationException
@@ -32,6 +33,7 @@ class SessionManager(private val context: Context) {
     val mPointCloud: PointCloudRendering = PointCloudRendering.create(context)
     val cubeScene: CubeRendering = CubeRendering.create(context)
     val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
+    val faceRendering: FaceRendering = FaceRendering.create(context)
 
     fun create() {
         getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(
@@ -57,7 +59,7 @@ class SessionManager(private val context: Context) {
                     Log.e("session", "support DepthMode")
                 }
                 mSession!!.configure(mConfig)
-                if(feature.isNotEmpty()){
+                if (feature.isNotEmpty()) {
                     mSession!!.configure(config(mSession!!))
                 }
                 mSession!!.resume()
@@ -74,7 +76,7 @@ class SessionManager(private val context: Context) {
             updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
             augmentedFaceMode = Config.AugmentedFaceMode.MESH3D
             focusMode = Config.FocusMode.AUTO
-        }catch (e : UnsupportedConfigurationException){
+        } catch (e: UnsupportedConfigurationException) {
 
         }
     }
