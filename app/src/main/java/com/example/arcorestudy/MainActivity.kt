@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.arcorestudy.databinding.ActivityMainBinding
+import com.google.ar.core.Session
 import glm_.toLong
 
 @Suppress("UNREACHABLE_CODE", "DEPRECATED_IDENTITY_EQUALS")
@@ -22,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var sessionManager: SessionManager
     private lateinit var renderer: MainRenderer
+    private var isFrontCamera = false
     private var r = 0f
     private var g = 0f
     private var b = 0f
@@ -32,6 +34,17 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initialize()
+    }
+
+    fun switchCamera() {
+        isFrontCamera = !isFrontCamera
+        if (isFrontCamera) {
+            sessionManager.pause()
+            sessionManager.resume(setOf(Session.Feature.FRONT_CAMERA))
+        } else {
+            sessionManager.pause()
+            sessionManager.resume(setOf())
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -151,6 +164,9 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+        binding.cameraMode.setOnClickListener {
+            switchCamera()
+        }
     }
 
     override fun onBackPressed() {
@@ -162,14 +178,14 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         Log.e("activity", "onPause")
         binding.glSurfaceView.onPause()
-        sessionManager.mSession?.pause()
+        sessionManager.pause()
     }
 
     override fun onResume() {
         super.onResume()
         Log.e("activity", "onResume")
         requestCameraPermission()
-        sessionManager.resume()
+        sessionManager.resume(setOf())
         binding.glSurfaceView.onResume()
     }
 

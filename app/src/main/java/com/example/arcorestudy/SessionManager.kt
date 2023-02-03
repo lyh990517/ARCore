@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import com.google.ar.core.ArCoreApk
 import com.google.ar.core.Config
 import com.google.ar.core.Session
+import com.google.ar.core.Session.Feature
 import java.lang.UnsupportedOperationException
 
 class SessionManager(private val context: Context) {
@@ -40,11 +41,17 @@ class SessionManager(private val context: Context) {
         )
     }
 
-    fun resume() {
+    fun resume(feature: Set<Feature>) {
         try {
             if (isSupported()) {
                 Log.e("session", "support device")
-                mSession = Session(context)
+                if (feature.isEmpty()) {
+                    Log.e("session", "feature empty")
+                    mSession = Session(context)
+                } else {
+                    Log.e("session", "set feature")
+                    mSession = Session(context, feature)
+                }
                 mConfig = Config(mSession)
                 if (mSession!!.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
                     mConfig?.depthMode = Config.DepthMode.AUTOMATIC
@@ -60,11 +67,16 @@ class SessionManager(private val context: Context) {
         }
     }
 
+
     fun destroy() {
         getSystemService(context, DisplayManager::class.java)!!.unregisterDisplayListener(
             displayListener
         )
         mSession?.close()
+    }
+
+    fun pause(){
+        mSession?.pause()
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

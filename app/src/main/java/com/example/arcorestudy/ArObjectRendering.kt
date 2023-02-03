@@ -44,7 +44,6 @@ class ArObjectRendering(
             program.setInt("diffuse", 0)
             program.setInt("bump", 1)
             try {
-                Log.e("object","${objPosition.size}")
                 objPosition.forEach {
                     val model =
                         glm.translate(Mat4(), it) * glm.scale(Mat4(), Vec3(0.05, 0.05, 0.05))

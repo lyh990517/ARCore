@@ -7,6 +7,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import com.google.ar.core.*
+import com.google.ar.core.exceptions.SessionPausedException
 import glm_.vec3.Vec3
 import javax.microedition.khronos.egl.EGLConfig
 
@@ -62,14 +63,18 @@ class MainRenderer(private val sessionManager: SessionManager) :
     fun preRender() = with(sessionManager) {
         updateSession(mViewportWidth, mViewportHeight)
         mSession?.setCameraTextureName(textureId)
-        val frame = mSession!!.update()
-        if (frame.hasDisplayGeometryChanged()) {
-            mCamera.transformDisplayGeometry(frame)
+        try {
+            val frame = mSession!!.update()
+            if (frame.hasDisplayGeometryChanged()) {
+                mCamera.transformDisplayGeometry(frame)
+            }
+            renderPointCloud(frame)
+            extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }
+            getHitPose(frame)
+            detectPlane()
+        } catch (e: SessionPausedException) {
+
         }
-        renderPointCloud(frame)
-        extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }
-        getHitPose(frame)
-        detectPlane()
     }
 
     private fun detectPlane() = with(sessionManager) {
@@ -174,7 +179,8 @@ class MainRenderer(private val sessionManager: SessionManager) :
     fun getRGB(red: Float, green: Float, blue: Float) {
         sessionManager.cubeScene.cubeRGB(red, green, blue)
     }
-    fun setSize(size: Float){
+
+    fun setSize(size: Float) {
         sessionManager.cubeScene.size = size
     }
 
