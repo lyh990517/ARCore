@@ -31,7 +31,6 @@ class FaceRendering(
 
     private var facePosition = mutableListOf<Vec3>()
     private lateinit var program: Program
-    private var data: com.example.arcorestudy.tools.VBOData? = null
     private var proj = Mat4()
     private var view = Mat4()
     private var vertexData: DataVertex? = null
@@ -40,15 +39,15 @@ class FaceRendering(
     }
 
     fun draw() {
-        data?.addAttribute(program.getAttributeLocation("aPos"), 3, 0)
-        data?.bind()
-        data?.draw()
         program.use()
         facePos?.let {
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,data!!.getVBO())
+            vertexData?.let {
+                glBindVertexArray(it.getVaoId())
+            }
             val model = glm.translate(Mat4(), it)
             program.setUniformMat4("mvp", proj * view * model)
-            GLES20.glDrawElements(GL_TRIANGLE_STRIP,500, GL_UNSIGNED_SHORT,0)
+            GLES20.glDrawElements(GL_TRIANGLE_STRIP,faceIndices?.size ?: 0, GL_UNSIGNED_SHORT,0)
+            glBindVertexArray(0)
         }
         facePos = null
     }
@@ -65,13 +64,10 @@ class FaceRendering(
         facePos = pos
         faceUVS = uvs
         faceNormals = normals
-        data = VBOData(vertex, indices, GL_STATIC_DRAW, 3)
-        //vertexData = DataVertex(vertex,indices,5)
+        vertexData = DataVertex(vertex,indices,3)
+        vertexData?.addAttribute(program.getAttributeLocation("aPos"), 3, 0)
+        vertexData?.bind()
         Log.e("face", "${facePos}")
-    }
-
-    fun updatePosition(vec3: Vec3) {
-        facePosition.add(vec3)
     }
 
     fun setProjectionMatrix(projMatrix: FloatArray) {
