@@ -36,9 +36,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         mPointCloud.init()
         cubeScene.init()
         arObjectScene.init()
-        if(isFrontCamera){
-            faceRendering.init()
-        }
+        faceRendering.init()
         isViewportChanged = true
         mViewportWidth = width
         mViewportHeight = height

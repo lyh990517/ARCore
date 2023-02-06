@@ -1,13 +1,17 @@
 package com.example.arcorestudy.rendering
 
 import android.content.Context
+import android.opengl.GLES30.*
 import android.opengl.GLES30
+import android.util.Log
 import com.example.arcorestudy.R
 import com.example.arcorestudy.tools.FaceMesh
 import com.example.arcorestudy.tools.Mesh
+import com.example.arcorestudy.tools.VBOData
 import com.example.gllibrary.*
 import glm_.glm
 import glm_.mat4x4.Mat4
+import glm_.size
 import glm_.vec3.Vec3
 import java.nio.FloatBuffer
 import java.nio.ShortBuffer
@@ -15,8 +19,6 @@ import java.nio.ShortBuffer
 class FaceRendering(
     private val vShader: String,
     private val fShader: String,
-    private val diffuse: Texture,
-    private val specular: Texture
 ) {
 
     private var faceVertex: FloatBuffer? = null
@@ -24,30 +26,27 @@ class FaceRendering(
     private var facePos: Vec3? = null
     private var faceUVS: FloatBuffer? = null
     private var faceNormals: FloatBuffer? = null
-    private var faceMesh: FaceMesh? = null
 
     private var facePosition = mutableListOf<Vec3>()
-    private val program = Program.create(vShader, fShader)
+    private lateinit var program: Program
+    private var data: com.example.arcorestudy.tools.VBOData? = null
     private var proj = Mat4()
     private var view = Mat4()
     fun init() {
+        program = Program.create(vShader, fShader)
     }
 
     fun draw() {
-        diffuse.load()
-        specular.load()
+        data?.bind()
+        data?.addAttribute(program.getAttributeLocation("aPos"),3,0)
+        data?.draw()
         program.use()
-        faceMesh?.bind(program)
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE1)
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, specular.getId())
         facePos?.let {
-            val model =
-                glm.translate(Mat4(), it) * glm.scale(Mat4(), Vec3(0.05, 0.05, 0.05))
-            program.setUniformMat4("mvp", proj * view * model)
-            faceMesh!!.draw()
+            val model = glm.translate(Mat4(), it)
+            program.setUniformMat4("mvp",proj * view * model)
+            glDrawArrays(GL_TRIANGLE_STRIP,0,500)
         }
+        facePos = null
     }
 
     fun setFace(
@@ -62,7 +61,8 @@ class FaceRendering(
         facePos = pos
         faceUVS = uvs
         faceNormals = normals
-        faceMesh = FaceMesh(faceVertex!!, faceNormals!!, faceUVS!!, faceIndices!!)
+        data = VBOData(vertex,GL_STATIC_DRAW,5)
+        Log.e("face", "${facePos}")
     }
 
     fun updatePosition(vec3: Vec3) {
@@ -81,10 +81,8 @@ class FaceRendering(
         fun create(context: Context): FaceRendering {
             val resource = context.resources
             return FaceRendering(
-                resource.readRawTextFile(R.raw.asset_vertex),
-                resource.readRawTextFile(R.raw.asset_fragment),
-                Texture(loadBitmap(context, R.raw.diffuse)),
-                Texture(loadBitmap(context, R.raw.specular))
+                resource.readRawTextFile(R.raw.face_vertex),
+                resource.readRawTextFile(R.raw.face_fragment)
             )
         }
     }
