@@ -28,7 +28,7 @@ data class FaceMesh(
             buffer.put(texCoords.get())
         }
         buffer.position(0)
-        data = VBOData(buffer, GLES30.GL_STATIC_DRAW, 5)
+        data = VBOData(buffer, null, GLES30.GL_STATIC_DRAW, 5)
     }
 
     fun bind(program: Program) {

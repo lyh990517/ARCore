@@ -1,6 +1,7 @@
 package com.example.arcorestudy.rendering
 
 import android.content.Context
+import android.opengl.GLES20
 import android.opengl.GLES30.*
 import android.opengl.GLES30
 import android.util.Log
@@ -37,14 +38,15 @@ class FaceRendering(
     }
 
     fun draw() {
+        data?.addAttribute(program.getAttributeLocation("aPos"), 3, 0)
         data?.bind()
-        data?.addAttribute(program.getAttributeLocation("aPos"),3,0)
         data?.draw()
         program.use()
         facePos?.let {
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,data!!.getVBO())
             val model = glm.translate(Mat4(), it)
-            program.setUniformMat4("mvp",proj * view * model)
-            glDrawArrays(GL_TRIANGLE_STRIP,0,500)
+            program.setUniformMat4("mvp", proj * view * model)
+            GLES20.glDrawElements(GL_TRIANGLE_STRIP,500, GL_UNSIGNED_SHORT,0)
         }
         facePos = null
     }
@@ -61,7 +63,7 @@ class FaceRendering(
         facePos = pos
         faceUVS = uvs
         faceNormals = normals
-        data = VBOData(vertex,GL_STATIC_DRAW,5)
+        data = VBOData(vertex, indices, GL_STATIC_DRAW, 5)
         Log.e("face", "${facePos}")
     }
 

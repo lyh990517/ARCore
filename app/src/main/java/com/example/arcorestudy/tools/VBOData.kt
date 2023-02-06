@@ -2,12 +2,15 @@ package com.example.arcorestudy.tools
 
 import android.opengl.GLES30.*
 import com.example.gllibrary.Attribute
+import com.example.gllibrary.VertexData
 import com.example.gllibrary.toFloatBuffer
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
+import java.nio.ShortBuffer
 
 class VBOData(
     private val vertex: FloatBuffer,
+    private val indices: ShortBuffer? = null,
     private val drawMode: Int = GL_STATIC_DRAW,
     private val stride: Int
 ) {
@@ -15,9 +18,10 @@ class VBOData(
         vertex: FloatArray,
         drawMode: Int = GL_STATIC_DRAW,
         stride: Int
-    ) : this(vertex.toFloatBuffer(), drawMode, stride)
+    ) : this(vertex.toFloatBuffer(), null, drawMode, stride)
 
     private var vboId = -1
+    private var eboId = -1
     private val attributes = mutableListOf<Attribute>()
 
     fun addAttribute(location: Int, size: Int, offset: Int) {
@@ -30,8 +34,21 @@ class VBOData(
         )
     }
 
-    fun getVBO() = vboId
+    fun bindIndices() = indices?.takeIf { it.capacity() > 0 }?.also {
+        val ebo = IntBuffer.allocate(1)
+        eboId = ebo[0]
+        glGenBuffers(1, ebo)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo[0])
+        glBufferData(
+            GL_ELEMENT_ARRAY_BUFFER,
+            Short.SIZE_BYTES * indices.capacity(),
+            indices,
+            drawMode
+        )
+    }
 
+    fun getVBO() = vboId
+    fun getEBO() = eboId
     fun bind() {
         val vbo = IntBuffer.allocate(1)
         glGenBuffers(1, vbo)
@@ -45,7 +62,11 @@ class VBOData(
             vertex,
             drawMode
         )
+        applyAttributes()
+        bindIndices()
+
         glBindBuffer(GL_ARRAY_BUFFER, 0)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
     }
 
     fun applyAttributes() = attributes.forEach { attribute ->
@@ -66,6 +87,6 @@ class VBOData(
 
     fun draw() {
         glBindBuffer(GL_ARRAY_BUFFER, vboId)
-        applyAttributes()
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,eboId)
     }
 }
