@@ -6,6 +6,7 @@ import android.opengl.GLES30.*
 import android.opengl.GLES30
 import android.util.Log
 import com.example.arcorestudy.R
+import com.example.arcorestudy.tools.DataVertex
 import com.example.arcorestudy.tools.FaceMesh
 import com.example.arcorestudy.tools.Mesh
 import com.example.arcorestudy.tools.VBOData
@@ -33,6 +34,7 @@ class FaceRendering(
     private var data: com.example.arcorestudy.tools.VBOData? = null
     private var proj = Mat4()
     private var view = Mat4()
+    private var vertexData: DataVertex? = null
     fun init() {
         program = Program.create(vShader, fShader)
     }
@@ -63,7 +65,8 @@ class FaceRendering(
         facePos = pos
         faceUVS = uvs
         faceNormals = normals
-        data = VBOData(vertex, indices, GL_STATIC_DRAW, 5)
+        data = VBOData(vertex, indices, GL_STATIC_DRAW, 3)
+        //vertexData = DataVertex(vertex,indices,5)
         Log.e("face", "${facePos}")
     }
 
