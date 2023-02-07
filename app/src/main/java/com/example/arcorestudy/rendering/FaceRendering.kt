@@ -6,8 +6,7 @@ import android.opengl.GLES30.*
 import android.opengl.GLES30
 import android.util.Log
 import com.example.arcorestudy.R
-import com.example.arcorestudy.tools.DataVertex
-import com.example.arcorestudy.tools.FaceMesh
+import com.example.arcorestudy.tools.*
 import com.example.arcorestudy.tools.Mesh
 import com.example.arcorestudy.tools.VBOData
 import com.example.gllibrary.*
@@ -23,17 +22,17 @@ class FaceRendering(
     private val fShader: String,
 ) {
 
-    private var faceVertex: MutableList<FloatBuffer> = mutableListOf()
-    private var faceIndices: MutableList<ShortBuffer> = mutableListOf()
-    private var facePos: MutableList<Vec3> = mutableListOf()
-    private var faceUVS: MutableList<FloatBuffer> = mutableListOf()
-    private var faceNormals: MutableList<FloatBuffer> = mutableListOf()
+    private var faceVertex: FloatBuffer? = null
+    private var faceIndices:  ShortBuffer? = null
+    private var facePos: Vec3? = null
+    private var faceUVS:  FloatBuffer? = null
+    private var faceNormals:  FloatBuffer? = null
 
     private var facePosition = mutableListOf<Vec3>()
     private lateinit var program: Program
     private var proj = Mat4()
     private var view = Mat4()
-    private var vertexData: MutableList<DataVertex> = mutableListOf()
+    private var vertexData: DataVertex? = null
     fun init() {
         program = Program.create(vShader, fShader)
     }
@@ -42,14 +41,14 @@ class FaceRendering(
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         program.use()
-        facePos.forEachIndexed { index, vec3 ->
-            glBindVertexArray(vertexData[index].getVaoId())
+        facePos?.let { vec3 ->
+            glBindVertexArray(vertexData!!.getVaoId())
             val model = glm.translate(Mat4(), vec3)
             program.setUniformMat4("mvp", proj * view * model)
-            GLES20.glDrawElements(GL_TRIANGLE_STRIP,faceIndices[index].size, GL_UNSIGNED_SHORT,0)
+            GLES20.glDrawElements(GL_TRIANGLE_STRIP,faceIndices!!.size, GL_UNSIGNED_SHORT,0)
             glBindVertexArray(0)
         }
-        facePos.clear()
+        facePos = null
     }
 
     fun setFace(
@@ -59,15 +58,15 @@ class FaceRendering(
         uvs: FloatBuffer,
         normals: FloatBuffer
     ) {
-        faceVertex.add(vertex)
-        faceIndices.add(indices)
-        facePos.add(pos)
-        faceUVS.add(uvs)
-        faceNormals.add(normals)
-        vertexData.add(DataVertex(vertex,indices,3).apply {
+        faceVertex = vertex
+        faceIndices = indices
+        facePos = pos
+        faceUVS = uvs
+        faceNormals = normals
+        vertexData = DataVertex(vertex,indices,3).apply {
             addAttribute(program.getAttributeLocation("aPos"), 3, 0)
             bind()
-        })
+        }
     }
 
     fun setProjectionMatrix(projMatrix: FloatArray) {
