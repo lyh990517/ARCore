@@ -29,7 +29,6 @@ class FaceRendering(
     private var faceUVS: MutableList<FloatBuffer> = mutableListOf()
     private var faceNormals: MutableList<FloatBuffer> = mutableListOf()
 
-    private var facePosition = mutableListOf<Vec3>()
     private lateinit var program: Program
     private var proj = Mat4()
     private var view = Mat4()

@@ -41,9 +41,6 @@ class CubeRendering(
             program.setUniformMat4("view", view)
             glUniform4f(program.getUniformLocation("vColor"), red, green, blue, 1f)
             try {
-                glEnable(GL_CULL_FACE)
-                glCullFace(GL_FRONT)
-                glFrontFace(GL_CW)
                 cubePositions.forEachIndexed { index, vec3 ->
                     val model = glm.translate(Mat4(), vec3) * glm.scale(
                         Mat4(), Vec3(size, size, size)
@@ -52,7 +49,6 @@ class CubeRendering(
                     glDrawArrays(GL_TRIANGLES, 0, 36)
                 }
                 cube.disabledAttributes()
-                glDisable(GL_CULL_FACE)
             } catch (e: Exception) {
 
             }

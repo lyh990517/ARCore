@@ -37,6 +37,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         cubeScene.init()
         arObjectScene.init()
         faceRendering.init()
+        noseRendering.init()
         isViewportChanged = true
         mViewportWidth = width
         mViewportHeight = height
@@ -59,8 +60,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
         }
         cubeScene.draw()
         arObjectScene.draw()
-        if(isFrontCamera){
-            faceRendering.draw()
+        if (isFrontCamera) {
+            //faceRendering.draw()
+            arObjectScene.draw()
         }
     }
 
@@ -90,12 +92,14 @@ class MainRenderer(private val sessionManager: SessionManager) :
         val faces =
             sessionManager.mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
         faces?.forEach { face ->
+            val nose = face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP)
             if (face.trackingState == TrackingState.TRACKING) {
                 val uvs = face.meshTextureCoordinates
                 val indices = face.meshTriangleIndices
                 val facePose = face.centerPose
                 val faceVertices = face.meshVertices
                 val faceNormals = face.meshNormals
+                sessionManager.arObjectScene.addPosition(Vec3(nose.tx(), nose.ty(), nose.tz()))
                 sessionManager.faceRendering.setFace(
                     faceVertices, indices,
                     Vec3(facePose.tx(), facePose.ty(), facePose.tz()), uvs, faceNormals
@@ -186,8 +190,10 @@ class MainRenderer(private val sessionManager: SessionManager) :
         cubeScene.setViewMatrix(view)
         arObjectScene.setProjectionMatrix(projection)
         arObjectScene.setViewMatrix(view)
-        faceRendering.setViewMatrix(view)
         faceRendering.setProjectionMatrix(projection)
+        faceRendering.setViewMatrix(view)
+        noseRendering.setProjectionMatrix(projection)
+        noseRendering.setViewMatrix(view)
     }
 
     private fun extractMatrixFromCamera(frame: Frame): Pair<FloatArray, FloatArray> {
