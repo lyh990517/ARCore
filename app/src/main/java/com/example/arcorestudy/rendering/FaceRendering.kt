@@ -3,13 +3,9 @@ package com.example.arcorestudy.rendering
 import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLES30.*
-import android.opengl.GLES30
 import android.util.Log
 import com.example.arcorestudy.R
 import com.example.arcorestudy.tools.DataVertex
-import com.example.arcorestudy.tools.FaceMesh
-import com.example.arcorestudy.tools.Mesh
-import com.example.arcorestudy.tools.VBOData
 import com.example.gllibrary.*
 import glm_.glm
 import glm_.mat4x4.Mat4

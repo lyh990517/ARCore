@@ -28,7 +28,7 @@ data class Mesh(
             buffer.put(texCoords.get())
         }
         buffer.position(0)
-        data = VBOData(buffer, null, GLES30.GL_STATIC_DRAW, 5)
+        data = VBOData(vertices,GLES30.GL_STATIC_DRAW,3)
     }
 
     fun bind(program: Program) {

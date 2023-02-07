@@ -46,6 +46,7 @@ class ArObjectRendering(
             program.setInt("bump", 1)
             try {
                 objPosition.forEach {
+                    Log.e("it","$it")
                     val model =
                         glm.translate(Mat4(), it) * glm.scale(Mat4(), Vec3(0.05, 0.05, 0.05))
                     program.setUniformMat4("mvp", proj * view * model)
