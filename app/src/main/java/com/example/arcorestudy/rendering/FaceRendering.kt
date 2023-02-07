@@ -58,6 +58,7 @@ class FaceRendering(
         uvs: FloatBuffer,
         normals: FloatBuffer
     ) {
+
         faceVertex.add(vertex)
         faceIndices.add(indices)
         facePos.add(pos)
