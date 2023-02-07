@@ -23,10 +23,10 @@ class FaceRendering(
 ) {
 
     private var faceVertex: FloatBuffer? = null
-    private var faceIndices:  ShortBuffer? = null
+    private var faceIndices: ShortBuffer? = null
     private var facePos: Vec3? = null
-    private var faceUVS:  FloatBuffer? = null
-    private var faceNormals:  FloatBuffer? = null
+    private var faceUVS: FloatBuffer? = null
+    private var faceNormals: FloatBuffer? = null
 
     private var facePosition = mutableListOf<Vec3>()
     private lateinit var program: Program
@@ -43,9 +43,9 @@ class FaceRendering(
         program.use()
         facePos?.let { vec3 ->
             glBindVertexArray(vertexData!!.getVaoId())
-            val model = glm.translate(Mat4(), vec3)
+            val model = glm.translate(Mat4(), vec3) * glm.scale(Mat4(), Vec3(0.05f, 0.05f, 0.05f))
             program.setUniformMat4("mvp", proj * view * model)
-            GLES20.glDrawElements(GL_TRIANGLE_STRIP,faceIndices!!.size, GL_UNSIGNED_SHORT,0)
+            GLES20.glDrawArrays(GL_TRIANGLE_STRIP, 0, faceVertex!!.size)
             glBindVertexArray(0)
         }
         facePos = null
@@ -63,7 +63,7 @@ class FaceRendering(
         facePos = pos
         faceUVS = uvs
         faceNormals = normals
-        vertexData = DataVertex(vertex,indices,3).apply {
+        vertexData = DataVertex(vertex, null, 3).apply {
             addAttribute(program.getAttributeLocation("aPos"), 3, 0)
             bind()
         }

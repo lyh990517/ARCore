@@ -7,6 +7,8 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
+import com.example.arcorestudy.tools.cubeVertices
+import com.example.gllibrary.toFloatBuffer
 import com.google.ar.core.*
 import com.google.ar.core.exceptions.SessionPausedException
 import glm_.vec3.Vec3
@@ -97,7 +99,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 val faceVertices = face.meshVertices
                 val faceNormals = face.meshNormals
                 sessionManager.faceRendering.setFace(
-                    faceVertices, indices,
+                    cubeVertices.toFloatBuffer(), indices,
                     Vec3(facePose.tx(), facePose.ty(), facePose.tz()), uvs, faceNormals
                 )
             }
