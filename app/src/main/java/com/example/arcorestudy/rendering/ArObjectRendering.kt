@@ -83,8 +83,8 @@ class ArObjectRendering(
                 fromAssets(context, "backpack.obj"),
                 resources.readRawTextFile(R.raw.asset_vertex),
                 resources.readRawTextFile(R.raw.asset_fragment),
-                Texture(loadBitmap(context, R.raw.diffuse)),
-                Texture(loadBitmap(context, R.raw.specular))
+                Texture(loadBitmap(context, R.raw.bonobono)),
+                Texture(loadBitmap(context, R.raw.bonobono))
             )
         }
 

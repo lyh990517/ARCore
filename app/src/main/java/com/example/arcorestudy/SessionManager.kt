@@ -38,7 +38,8 @@ class SessionManager(private val context: Context) {
     val cubeScene: CubeRendering = CubeRendering.create(context)
     val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
     val faceRendering: FaceRendering = FaceRendering.create(context)
-
+    val right : Right = Right.create(context)
+    val left : Left = Left.create(context)
     fun create() {
         getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(
             displayListener,

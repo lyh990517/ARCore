@@ -28,6 +28,8 @@ class MainRenderer(private val sessionManager: SessionManager) :
     val zLiveData = MutableLiveData<Float>()
     var isFrontCamera = false
     private val noseMesh = sessionManager.fromAssets("NOSE.obj")
+    private val left = sessionManager.fromAssets("FOREHEAD_LEFT.obj")
+    private val right = sessionManager.fromAssets("FOREHEAD_RIGHT.obj")
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {}
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
@@ -37,6 +39,8 @@ class MainRenderer(private val sessionManager: SessionManager) :
         cubeScene.init()
         arObjectScene.init()
         faceRendering.init()
+        right.init()
+        left.init()
         isViewportChanged = true
         mViewportWidth = width
         mViewportHeight = height
@@ -58,9 +62,11 @@ class MainRenderer(private val sessionManager: SessionManager) :
             mPointCloud.draw()
         }
         cubeScene.draw()
-        arObjectScene.draw()
-        if(isFrontCamera){
+        //arObjectScene.draw()
+        if (isFrontCamera) {
             faceRendering.draw()
+            left.draw()
+            right.draw()
         }
     }
 
@@ -98,6 +104,33 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 val faceVertices = noseMesh.vertices
                 val faceNormals = noseMesh.normals
 
+                val earuvs = right.texCoords
+                val earindices = right.indices
+                val earfacePose = face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT)
+                val earfaceVertices = right.vertices
+                val earfaceNormals = right.normals
+
+
+                val earuvs2 = left.texCoords
+                val earindices2 = left.indices
+                val earfacePose2 = face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT)
+                val earfaceVertices2 = left.vertices
+                val earfaceNormals2 = left.normals
+
+                sessionManager.right.setFace(
+                    earfaceVertices,
+                    earindices,
+                    Vec3(earfacePose.tx(), earfacePose.ty(), earfacePose.tz()),
+                    earuvs,
+                    earfaceNormals
+                )
+                sessionManager.left.setFace(
+                    earfaceVertices2,
+                    earindices2,
+                    Vec3(earfacePose2.tx(), earfacePose2.ty(), earfacePose2.tz()),
+                    earuvs2,
+                    earfaceNormals2
+                )
                 sessionManager.faceRendering.setFace(
                     faceVertices, indices,
                     Vec3(facePose.tx(), facePose.ty(), facePose.tz()), uvs, faceNormals
@@ -188,8 +221,12 @@ class MainRenderer(private val sessionManager: SessionManager) :
         cubeScene.setViewMatrix(view)
         arObjectScene.setProjectionMatrix(projection)
         arObjectScene.setViewMatrix(view)
-        faceRendering.setViewMatrix(view)
         faceRendering.setProjectionMatrix(projection)
+        faceRendering.setViewMatrix(view)
+        right.setProjectionMatrix(projection)
+        right.setViewMatrix(view)
+        left.setProjectionMatrix(projection)
+        left.setViewMatrix(view)
     }
 
     private fun extractMatrixFromCamera(frame: Frame): Pair<FloatArray, FloatArray> {
