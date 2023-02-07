@@ -10,14 +10,14 @@ import java.nio.ShortBuffer
 
 class DataVertex(
     private val vertices: FloatBuffer,
-    private val indices: ShortBuffer?,
+    private val indices: IntBuffer?,
     private val stride: Int,
     private val drawMode: Int = GLES20.GL_STATIC_DRAW
 ) {
 
     constructor(
         vertices: FloatArray,
-        indices: ShortBuffer?,
+        indices: IntBuffer?,
         stride: Int,
         drawMode: Int = GLES20.GL_STATIC_DRAW
     ) : this(vertices.toFloatBuffer(), indices, stride, drawMode)
@@ -52,6 +52,7 @@ class DataVertex(
         }
 
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, vbo[0])
+        vertices.position(0)
         GLES30.glBufferData(
             GLES30.GL_ARRAY_BUFFER,
             Float.SIZE_BYTES * vertices.capacity(),
@@ -88,7 +89,7 @@ class DataVertex(
         GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, ebo[0])
         GLES30.glBufferData(
             GLES30.GL_ELEMENT_ARRAY_BUFFER,
-            Short.SIZE_BYTES * indices.capacity(),
+            Int.SIZE_BYTES * indices.capacity(),
             indices,
             drawMode
         )

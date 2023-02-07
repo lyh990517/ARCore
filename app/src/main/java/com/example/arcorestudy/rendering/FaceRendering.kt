@@ -15,37 +15,41 @@ import glm_.mat4x4.Mat4
 import glm_.size
 import glm_.vec3.Vec3
 import java.nio.FloatBuffer
+import java.nio.IntBuffer
 import java.nio.ShortBuffer
 
 class FaceRendering(
     private val vShader: String,
     private val fShader: String,
+    private val diffuse: Texture,
 ) {
 
     private var faceVertex: FloatBuffer? = null
-    private var faceIndices: ShortBuffer? = null
+    private var faceIndices: IntBuffer? = null
     private var facePos: Vec3? = null
     private var faceUVS: FloatBuffer? = null
     private var faceNormals: FloatBuffer? = null
 
-    private var facePosition = mutableListOf<Vec3>()
     private lateinit var program: Program
     private var proj = Mat4()
     private var view = Mat4()
     private var vertexData: DataVertex? = null
     fun init() {
         program = Program.create(vShader, fShader)
+        diffuse.load()
     }
 
     fun draw() {
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         program.use()
+        glActiveTexture(GL_TEXTURE0)
+        glBindTexture(GL_TEXTURE0, diffuse.getId())
         facePos?.let { vec3 ->
             glBindVertexArray(vertexData!!.getVaoId())
-            val model = glm.translate(Mat4(), vec3) * glm.scale(Mat4(), Vec3(0.05f, 0.05f, 0.05f))
+            val model = glm.translate(Mat4(), vec3)
             program.setUniformMat4("mvp", proj * view * model)
-            GLES20.glDrawArrays(GL_TRIANGLE_STRIP, 0, faceVertex!!.size)
+            GLES20.glDrawElements(GL_TRIANGLE_STRIP, faceIndices!!.size, GL_UNSIGNED_INT,0)
             glBindVertexArray(0)
         }
         facePos = null
@@ -53,7 +57,7 @@ class FaceRendering(
 
     fun setFace(
         vertex: FloatBuffer,
-        indices: ShortBuffer,
+        indices: IntBuffer,
         pos: Vec3,
         uvs: FloatBuffer,
         normals: FloatBuffer
@@ -63,8 +67,9 @@ class FaceRendering(
         facePos = pos
         faceUVS = uvs
         faceNormals = normals
-        vertexData = DataVertex(vertex, null, 3).apply {
+        vertexData = DataVertex(vertex, indices, 3).apply {
             addAttribute(program.getAttributeLocation("aPos"), 3, 0)
+            addAttribute(program.getAttributeLocation("aTexCoord"),2,3)
             bind()
         }
     }
@@ -82,7 +87,8 @@ class FaceRendering(
             val resource = context.resources
             return FaceRendering(
                 resource.readRawTextFile(R.raw.face_vertex),
-                resource.readRawTextFile(R.raw.face_fragment)
+                resource.readRawTextFile(R.raw.face_fragment),
+                Texture(loadBitmap(context, R.raw.diffuse)),
             )
         }
     }

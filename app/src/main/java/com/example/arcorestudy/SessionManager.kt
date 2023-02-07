@@ -8,9 +8,13 @@ import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getSystemService
 import com.example.arcorestudy.rendering.*
+import com.example.arcorestudy.tools.Mesh
 import com.google.ar.core.*
 import com.google.ar.core.Session.Feature
 import com.google.ar.core.exceptions.UnsupportedConfigurationException
+import de.javagl.obj.ObjData
+import de.javagl.obj.ObjReader
+import de.javagl.obj.ObjUtils
 import java.lang.UnsupportedOperationException
 
 class SessionManager(private val context: Context) {
@@ -39,6 +43,17 @@ class SessionManager(private val context: Context) {
         getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(
             displayListener,
             null
+        )
+    }
+    fun fromAssets(assetPath: String): Mesh {
+        val obj = context.assets.open(assetPath)
+            .let { stream -> ObjReader.read(stream) }
+            .let { objStream -> ObjUtils.convertToRenderable(objStream) }
+        return Mesh(
+            indices = ObjData.getFaceVertexIndices(obj),
+            vertices = ObjData.getVertices(obj),
+            normals = ObjData.getNormals(obj),
+            texCoords = ObjData.getTexCoords(obj, 2)
         )
     }
 

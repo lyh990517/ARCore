@@ -4,11 +4,8 @@ import android.opengl.GLSurfaceView
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES30.*
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
-import com.example.arcorestudy.tools.cubeVertices
-import com.example.gllibrary.toFloatBuffer
 import com.google.ar.core.*
 import com.google.ar.core.exceptions.SessionPausedException
 import glm_.vec3.Vec3
@@ -30,6 +27,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
     val yLiveData = MutableLiveData<Float>()
     val zLiveData = MutableLiveData<Float>()
     var isFrontCamera = false
+    private val noseMesh = sessionManager.fromAssets("NOSE.obj")
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {}
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
@@ -93,13 +91,15 @@ class MainRenderer(private val sessionManager: SessionManager) :
             sessionManager.mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
         faces?.forEach { face ->
             if (face.trackingState == TrackingState.TRACKING) {
-                val uvs = face.meshTextureCoordinates
-                val indices = face.meshTriangleIndices
-                val facePose = face.centerPose
-                val faceVertices = face.meshVertices
-                val faceNormals = face.meshNormals
+                //val mesh = sessionManager.fromAssets("backpack.obj")
+                val uvs = noseMesh.texCoords
+                val indices = noseMesh.indices
+                val facePose = face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP)
+                val faceVertices = noseMesh.vertices
+                val faceNormals = noseMesh.normals
+
                 sessionManager.faceRendering.setFace(
-                    cubeVertices.toFloatBuffer(), indices,
+                    faceVertices, indices,
                     Vec3(facePose.tx(), facePose.ty(), facePose.tz()), uvs, faceNormals
                 )
             }
