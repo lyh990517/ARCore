@@ -62,7 +62,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
             mPointCloud.draw()
         }
         cubeScene.draw()
-        //arObjectScene.draw()
+        arObjectScene.draw()
         if (isFrontCamera) {
             faceRendering.draw()
             left.draw()

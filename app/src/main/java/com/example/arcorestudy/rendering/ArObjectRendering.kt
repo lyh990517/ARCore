@@ -47,7 +47,7 @@ class ArObjectRendering(
             try {
                 objPosition.forEach {
                     val model =
-                        glm.translate(Mat4(), it) * glm.scale(Mat4(), Vec3(0.05, 0.05, 0.05))
+                        glm.translate(Mat4(), it)
                     program.setUniformMat4("mvp", proj * view * model)
                     mesh.draw()
                 }
@@ -80,11 +80,11 @@ class ArObjectRendering(
         fun create(context: Context): ArObjectRendering {
             val resources = context.resources
             return ArObjectRendering(
-                fromAssets(context, "backpack.obj"),
+                fromAssets(context, "NOSE.obj"),
                 resources.readRawTextFile(R.raw.asset_vertex),
                 resources.readRawTextFile(R.raw.asset_fragment),
-                Texture(loadBitmap(context, R.raw.bonobono)),
-                Texture(loadBitmap(context, R.raw.bonobono))
+                Texture(loadBitmap(context, R.raw.nose_fur)),
+                Texture(loadBitmap(context, R.raw.nose_fur))
             )
         }
 
