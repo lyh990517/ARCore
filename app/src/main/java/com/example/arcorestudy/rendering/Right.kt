@@ -72,7 +72,7 @@ class Right(
             buffer.put(vertex.get())
             buffer.put(vertex.get())
             buffer.put(uvs.get())
-            buffer.put(uvs.get())
+            buffer.put(1 - uvs.get())
         }
         vertexData = DataVertex(buffer, indices, 5).apply {
             addAttribute(program.getAttributeLocation("aPos"), 3, 0)
