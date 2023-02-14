@@ -35,15 +35,12 @@ class ArObjectRendering(
     fun draw() {
         try {
             program.use()
-            glEnable(GL_CULL_FACE)
-            glCullFace(GL_FRONT)
-            glFrontFace(GL_CW)
             glActiveTexture(GL_TEXTURE0)
             glBindTexture(GL_TEXTURE_2D, diffuse.getId())
             glActiveTexture(GL_TEXTURE1)
             glBindTexture(GL_TEXTURE_2D, specular.getId())
-            program.setInt("diffuse", 0)
-            program.setInt("bump", 1)
+            glUniform1i(glGetUniformLocation(program.getProgram(),"diffuse"),0)
+            glUniform1i(glGetUniformLocation(program.getProgram(),"bump"),1)
             try {
                 objPosition.forEach {
                     val model =
@@ -51,7 +48,6 @@ class ArObjectRendering(
                     program.setUniformMat4("mvp", proj * view * model)
                     mesh.draw()
                 }
-                glDisable(GL_CULL_FACE)
             } catch (e: Exception) {
 
             }
@@ -96,7 +92,7 @@ class ArObjectRendering(
                 indices = ObjData.getFaceVertexIndices(obj),
                 vertices = ObjData.getVertices(obj),
                 normals = ObjData.getNormals(obj),
-                texCoords = ObjData.getTexCoords(obj, 2)
+                texCoords = ObjData.getTexCoords(obj,2)
             )
         }
     }

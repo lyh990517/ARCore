@@ -21,11 +21,11 @@ data class Mesh(
     init {
 
         while (vertices.hasRemaining()) {
-            buffer.put(vertices.get())
-            buffer.put(vertices.get())
-            buffer.put(vertices.get())
             buffer.put(texCoords.get())
             buffer.put(texCoords.get())
+            buffer.put(vertices.get())
+            buffer.put(vertices.get())
+            buffer.put(vertices.get())
         }
         buffer.position(0)
         data = VBOData(buffer, GLES30.GL_STATIC_DRAW, 5)
@@ -33,8 +33,8 @@ data class Mesh(
 
     fun bind(program: Program) {
         data.bind()
-        data.addAttribute(program.getAttributeLocation("aPos"), 3, 0)
-        data.addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
+        data.addAttribute(GLES30.glGetAttribLocation(program.getProgram(),"aPos"), 3, 0)
+        data.addAttribute(GLES30.glGetAttribLocation(program.getProgram(),"aTexCoord"), 2, 3)
         bindIndices()
     }
 

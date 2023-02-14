@@ -34,6 +34,7 @@ class FaceRendering(
     private var proj = Mat4()
     private var view = Mat4()
     private var vertexData: DataVertex? = null
+
     fun init() {
         program = Program.create(vShader, fShader)
         diffuse.load()
@@ -67,9 +68,19 @@ class FaceRendering(
         facePos = pos
         faceUVS = uvs
         faceNormals = normals
-        vertexData = DataVertex(vertex, indices, 3).apply {
+        val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
+        vertex.position(0)
+        uvs.position(0)
+        while (vertex.hasRemaining()) {
+            buffer.put(vertex.get())
+            buffer.put(vertex.get())
+            buffer.put(vertex.get())
+            buffer.put(uvs.get())
+            buffer.put(uvs.get())
+        }
+        vertexData = DataVertex(buffer, indices, 5).apply {
             addAttribute(program.getAttributeLocation("aPos"), 3, 0)
-            //addAttribute(program.getAttributeLocation("aTexCoord"),2,3)
+            addAttribute(program.getAttributeLocation("aTexCoord"),2,3)
             bind()
         }
     }
@@ -88,7 +99,7 @@ class FaceRendering(
             return FaceRendering(
                 resource.readRawTextFile(R.raw.face_vertex),
                 resource.readRawTextFile(R.raw.face_fragment),
-                Texture(loadBitmap(context, R.raw.bonobono)),
+                Texture(loadBitmap(context, R.raw.nose_fur)),
             )
         }
     }
