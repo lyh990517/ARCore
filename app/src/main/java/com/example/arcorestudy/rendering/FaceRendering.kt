@@ -12,8 +12,10 @@ import com.example.arcorestudy.tools.VBOData
 import com.example.gllibrary.*
 import glm_.glm
 import glm_.mat4x4.Mat4
+import glm_.quat.Quat
 import glm_.size
 import glm_.vec3.Vec3
+import glm_.vec4.Vec4
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 import java.nio.ShortBuffer
@@ -29,6 +31,7 @@ class FaceRendering(
     private var facePos: Vec3? = null
     private var faceUVS: FloatBuffer? = null
     private var faceNormals: FloatBuffer? = null
+    private var faceQaut: Quat? = null
 
     private lateinit var program: Program
     private var proj = Mat4()
@@ -48,9 +51,11 @@ class FaceRendering(
         glBindTexture(GL_TEXTURE_2D, diffuse.getId())
         facePos?.let { vec3 ->
             glBindVertexArray(vertexData!!.getVaoId())
-            val model = glm.translate(Mat4(), vec3)
+            Log.e("quat","${faceQaut!!.y}")
+
+            val model = glm.translate(Mat4(), vec3) * glm.rotate(faceQaut!!,0f,Vec3(1,1,1)).toMat4()
             program.setUniformMat4("mvp", proj * view * model)
-            GLES20.glDrawElements(GL_TRIANGLE_STRIP, faceIndices!!.size, GL_UNSIGNED_INT,0)
+            GLES20.glDrawElements(GL_TRIANGLE_STRIP, faceIndices!!.size, GL_UNSIGNED_INT, 0)
             glBindVertexArray(0)
         }
         facePos = null
@@ -61,13 +66,15 @@ class FaceRendering(
         indices: IntBuffer,
         pos: Vec3,
         uvs: FloatBuffer,
-        normals: FloatBuffer
+        normals: FloatBuffer,
+        quat: Quat
     ) {
         faceVertex = vertex
         faceIndices = indices
         facePos = pos
         faceUVS = uvs
         faceNormals = normals
+        faceQaut = quat
         val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
         vertex.position(0)
         uvs.position(0)
@@ -80,7 +87,7 @@ class FaceRendering(
         }
         vertexData = DataVertex(buffer, indices, 5).apply {
             addAttribute(program.getAttributeLocation("aPos"), 3, 0)
-            addAttribute(program.getAttributeLocation("aTexCoord"),2,3)
+            addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
             bind()
         }
     }

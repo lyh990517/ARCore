@@ -4,10 +4,13 @@ import android.opengl.GLSurfaceView
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES30.*
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import com.google.ar.core.*
+import com.google.ar.core.Pose.makeRotation
 import com.google.ar.core.exceptions.SessionPausedException
+import glm_.quat.Quat
 import glm_.vec3.Vec3
 import javax.microedition.khronos.egl.EGLConfig
 
@@ -97,7 +100,6 @@ class MainRenderer(private val sessionManager: SessionManager) :
             sessionManager.mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
         faces?.forEach { face ->
             if (face.trackingState == TrackingState.TRACKING) {
-                //val mesh = sessionManager.fromAssets("backpack.obj")
                 val uvs = noseMesh.texCoords
                 val indices = noseMesh.indices
                 val facePose = face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP)
@@ -117,6 +119,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 val earfaceVertices2 = left.vertices
                 val earfaceNormals2 = left.normals
 
+                val quat = facePose.extractRotation().rotationQuaternion
                 sessionManager.right.setFace(
                     earfaceVertices,
                     earindices,
@@ -134,6 +137,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 sessionManager.faceRendering.setFace(
                     faceVertices, indices,
                     Vec3(facePose.tx(), facePose.ty(), facePose.tz()), uvs, faceNormals
+                , Quat(quat[0],quat[1],quat[2],quat[3])
                 )
             }
         }
