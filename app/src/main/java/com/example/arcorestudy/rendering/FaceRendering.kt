@@ -10,6 +10,7 @@ import com.example.arcorestudy.tools.*
 import com.example.arcorestudy.tools.Mesh
 import com.example.arcorestudy.tools.VBOData
 import com.example.gllibrary.*
+import com.google.ar.core.Pose
 import glm_.glm
 import glm_.mat4x4.Mat4
 import glm_.quat.Quat
@@ -33,12 +34,12 @@ class FaceRendering(
     private var faceUVS: FloatBuffer? = null
     private var faceNormals: FloatBuffer? = null
     private var faceQaut: Quat? = null
+    private var pose: Pose? = null
 
     private lateinit var program: Program
     private var proj = Mat4()
     private var view = Mat4()
     private var vertexData: DataVertex? = null
-    private var time = 0.0
     fun init() {
         program = Program.create(vShader, fShader)
         diffuse.load()
@@ -52,10 +53,16 @@ class FaceRendering(
         glBindTexture(GL_TEXTURE_2D, diffuse.getId())
         facePos?.let { vec3 ->
             glBindVertexArray(vertexData!!.getVaoId())
-            time += 0.01
-            val quat = faceQaut!!.angleAxis_(faceQaut!!.angle(),Vec3(-1,0,0))
-            Log.e("quat","${quat}")
-            val model = glm.translate(Mat4(), vec3) * glm.rotate(faceQaut!!,glm.PIf,Vec3(1,0,0)).toMat4()
+            Log.e("test", "x : ${pose!!.qx()} y : ${pose!!.qy()} z : ${pose!!.qz()}")
+            val model = glm.translate(Mat4(), vec3) * glm.rotate(
+                Mat4(),
+                pose!!.qx() * glm.PIf,
+                Vec3(1, 0, 0)
+            ) * glm.rotate(Mat4(), pose!!.qy() * glm.PIf, Vec3(0, 1, 0)) * glm.rotate(
+                Mat4(),
+                pose!!.qz() * glm.PIf,
+                Vec3(0, 0, 1)
+            )
             program.setUniformMat4("mvp", proj * view * model)
             GLES20.glDrawElements(GL_TRIANGLE_STRIP, faceIndices!!.size, GL_UNSIGNED_INT, 0)
             glBindVertexArray(0)
@@ -69,7 +76,8 @@ class FaceRendering(
         pos: Vec3,
         uvs: FloatBuffer,
         normals: FloatBuffer,
-        quat: Quat
+        quat: Quat,
+        pose: Pose
     ) {
         faceVertex = vertex
         faceIndices = indices
@@ -77,6 +85,7 @@ class FaceRendering(
         faceUVS = uvs
         faceNormals = normals
         faceQaut = quat
+        this.pose = pose
         val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
         vertex.position(0)
         uvs.position(0)

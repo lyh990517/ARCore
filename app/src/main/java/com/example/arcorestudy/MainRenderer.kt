@@ -119,7 +119,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 val earfaceVertices2 = left.vertices
                 val earfaceNormals2 = left.normals
 
-                val quat = facePose.extractRotation().rotationQuaternion
+                val quat = facePose
                 sessionManager.right.setFace(
                     earfaceVertices,
                     earindices,
@@ -137,7 +137,8 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 sessionManager.faceRendering.setFace(
                     faceVertices, indices,
                     Vec3(facePose.tx(), facePose.ty(), facePose.tz()), uvs, faceNormals
-                , Quat(quat[0],quat[1],quat[2],quat[3])
+                , Quat(quat.qx(),quat.qy(),quat.qz(),quat.qw()),
+                    quat
                 )
             }
         }
