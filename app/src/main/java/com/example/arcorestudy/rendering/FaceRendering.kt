@@ -16,6 +16,7 @@ import glm_.quat.Quat
 import glm_.size
 import glm_.vec3.Vec3
 import glm_.vec4.Vec4
+import java.lang.Math.sin
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 import java.nio.ShortBuffer
@@ -37,7 +38,7 @@ class FaceRendering(
     private var proj = Mat4()
     private var view = Mat4()
     private var vertexData: DataVertex? = null
-
+    private var time = 0.0
     fun init() {
         program = Program.create(vShader, fShader)
         diffuse.load()
@@ -51,9 +52,10 @@ class FaceRendering(
         glBindTexture(GL_TEXTURE_2D, diffuse.getId())
         facePos?.let { vec3 ->
             glBindVertexArray(vertexData!!.getVaoId())
-            Log.e("quat","${faceQaut!!.y}")
-
-            val model = glm.translate(Mat4(), vec3) * glm.rotate(faceQaut!!,0f,Vec3(1,1,1)).toMat4()
+            time += 0.01
+            val quat = faceQaut!!.angleAxis_(faceQaut!!.angle(),Vec3(-1,0,0))
+            Log.e("quat","${quat}")
+            val model = glm.translate(Mat4(), vec3) * glm.rotate(faceQaut!!,glm.PIf,Vec3(1,0,0)).toMat4()
             program.setUniformMat4("mvp", proj * view * model)
             GLES20.glDrawElements(GL_TRIANGLE_STRIP, faceIndices!!.size, GL_UNSIGNED_INT, 0)
             glBindVertexArray(0)
