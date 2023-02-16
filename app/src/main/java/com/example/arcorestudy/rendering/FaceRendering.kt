@@ -15,8 +15,11 @@ import glm_.glm
 import glm_.mat4x4.Mat4
 import glm_.quat.Quat
 import glm_.size
+import glm_.toDouble
+import glm_.toFloat
 import glm_.vec3.Vec3
 import glm_.vec4.Vec4
+import java.lang.Math.cos
 import java.lang.Math.sin
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
@@ -59,7 +62,7 @@ class FaceRendering(
                 Vec3(1, 0, 0)
             ) * glm.rotate(Mat4(), pose!!.qy() * glm.PIf, Vec3(0, 1, 0)) * glm.rotate(
                 Mat4(),
-                pose!!.qz() * glm.PIf,
+                if(pose!!.qz() <= 0)(2 * cos(pose!!.qz().toDouble)).toFloat * glm.PIf else -(2 * cos(pose!!.qz().toDouble)).toFloat * glm.PIf,
                 Vec3(0, 0, 1)
             )
             program.setUniformMat4("mvp", proj * view * model)
