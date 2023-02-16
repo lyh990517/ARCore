@@ -6,8 +6,10 @@ import android.opengl.GLES30
 import com.example.arcorestudy.R
 import com.example.arcorestudy.tools.DataVertex
 import com.example.gllibrary.*
+import com.google.ar.core.Pose
 import glm_.glm
 import glm_.mat4x4.Mat4
+import glm_.quat.Quat
 import glm_.size
 import glm_.vec3.Vec3
 import java.nio.FloatBuffer
@@ -24,6 +26,8 @@ class Left(
     private var facePos: Vec3? = null
     private var faceUVS: FloatBuffer? = null
     private var faceNormals: FloatBuffer? = null
+    private var faceQaut: Quat? = null
+    private var pose: Pose? = null
 
     private lateinit var program: Program
     private var proj = Mat4()
@@ -42,11 +46,19 @@ class Left(
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
         facePos?.let { vec3 ->
             GLES30.glBindVertexArray(vertexData!!.getVaoId())
-            val model = glm.translate(Mat4(), vec3)
+            val model = glm.translate(Mat4(), vec3) * glm.rotate(
+                Mat4(),
+                pose!!.qx() * glm.PIf,
+                Vec3(1, 0, 0)
+            ) * glm.rotate(Mat4(), pose!!.qy() * glm.PIf, Vec3(0, 1, 0)) * glm.rotate(
+                Mat4(),
+                pose!!.qz() * glm.PIf,
+                Vec3(0, 0, 1)
+            )
             program.setUniformMat4("mvp", proj * view * model)
             GLES20.glDrawElements(
                 GLES30.GL_TRIANGLE_STRIP, faceIndices!!.size,
-                GLES30.GL_UNSIGNED_INT,0)
+                GLES30.GL_UNSIGNED_INT, 0)
             GLES30.glBindVertexArray(0)
         }
         facePos = null
@@ -57,13 +69,17 @@ class Left(
         indices: IntBuffer,
         pos: Vec3,
         uvs: FloatBuffer,
-        normals: FloatBuffer
+        normals: FloatBuffer,
+        quat: Quat,
+        pose: Pose
     ) {
         faceVertex = vertex
         faceIndices = indices
         facePos = pos
         faceUVS = uvs
         faceNormals = normals
+        faceQaut = quat
+        this.pose = pose
         val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
         vertex.position(0)
         uvs.position(0)
@@ -76,7 +92,7 @@ class Left(
         }
         vertexData = DataVertex(buffer, indices, 5).apply {
             addAttribute(program.getAttributeLocation("aPos"), 3, 0)
-            addAttribute(program.getAttributeLocation("aTexCoord"),2,3)
+            addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
             bind()
         }
     }

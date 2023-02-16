@@ -53,7 +53,6 @@ class FaceRendering(
         glBindTexture(GL_TEXTURE_2D, diffuse.getId())
         facePos?.let { vec3 ->
             glBindVertexArray(vertexData!!.getVaoId())
-            Log.e("test", "x : ${pose!!.qx()} y : ${pose!!.qy()} z : ${pose!!.qz()}")
             val model = glm.translate(Mat4(), vec3) * glm.rotate(
                 Mat4(),
                 pose!!.qx() * glm.PIf,

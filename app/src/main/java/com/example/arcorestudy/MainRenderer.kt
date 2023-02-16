@@ -120,19 +120,25 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 val earfaceNormals2 = left.normals
 
                 val quat = facePose
+                val quat2 = earfacePose
+                val quat3 = earfacePose2
                 sessionManager.right.setFace(
                     earfaceVertices,
                     earindices,
                     Vec3(earfacePose.tx(), earfacePose.ty(), earfacePose.tz()),
                     earuvs,
-                    earfaceNormals
+                    earfaceNormals,
+                    Quat(quat2.qx(),quat2.qy(),quat2.qz(),quat2.qw()),
+                    quat2
                 )
                 sessionManager.left.setFace(
                     earfaceVertices2,
                     earindices2,
                     Vec3(earfacePose2.tx(), earfacePose2.ty(), earfacePose2.tz()),
                     earuvs2,
-                    earfaceNormals2
+                    earfaceNormals2,
+                    Quat(quat3.qx(),quat3.qy(),quat3.qz(),quat3.qw()),
+                    quat3
                 )
                 sessionManager.faceRendering.setFace(
                     faceVertices, indices,
