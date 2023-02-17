@@ -40,7 +40,7 @@ class SessionManager(private val context: Context) {
     val mPointCloud: PointCloudRendering = PointCloudRendering.create(context)
     val cubeScene: CubeRendering = CubeRendering.create(context)
     val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
-    val noseRendering: NoseRendering = NoseRendering.create(context)
+    val noseRendering: NoseRendering = NoseRendering.create(context,fromAssets("NOSE.obj"))
     val rightEarRendering : RightEarRendering = RightEarRendering.create(context)
     val leftEarRendering : LeftEarRendering = LeftEarRendering.create(context)
     fun create() {

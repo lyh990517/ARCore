@@ -5,6 +5,7 @@ import android.opengl.GLES20
 import android.opengl.GLES30.*
 import com.example.arcorestudy.R
 import com.example.arcorestudy.tools.*
+import com.example.arcorestudy.tools.Mesh
 import com.example.gllibrary.*
 import com.google.ar.core.Pose
 import glm_.glm
@@ -21,13 +22,9 @@ class NoseRendering(
     private val vShader: String,
     private val fShader: String,
     private val diffuse: Texture,
+    private val noseMesh: Mesh
 ) {
-
-    private var faceVertex: FloatBuffer? = null
-    private var faceIndices: IntBuffer? = null
-    private var facePos: Vec3? = null
-    private var faceUVS: FloatBuffer? = null
-    private var faceNormals: FloatBuffer? = null
+    private var nosePosition: Vec3? = null
     private var pose: Pose? = null
 
     private lateinit var program: Program
@@ -37,6 +34,21 @@ class NoseRendering(
     fun init() {
         program = Program.create(vShader, fShader)
         diffuse.load()
+        val buffer = createFloatBuffer(noseMesh.vertices.capacity() + noseMesh.texCoords.capacity())
+        noseMesh.vertices.position(0)
+        noseMesh.texCoords.position(0)
+        while (noseMesh.vertices.hasRemaining()) {
+            buffer.put(noseMesh.vertices.get())
+            buffer.put(noseMesh.vertices.get())
+            buffer.put(noseMesh.vertices.get())
+            buffer.put(noseMesh.texCoords.get())
+            buffer.put(1 - noseMesh.texCoords.get())
+        }
+        vertexData = DataVertex(buffer, noseMesh.indices, 5).apply {
+            addAttribute(program.getAttributeLocation("aPos"), 3, 0)
+            addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
+            bind()
+        }
     }
 
     fun draw() {
@@ -45,53 +57,29 @@ class NoseRendering(
         program.use()
         glActiveTexture(GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_2D, diffuse.getId())
-        facePos?.let { vec3 ->
+        nosePosition?.let { position ->
             glBindVertexArray(vertexData!!.getVaoId())
-            val model = glm.translate(Mat4(), vec3) * glm.rotate(
-                Mat4(),
-                pose!!.qx() * glm.PIf,
-                Vec3(1, 0, 0)
-            ) * glm.rotate(Mat4(), pose!!.qy() * glm.PIf, Vec3(0, 1, 0)) * glm.rotate(
-                Mat4(),
-                if(pose!!.qz() <= 0)(2 * cos(pose!!.qz().toDouble)).toFloat * glm.PIf else -(2 * cos(pose!!.qz().toDouble)).toFloat * glm.PIf,
-                Vec3(0, 0, 1)
-            )
+            val model = glm.translate(Mat4(), position) *
+                    glm.rotate(Mat4(), pose!!.qx() * glm.PIf, Vec3(1, 0, 0)) *
+                    glm.rotate(Mat4(), pose!!.qy() * glm.PIf, Vec3(0, 1, 0)) *
+                    glm.rotate(Mat4(), getAngle(), Vec3(0, 0, 1))
             program.setUniformMat4("mvp", proj * view * model)
-            GLES20.glDrawElements(GL_TRIANGLE_STRIP, faceIndices!!.size, GL_UNSIGNED_INT, 0)
+            GLES20.glDrawElements(GL_TRIANGLE_STRIP, noseMesh.vertices.size, GL_UNSIGNED_INT, 0)
             glBindVertexArray(0)
         }
-        facePos = null
+        nosePosition = null
     }
 
-    fun setFace(
-        vertex: FloatBuffer,
-        indices: IntBuffer,
-        pos: Vec3,
-        uvs: FloatBuffer,
-        normals: FloatBuffer,
+    private fun getAngle() =
+        if (pose!!.qz() <= 0) (2 * kotlin.math.cos(pose!!.qz().toDouble)).toFloat * glm.PIf else -(2 * kotlin.math.cos(
+            pose!!.qz().toDouble
+        )).toFloat * glm.PIf
+
+    fun setNosePose(
         pose: Pose
     ) {
-        faceVertex = vertex
-        faceIndices = indices
-        facePos = pos
-        faceUVS = uvs
-        faceNormals = normals
         this.pose = pose
-        val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
-        vertex.position(0)
-        uvs.position(0)
-        while (vertex.hasRemaining()) {
-            buffer.put(vertex.get())
-            buffer.put(vertex.get())
-            buffer.put(vertex.get())
-            buffer.put(uvs.get())
-            buffer.put(1 - uvs.get())
-        }
-        vertexData = DataVertex(buffer, indices, 5).apply {
-            addAttribute(program.getAttributeLocation("aPos"), 3, 0)
-            addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
-            bind()
-        }
+        nosePosition = Vec3(pose.tx(), pose.ty(), pose.tz())
     }
 
     fun setProjectionMatrix(projMatrix: FloatArray) {
@@ -103,12 +91,13 @@ class NoseRendering(
     }
 
     companion object {
-        fun create(context: Context): NoseRendering {
+        fun create(context: Context, mesh: Mesh): NoseRendering {
             val resource = context.resources
             return NoseRendering(
                 resource.readRawTextFile(R.raw.face_vertex),
                 resource.readRawTextFile(R.raw.face_fragment),
                 Texture(loadBitmap(context, R.raw.nose_fur)),
+                mesh
             )
         }
 

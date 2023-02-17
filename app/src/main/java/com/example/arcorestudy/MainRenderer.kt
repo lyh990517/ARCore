@@ -27,7 +27,6 @@ class MainRenderer(private val sessionManager: SessionManager) :
     val yLiveData = MutableLiveData<Float>()
     val zLiveData = MutableLiveData<Float>()
     var isFrontCamera = false
-    private val noseMesh = sessionManager.fromAssets("NOSE.obj")
     private val left = sessionManager.fromAssets("FOREHEAD_LEFT.obj")
     private val right = sessionManager.fromAssets("FOREHEAD_RIGHT.obj")
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {}
@@ -97,11 +96,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
             sessionManager.mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
         faces?.forEach { face ->
             if (face.trackingState == TrackingState.TRACKING) {
-                val noseUVS = noseMesh.texCoords
-                val noseIndices = noseMesh.indices
                 val nosePose = face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP)
-                val noseVertices = noseMesh.vertices
-                val noseNormals = noseMesh.normals
 
                 val rightEarUVS = right.texCoords
                 val rightEarIndices = right.indices
@@ -132,11 +127,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
                     leftEarNormals,
                     leftEarPose
                 )
-                sessionManager.noseRendering.setFace(
-                    noseVertices, noseIndices,
-                    Vec3(nosePose.tx(), nosePose.ty(), nosePose.tz()), noseUVS, noseNormals,
-                    nosePose
-                )
+                sessionManager.noseRendering.setNosePose(nosePose)
             }
         }
         if (faces.isNullOrEmpty()) {
