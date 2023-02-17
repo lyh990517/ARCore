@@ -5,6 +5,7 @@ import android.opengl.GLES20
 import android.opengl.GLES30
 import com.example.arcorestudy.R
 import com.example.arcorestudy.tools.DataVertex
+import com.example.arcorestudy.tools.Mesh
 import com.example.gllibrary.*
 import com.google.ar.core.Pose
 import glm_.glm
@@ -20,13 +21,9 @@ class LeftEarRendering(
     private val vShader: String,
     private val fShader: String,
     private val diffuse: Texture,
+    private val leftEarMesh: Mesh
 ) {
-
-    private var faceVertex: FloatBuffer? = null
-    private var faceIndices: IntBuffer? = null
-    private var facePos: Vec3? = null
-    private var faceUVS: FloatBuffer? = null
-    private var faceNormals: FloatBuffer? = null
+    private var leftEarPosition: Vec3? = null
     private var pose: Pose? = null
 
     private lateinit var program: Program
@@ -36,6 +33,21 @@ class LeftEarRendering(
     fun init() {
         program = Program.create(vShader, fShader)
         diffuse.load()
+        val buffer = createFloatBuffer(leftEarMesh.vertices.capacity() + leftEarMesh.texCoords.capacity())
+        leftEarMesh.vertices.position(0)
+        leftEarMesh.texCoords.position(0)
+        while (leftEarMesh.vertices.hasRemaining()) {
+            buffer.put(leftEarMesh.vertices.get())
+            buffer.put(leftEarMesh.vertices.get())
+            buffer.put(leftEarMesh.vertices.get())
+            buffer.put(leftEarMesh.texCoords.get())
+            buffer.put(1 - leftEarMesh.texCoords.get())
+        }
+        vertexData = DataVertex(buffer, leftEarMesh.indices, 5).apply {
+            addAttribute(program.getAttributeLocation("aPos"), 3, 0)
+            addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
+            bind()
+        }
     }
 
     fun draw() {
@@ -44,57 +56,31 @@ class LeftEarRendering(
         program.use()
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
-        facePos?.let { vec3 ->
+        leftEarPosition?.let { position ->
             GLES30.glBindVertexArray(vertexData!!.getVaoId())
-            val model = glm.translate(Mat4(), vec3) * glm.rotate(
-                Mat4(),
-                pose!!.qx() * glm.PIf,
-                Vec3(1, 0, 0)
-            ) * glm.rotate(Mat4(), pose!!.qy() * glm.PIf, Vec3(0, 1, 0)) * glm.rotate(
-                Mat4(),
-                if(pose!!.qz() <= 0)(2 * Math.cos(pose!!.qz().toDouble)).toFloat * glm.PIf else -(2 * Math.cos(
-                    pose!!.qz().toDouble
-                )).toFloat * glm.PIf,
-                Vec3(0, 0, 1)
-            )
+            val model = glm.translate(Mat4(), position) *
+                    glm.rotate(Mat4(), pose!!.qx() * glm.PIf, Vec3(1, 0, 0)) *
+                    glm.rotate(Mat4(), pose!!.qy() * glm.PIf, Vec3(0, 1, 0)) *
+                    glm.rotate(Mat4(), getAngle(), Vec3(0, 0, 1))
             program.setUniformMat4("mvp", proj * view * model)
             GLES20.glDrawElements(
-                GLES30.GL_TRIANGLE_STRIP, faceIndices!!.size,
+                GLES30.GL_TRIANGLE_STRIP, leftEarMesh.vertices.size,
                 GLES30.GL_UNSIGNED_INT, 0)
             GLES30.glBindVertexArray(0)
         }
-        facePos = null
+        leftEarPosition = null
     }
 
-    fun setFace(
-        vertex: FloatBuffer,
-        indices: IntBuffer,
-        pos: Vec3,
-        uvs: FloatBuffer,
-        normals: FloatBuffer,
+    private fun getAngle() =
+        if (pose!!.qz() <= 0) (2 * kotlin.math.cos(pose!!.qz().toDouble)).toFloat * glm.PIf else -(2 * kotlin.math.cos(
+            pose!!.qz().toDouble
+        )).toFloat * glm.PIf
+
+    fun setLeftEarPose(
         pose: Pose
     ) {
-        faceVertex = vertex
-        faceIndices = indices
-        facePos = pos
-        faceUVS = uvs
-        faceNormals = normals
         this.pose = pose
-        val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
-        vertex.position(0)
-        uvs.position(0)
-        while (vertex.hasRemaining()) {
-            buffer.put(vertex.get())
-            buffer.put(vertex.get())
-            buffer.put(vertex.get())
-            buffer.put(uvs.get())
-            buffer.put(1 - uvs.get())
-        }
-        vertexData = DataVertex(buffer, indices, 5).apply {
-            addAttribute(program.getAttributeLocation("aPos"), 3, 0)
-            addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
-            bind()
-        }
+        leftEarPosition = Vec3(pose.tx(), pose.ty(), pose.tz())
     }
 
     fun setProjectionMatrix(projMatrix: FloatArray) {
@@ -106,13 +92,15 @@ class LeftEarRendering(
     }
 
     companion object {
-        fun create(context: Context): LeftEarRendering {
+        fun create(context: Context, mesh: Mesh): LeftEarRendering {
             val resource = context.resources
             return LeftEarRendering(
                 resource.readRawTextFile(R.raw.face_vertex),
                 resource.readRawTextFile(R.raw.face_fragment),
                 Texture(loadBitmap(context, R.raw.ear_fur)),
+                mesh
             )
         }
+
     }
 }

@@ -28,7 +28,6 @@ class MainRenderer(private val sessionManager: SessionManager) :
     val zLiveData = MutableLiveData<Float>()
     var isFrontCamera = false
     private val left = sessionManager.fromAssets("FOREHEAD_LEFT.obj")
-    private val right = sessionManager.fromAssets("FOREHEAD_RIGHT.obj")
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {}
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
@@ -91,43 +90,14 @@ class MainRenderer(private val sessionManager: SessionManager) :
         }
     }
 
-    private fun detectFace() {
+    private fun detectFace() = with(sessionManager){
         val faces =
-            sessionManager.mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
+            mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
         faces?.forEach { face ->
             if (face.trackingState == TrackingState.TRACKING) {
-                val nosePose = face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP)
-
-                val rightEarUVS = right.texCoords
-                val rightEarIndices = right.indices
-                val rightEarPose = face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT)
-                val rightEarVertices = right.vertices
-                val rightEarNormals = right.normals
-
-
-                val leftEarUVS = left.texCoords
-                val leftEarIndices = left.indices
-                val leftEarPose = face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT)
-                val leftEarVertices = left.vertices
-                val leftEarNormals = left.normals
-
-                sessionManager.rightEarRendering.setFace(
-                    rightEarVertices,
-                    rightEarIndices,
-                    Vec3(rightEarPose.tx(), rightEarPose.ty(), rightEarPose.tz()),
-                    rightEarUVS,
-                    rightEarNormals,
-                    rightEarPose
-                )
-                sessionManager.leftEarRendering.setFace(
-                    leftEarVertices,
-                    leftEarIndices,
-                    Vec3(leftEarPose.tx(), leftEarPose.ty(), leftEarPose.tz()),
-                    leftEarUVS,
-                    leftEarNormals,
-                    leftEarPose
-                )
-                sessionManager.noseRendering.setNosePose(nosePose)
+                rightEarRendering.setRightEarPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT))
+                leftEarRendering.setLeftEarPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT))
+                noseRendering.setNosePose(face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP))
             }
         }
         if (faces.isNullOrEmpty()) {

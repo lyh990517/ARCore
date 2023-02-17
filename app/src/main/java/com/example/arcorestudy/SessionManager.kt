@@ -41,8 +41,8 @@ class SessionManager(private val context: Context) {
     val cubeScene: CubeRendering = CubeRendering.create(context)
     val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
     val noseRendering: NoseRendering = NoseRendering.create(context,fromAssets("NOSE.obj"))
-    val rightEarRendering : RightEarRendering = RightEarRendering.create(context)
-    val leftEarRendering : LeftEarRendering = LeftEarRendering.create(context)
+    val rightEarRendering : RightEarRendering = RightEarRendering.create(context,fromAssets("FOREHEAD_RIGHT.obj"))
+    val leftEarRendering : LeftEarRendering = LeftEarRendering.create(context,fromAssets("FOREHEAD_LEFT.obj"))
     fun create() {
         getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(
             displayListener,
@@ -90,7 +90,7 @@ class SessionManager(private val context: Context) {
         }
     }
 
-    fun config(session: Session): Config = Config(session).apply {
+    private fun config(session: Session): Config = Config(session).apply {
         try {
             updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
             augmentedFaceMode = Config.AugmentedFaceMode.MESH3D
