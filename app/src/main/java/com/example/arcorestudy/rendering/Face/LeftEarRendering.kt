@@ -1,4 +1,4 @@
-package com.example.arcorestudy.rendering
+package com.example.arcorestudy.rendering.Face
 
 import android.content.Context
 import android.opengl.GLES20
@@ -9,7 +9,6 @@ import com.example.gllibrary.*
 import com.google.ar.core.Pose
 import glm_.glm
 import glm_.mat4x4.Mat4
-import glm_.quat.Quat
 import glm_.size
 import glm_.toDouble
 import glm_.toFloat
@@ -17,7 +16,7 @@ import glm_.vec3.Vec3
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 
-class Left(
+class LeftEarRendering(
     private val vShader: String,
     private val fShader: String,
     private val diffuse: Texture,
@@ -28,7 +27,6 @@ class Left(
     private var facePos: Vec3? = null
     private var faceUVS: FloatBuffer? = null
     private var faceNormals: FloatBuffer? = null
-    private var faceQaut: Quat? = null
     private var pose: Pose? = null
 
     private lateinit var program: Program
@@ -74,7 +72,6 @@ class Left(
         pos: Vec3,
         uvs: FloatBuffer,
         normals: FloatBuffer,
-        quat: Quat,
         pose: Pose
     ) {
         faceVertex = vertex
@@ -82,7 +79,6 @@ class Left(
         facePos = pos
         faceUVS = uvs
         faceNormals = normals
-        faceQaut = quat
         this.pose = pose
         val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
         vertex.position(0)
@@ -110,9 +106,9 @@ class Left(
     }
 
     companion object {
-        fun create(context: Context): Left {
+        fun create(context: Context): LeftEarRendering {
             val resource = context.resources
-            return Left(
+            return LeftEarRendering(
                 resource.readRawTextFile(R.raw.face_vertex),
                 resource.readRawTextFile(R.raw.face_fragment),
                 Texture(loadBitmap(context, R.raw.ear_fur)),

@@ -4,13 +4,10 @@ import android.opengl.GLSurfaceView
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES30.*
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import com.google.ar.core.*
-import com.google.ar.core.Pose.makeRotation
 import com.google.ar.core.exceptions.SessionPausedException
-import glm_.quat.Quat
 import glm_.vec3.Vec3
 import javax.microedition.khronos.egl.EGLConfig
 
@@ -41,9 +38,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
         mPointCloud.init()
         cubeScene.init()
         arObjectScene.init()
-        faceRendering.init()
-        right.init()
-        left.init()
+        noseRendering.init()
+        rightEarRendering.init()
+        leftEarRendering.init()
         isViewportChanged = true
         mViewportWidth = width
         mViewportHeight = height
@@ -67,9 +64,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
         cubeScene.draw()
         arObjectScene.draw()
         if (isFrontCamera) {
-            faceRendering.draw()
-            left.draw()
-            right.draw()
+            noseRendering.draw()
+            leftEarRendering.draw()
+            rightEarRendering.draw()
         }
     }
 
@@ -100,51 +97,45 @@ class MainRenderer(private val sessionManager: SessionManager) :
             sessionManager.mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
         faces?.forEach { face ->
             if (face.trackingState == TrackingState.TRACKING) {
-                val uvs = noseMesh.texCoords
-                val indices = noseMesh.indices
-                val facePose = face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP)
-                val faceVertices = noseMesh.vertices
-                val faceNormals = noseMesh.normals
+                val noseUVS = noseMesh.texCoords
+                val noseIndices = noseMesh.indices
+                val nosePose = face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP)
+                val noseVertices = noseMesh.vertices
+                val noseNormals = noseMesh.normals
 
-                val earuvs = right.texCoords
-                val earindices = right.indices
-                val earfacePose = face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT)
-                val earfaceVertices = right.vertices
-                val earfaceNormals = right.normals
+                val rightEarUVS = right.texCoords
+                val rightEarIndices = right.indices
+                val rightEarPose = face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT)
+                val rightEarVertices = right.vertices
+                val rightEarNormals = right.normals
 
 
-                val earuvs2 = left.texCoords
-                val earindices2 = left.indices
-                val earfacePose2 = face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT)
-                val earfaceVertices2 = left.vertices
-                val earfaceNormals2 = left.normals
+                val leftEarUVS = left.texCoords
+                val leftEarIndices = left.indices
+                val leftEarPose = face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT)
+                val leftEarVertices = left.vertices
+                val leftEarNormals = left.normals
 
-                val quat = facePose
-                val quat2 = earfacePose
-                val quat3 = earfacePose2
-                sessionManager.right.setFace(
-                    earfaceVertices,
-                    earindices,
-                    Vec3(earfacePose.tx(), earfacePose.ty(), earfacePose.tz()),
-                    earuvs,
-                    earfaceNormals,
-                    Quat(quat2.qx(),quat2.qy(),quat2.qz(),quat2.qw()),
-                    quat2
+                sessionManager.rightEarRendering.setFace(
+                    rightEarVertices,
+                    rightEarIndices,
+                    Vec3(rightEarPose.tx(), rightEarPose.ty(), rightEarPose.tz()),
+                    rightEarUVS,
+                    rightEarNormals,
+                    rightEarPose
                 )
-                sessionManager.left.setFace(
-                    earfaceVertices2,
-                    earindices2,
-                    Vec3(earfacePose2.tx(), earfacePose2.ty(), earfacePose2.tz()),
-                    earuvs2,
-                    earfaceNormals2,
-                    Quat(quat3.qx(),quat3.qy(),quat3.qz(),quat3.qw()),
-                    quat3
+                sessionManager.leftEarRendering.setFace(
+                    leftEarVertices,
+                    leftEarIndices,
+                    Vec3(leftEarPose.tx(), leftEarPose.ty(), leftEarPose.tz()),
+                    leftEarUVS,
+                    leftEarNormals,
+                    leftEarPose
                 )
-                sessionManager.faceRendering.setFace(
-                    faceVertices, indices,
-                    Vec3(facePose.tx(), facePose.ty(), facePose.tz()), uvs, faceNormals
-                , Quat(quat.qx(),quat.qy(),quat.qz(),quat.qw()),
-                    quat
+                sessionManager.noseRendering.setFace(
+                    noseVertices, noseIndices,
+                    Vec3(nosePose.tx(), nosePose.ty(), nosePose.tz()), noseUVS, noseNormals,
+                    nosePose
                 )
             }
         }
@@ -177,7 +168,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         }
         when (drawingMode.value) {
             "near" -> {
-                if (results.size > 0) {
+                if (results.isNotEmpty()) {
                     val distance = results[0].distance
                     distanceLiveData.postValue(distance)
                     val pose = results[0].hitPose
@@ -188,7 +179,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 }
             }
             "far" -> {
-                if (results.size > 0) {
+                if (results.isNotEmpty()) {
                     val distance = results[results.size - 1].distance
                     distanceLiveData.postValue(distance)
                     val pose = results[results.size - 1].hitPose
@@ -232,12 +223,12 @@ class MainRenderer(private val sessionManager: SessionManager) :
         cubeScene.setViewMatrix(view)
         arObjectScene.setProjectionMatrix(projection)
         arObjectScene.setViewMatrix(view)
-        faceRendering.setProjectionMatrix(projection)
-        faceRendering.setViewMatrix(view)
-        right.setProjectionMatrix(projection)
-        right.setViewMatrix(view)
-        left.setProjectionMatrix(projection)
-        left.setViewMatrix(view)
+        noseRendering.setProjectionMatrix(projection)
+        noseRendering.setViewMatrix(view)
+        rightEarRendering.setProjectionMatrix(projection)
+        rightEarRendering.setViewMatrix(view)
+        leftEarRendering.setProjectionMatrix(projection)
+        leftEarRendering.setViewMatrix(view)
     }
 
     private fun extractMatrixFromCamera(frame: Frame): Pair<FloatArray, FloatArray> {

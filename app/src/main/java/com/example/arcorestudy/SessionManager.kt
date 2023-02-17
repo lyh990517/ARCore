@@ -8,6 +8,9 @@ import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getSystemService
 import com.example.arcorestudy.rendering.*
+import com.example.arcorestudy.rendering.Face.LeftEarRendering
+import com.example.arcorestudy.rendering.Face.NoseRendering
+import com.example.arcorestudy.rendering.Face.RightEarRendering
 import com.example.arcorestudy.tools.Mesh
 import com.google.ar.core.*
 import com.google.ar.core.Session.Feature
@@ -37,9 +40,9 @@ class SessionManager(private val context: Context) {
     val mPointCloud: PointCloudRendering = PointCloudRendering.create(context)
     val cubeScene: CubeRendering = CubeRendering.create(context)
     val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
-    val faceRendering: FaceRendering = FaceRendering.create(context)
-    val right : Right = Right.create(context)
-    val left : Left = Left.create(context)
+    val noseRendering: NoseRendering = NoseRendering.create(context)
+    val rightEarRendering : RightEarRendering = RightEarRendering.create(context)
+    val leftEarRendering : LeftEarRendering = LeftEarRendering.create(context)
     fun create() {
         getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(
             displayListener,

@@ -1,31 +1,23 @@
-package com.example.arcorestudy.rendering
+package com.example.arcorestudy.rendering.Face
 
 import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLES30.*
-import android.opengl.GLES30
-import android.util.Log
 import com.example.arcorestudy.R
 import com.example.arcorestudy.tools.*
-import com.example.arcorestudy.tools.Mesh
-import com.example.arcorestudy.tools.VBOData
 import com.example.gllibrary.*
 import com.google.ar.core.Pose
 import glm_.glm
 import glm_.mat4x4.Mat4
-import glm_.quat.Quat
 import glm_.size
 import glm_.toDouble
 import glm_.toFloat
 import glm_.vec3.Vec3
-import glm_.vec4.Vec4
 import java.lang.Math.cos
-import java.lang.Math.sin
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
-import java.nio.ShortBuffer
 
-class FaceRendering(
+class NoseRendering(
     private val vShader: String,
     private val fShader: String,
     private val diffuse: Texture,
@@ -36,7 +28,6 @@ class FaceRendering(
     private var facePos: Vec3? = null
     private var faceUVS: FloatBuffer? = null
     private var faceNormals: FloatBuffer? = null
-    private var faceQaut: Quat? = null
     private var pose: Pose? = null
 
     private lateinit var program: Program
@@ -78,7 +69,6 @@ class FaceRendering(
         pos: Vec3,
         uvs: FloatBuffer,
         normals: FloatBuffer,
-        quat: Quat,
         pose: Pose
     ) {
         faceVertex = vertex
@@ -86,7 +76,6 @@ class FaceRendering(
         facePos = pos
         faceUVS = uvs
         faceNormals = normals
-        faceQaut = quat
         this.pose = pose
         val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
         vertex.position(0)
@@ -114,13 +103,14 @@ class FaceRendering(
     }
 
     companion object {
-        fun create(context: Context): FaceRendering {
+        fun create(context: Context): NoseRendering {
             val resource = context.resources
-            return FaceRendering(
+            return NoseRendering(
                 resource.readRawTextFile(R.raw.face_vertex),
                 resource.readRawTextFile(R.raw.face_fragment),
                 Texture(loadBitmap(context, R.raw.nose_fur)),
             )
         }
+
     }
 }
