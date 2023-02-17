@@ -3,6 +3,7 @@ package com.example.arcorestudy.rendering.Face
 import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLES30.*
+import androidx.annotation.RawRes
 import com.example.arcorestudy.R
 import com.example.arcorestudy.tools.*
 import com.example.arcorestudy.tools.Mesh
@@ -91,12 +92,12 @@ class NoseRendering(
     }
 
     companion object {
-        fun create(context: Context, mesh: Mesh): NoseRendering {
+        fun create(context: Context, mesh: Mesh, @RawRes texture: Int): NoseRendering {
             val resource = context.resources
             return NoseRendering(
                 resource.readRawTextFile(R.raw.face_vertex),
                 resource.readRawTextFile(R.raw.face_fragment),
-                Texture(loadBitmap(context, R.raw.nose_fur)),
+                Texture(loadBitmap(context, texture)),
                 mesh
             )
         }
