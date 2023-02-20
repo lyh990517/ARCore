@@ -27,11 +27,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
     val yLiveData = MutableLiveData<Float>()
     val zLiveData = MutableLiveData<Float>()
     var isFrontCamera = false
-    private val left = sessionManager.fromAssets("FOREHEAD_LEFT.obj")
-    override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {}
-
-    override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
-        glViewport(0, 0, width, height)
+    override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) = with(sessionManager) {
         mCamera.init()
         mPointCloud.init()
         cubeScene.init()
@@ -39,6 +35,10 @@ class MainRenderer(private val sessionManager: SessionManager) :
         noseRendering.init()
         rightEarRendering.init()
         leftEarRendering.init()
+    }
+
+    override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
+        glViewport(0, 0, width, height)
         isViewportChanged = true
         mViewportWidth = width
         mViewportHeight = height
@@ -85,7 +85,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
             } else {
                 detectPlane()
             }
-        } catch (e: SessionPausedException) {
+        } catch (_: SessionPausedException) {
 
         }
     }
@@ -127,40 +127,14 @@ class MainRenderer(private val sessionManager: SessionManager) :
             val trackable = it.trackable
             trackable is DepthPoint
         }
-        when (drawingMode.value) {
-            "near" -> {
-                if (results.isNotEmpty()) {
-                    val distance = results[0].distance
-                    distanceLiveData.postValue(distance)
-                    val pose = results[0].hitPose
-                    addPoint(Vec3(pose.tx(), pose.ty(), pose.tz()))
-                    xLiveData.postValue(pose.tx())
-                    yLiveData.postValue(pose.ty())
-                    zLiveData.postValue(pose.tz())
-                }
-            }
-            "far" -> {
-                if (results.isNotEmpty()) {
-                    val distance = results[results.size - 1].distance
-                    distanceLiveData.postValue(distance)
-                    val pose = results[results.size - 1].hitPose
-                    addPoint(Vec3(pose.tx(), pose.ty(), pose.tz()))
-                    xLiveData.postValue(pose.tx())
-                    yLiveData.postValue(pose.ty())
-                    zLiveData.postValue(pose.tz())
-                }
-            }
-            "all" -> {
-                results.forEach { hitResult ->
-                    val distance = hitResult.distance
-                    distanceLiveData.postValue(distance)
-                    val pose = hitResult.hitPose
-                    addPoint(Vec3(pose.tx(), pose.ty(), pose.tz()))
-                    xLiveData.postValue(pose.tx())
-                    yLiveData.postValue(pose.ty())
-                    zLiveData.postValue(pose.tz())
-                }
-            }
+        results.forEach {
+            val distance = it.distance
+            distanceLiveData.postValue(distance)
+            val pose = it.hitPose
+            addPoint(Vec3(pose.tx(), pose.ty(), pose.tz()))
+            xLiveData.postValue(pose.tx())
+            yLiveData.postValue(pose.ty())
+            zLiveData.postValue(pose.tz())
         }
     }
 

@@ -41,6 +41,7 @@ class SessionManager(private val context: Context) {
     val noseRendering: FaceRendering = FaceRendering.create(context,fromAssets("NOSE.obj"),R.raw.nose_fur)
     val rightEarRendering : FaceRendering = FaceRendering.create(context,fromAssets("FOREHEAD_RIGHT.obj"),R.raw.ear_fur)
     val leftEarRendering : FaceRendering = FaceRendering.create(context,fromAssets("FOREHEAD_LEFT.obj"),R.raw.ear_fur)
+
     fun create() {
         getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(
             displayListener,

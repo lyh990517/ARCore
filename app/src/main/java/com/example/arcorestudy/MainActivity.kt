@@ -14,6 +14,7 @@ import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isGone
 import com.example.arcorestudy.databinding.ActivityMainBinding
 import com.google.ar.core.CameraConfig
 import com.google.ar.core.CameraConfigFilter
@@ -169,6 +170,18 @@ class MainActivity : AppCompatActivity() {
         })
         binding.cameraMode.setOnClickListener {
             switchCamera()
+            binding.bottomView.isGone = !binding.bottomView.isGone
+            binding.reset.isGone = !binding.reset.isGone
+            binding.draw.isGone = !binding.draw.isGone
+            binding.change.isGone = !binding.change.isGone
+            binding.x.isGone = !binding.x.isGone
+            binding.y.isGone = !binding.y.isGone
+            binding.z.isGone = !binding.z.isGone
+            binding.xVal.isGone = !binding.xVal.isGone
+            binding.yVal.isGone = !binding.yVal.isGone
+            binding.zVal.isGone = !binding.zVal.isGone
+            binding.distance.isGone = !binding.distance.isGone
+
         }
     }
 

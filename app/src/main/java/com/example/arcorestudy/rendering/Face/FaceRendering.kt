@@ -28,7 +28,7 @@ class FaceRendering(
     private lateinit var program: Program
     private var proj = Mat4()
     private var view = Mat4()
-    private var renderingData: RenderingData? = null
+    private lateinit var renderingData: RenderingData
     fun init() {
         program = Program.create(vShader, fShader)
         diffuse.load()
@@ -56,7 +56,7 @@ class FaceRendering(
         glActiveTexture(GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_2D, diffuse.getId())
         position?.let { position ->
-            glBindVertexArray(renderingData!!.getVaoId())
+            glBindVertexArray(renderingData.getVaoId())
             val rotationAngle = 2.0f * acos(pose!!.qw())
             Log.e("angle", "$rotationAngle")
             val rotationVector = Vec3(pose!!.qx(), pose!!.qy(), pose!!.qz())
