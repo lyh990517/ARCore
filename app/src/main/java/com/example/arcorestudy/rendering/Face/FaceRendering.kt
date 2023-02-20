@@ -3,18 +3,22 @@ package com.example.arcorestudy.rendering.Face
 import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLES30.*
+import android.util.Log
 import androidx.annotation.RawRes
 import com.example.arcorestudy.R
 import com.example.arcorestudy.tools.*
 import com.example.arcorestudy.tools.Mesh
 import com.example.gllibrary.*
 import com.google.ar.core.Pose
+import glm_.func.deg
 import glm_.glm
 import glm_.mat4x4.Mat4
+import glm_.quat.Quat
 import glm_.size
 import glm_.toDouble
 import glm_.toFloat
 import glm_.vec3.Vec3
+import kotlin.math.acos
 
 class FaceRendering(
     private val vShader: String,
@@ -29,6 +33,7 @@ class FaceRendering(
     private var proj = Mat4()
     private var view = Mat4()
     private var vertexData: DataVertex? = null
+    private var quat = Quat()
     fun init() {
         program = Program.create(vShader, fShader)
         diffuse.load()
@@ -57,10 +62,10 @@ class FaceRendering(
         glBindTexture(GL_TEXTURE_2D, diffuse.getId())
         nosePosition?.let { position ->
             glBindVertexArray(vertexData!!.getVaoId())
-            val model = glm.translate(Mat4(), position) *
-                    glm.rotate(Mat4(), pose!!.qx() * glm.PIf, Vec3(1, 0, 0)) *
-                    glm.rotate(Mat4(), pose!!.qy() * glm.PIf, Vec3(0, 1, 0)) *
-                    glm.rotate(Mat4(), getAngle(), Vec3(0, 0, 1))
+            val rotationAngle = 2.0f * kotlin.math.acos(pose!!.qw())
+            Log.e("angle","$rotationAngle")
+            val rotationVector = Vec3(pose!!.qx(),pose!!.qy(),pose!!.qz())
+            val model = glm.translate(Mat4(), position) * glm.rotate(Mat4(),rotationAngle,rotationVector)
             program.setUniformMat4("mvp", proj * view * model)
             GLES20.glDrawElements(GL_TRIANGLE_STRIP, noseMesh.vertices.size, GL_UNSIGNED_INT, 0)
             glBindVertexArray(0)
@@ -78,6 +83,7 @@ class FaceRendering(
     ) {
         this.pose = pose
         nosePosition = Vec3(pose.tx(), pose.ty(), pose.tz())
+        quat = Quat(pose.qx(),pose.qy(),pose.qz(),pose.qw())
     }
 
     fun setProjectionMatrix(projMatrix: FloatArray) {
