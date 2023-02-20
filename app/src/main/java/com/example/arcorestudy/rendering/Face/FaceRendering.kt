@@ -15,11 +15,8 @@ import glm_.size
 import glm_.toDouble
 import glm_.toFloat
 import glm_.vec3.Vec3
-import java.lang.Math.cos
-import java.nio.FloatBuffer
-import java.nio.IntBuffer
 
-class NoseRendering(
+class FaceRendering(
     private val vShader: String,
     private val fShader: String,
     private val diffuse: Texture,
@@ -76,7 +73,7 @@ class NoseRendering(
             pose!!.qz().toDouble
         )).toFloat * glm.PIf
 
-    fun setNosePose(
+    fun setPose(
         pose: Pose
     ) {
         this.pose = pose
@@ -92,9 +89,9 @@ class NoseRendering(
     }
 
     companion object {
-        fun create(context: Context, mesh: Mesh, @RawRes texture: Int): NoseRendering {
+        fun create(context: Context, mesh: Mesh, @RawRes texture: Int): FaceRendering {
             val resource = context.resources
-            return NoseRendering(
+            return FaceRendering(
                 resource.readRawTextFile(R.raw.face_vertex),
                 resource.readRawTextFile(R.raw.face_fragment),
                 Texture(loadBitmap(context, texture)),

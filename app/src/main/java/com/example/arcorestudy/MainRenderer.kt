@@ -95,9 +95,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
             mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
         faces?.forEach { face ->
             if (face.trackingState == TrackingState.TRACKING) {
-                rightEarRendering.setNosePose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT))
-                leftEarRendering.setNosePose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT))
-                noseRendering.setNosePose(face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP))
+                rightEarRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT))
+                leftEarRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT))
+                noseRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP))
             }
         }
         if (faces.isNullOrEmpty()) {
