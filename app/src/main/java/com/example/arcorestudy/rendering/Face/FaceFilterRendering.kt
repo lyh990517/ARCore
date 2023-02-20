@@ -40,6 +40,8 @@ class FaceFilterRendering (
     }
 
     fun draw() {
+        GLES30.glEnable(GLES30.GL_BLEND)
+        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
         program.use()
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
@@ -51,7 +53,7 @@ class FaceFilterRendering (
                 glm.translate(Mat4(), it) * glm.rotate(Mat4(), rotationAngle, rotationVector)
             program.setUniformMat4("mvp", proj * view * model)
             GLES20.glDrawElements(
-                GLES30.GL_TRIANGLE_STRIP, faceIndices?.size ?: 0,
+                GLES30.GL_TRIANGLES, faceIndices?.size ?: 0,
                 GLES30.GL_UNSIGNED_SHORT, 0
             )
             GLES30.glBindVertexArray(0)
@@ -73,9 +75,6 @@ class FaceFilterRendering (
         faceUVS = uvs
         faceNormals = normals
         this.pose = pose
-        vertexData = RenderingDataShort(vertex, indices, 3)
-        vertexData?.addAttribute(program.getAttributeLocation("aPos"), 3, 0)
-        vertexData?.bind()
         val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
         vertex.position(0)
         uvs.position(0)
@@ -91,7 +90,6 @@ class FaceFilterRendering (
             addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
             bind()
         }
-        Log.e("face", "${facePos}")
     }
 
     fun setProjectionMatrix(projMatrix: FloatArray) {
