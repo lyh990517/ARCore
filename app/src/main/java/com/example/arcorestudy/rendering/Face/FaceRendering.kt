@@ -58,7 +58,6 @@ class FaceRendering(
         position?.let { position ->
             glBindVertexArray(renderingData.getVaoId())
             val rotationAngle = 2.0f * acos(pose!!.qw())
-            Log.e("angle", "$rotationAngle")
             val rotationVector = Vec3(pose!!.qx(), pose!!.qy(), pose!!.qz())
             val model =
                 glm.translate(Mat4(), position) * glm.rotate(Mat4(), rotationAngle, rotationVector)
