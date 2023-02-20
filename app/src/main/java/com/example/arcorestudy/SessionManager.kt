@@ -8,6 +8,7 @@ import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getSystemService
 import com.example.arcorestudy.rendering.*
+import com.example.arcorestudy.rendering.Face.FaceFilterRendering
 import com.example.arcorestudy.rendering.Face.FaceRendering
 import com.example.arcorestudy.tools.Mesh
 import com.google.ar.core.*
@@ -41,6 +42,7 @@ class SessionManager(private val context: Context) {
     val noseRendering: FaceRendering = FaceRendering.create(context,fromAssets("NOSE.obj"),R.raw.nose_fur)
     val rightEarRendering : FaceRendering = FaceRendering.create(context,fromAssets("FOREHEAD_RIGHT.obj"),R.raw.ear_fur)
     val leftEarRendering : FaceRendering = FaceRendering.create(context,fromAssets("FOREHEAD_LEFT.obj"),R.raw.ear_fur)
+    val faceFilterRendering: FaceFilterRendering = FaceFilterRendering.create(context)
 
     fun create() {
         getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(

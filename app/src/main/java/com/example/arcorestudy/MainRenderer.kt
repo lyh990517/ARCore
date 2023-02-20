@@ -36,6 +36,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         noseRendering.init()
         rightEarRendering.init()
         leftEarRendering.init()
+        faceFilterRendering.init()
     }
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
@@ -66,6 +67,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
             noseRendering.draw()
             leftEarRendering.draw()
             rightEarRendering.draw()
+            faceFilterRendering.draw()
         }
     }
 
@@ -99,6 +101,14 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 rightEarRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT))
                 leftEarRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT))
                 noseRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP))
+                faceFilterRendering.setFace(
+                    face.meshVertices,
+                    face.meshTriangleIndices,
+                    Vec3(face.centerPose.tx(),face.centerPose.ty(),face.centerPose.tz()),
+                    face.meshTextureCoordinates,
+                    face.meshNormals,
+                    face.centerPose
+                )
             }
         }
         if (faces.isNullOrEmpty()) {
@@ -165,6 +175,8 @@ class MainRenderer(private val sessionManager: SessionManager) :
         rightEarRendering.setViewMatrix(view)
         leftEarRendering.setProjectionMatrix(projection)
         leftEarRendering.setViewMatrix(view)
+        faceFilterRendering.setProjectionMatrix(projection)
+        faceFilterRendering.setViewMatrix(view)
     }
 
     private fun extractMatrixFromCamera(frame: Frame): Pair<FloatArray, FloatArray> {
