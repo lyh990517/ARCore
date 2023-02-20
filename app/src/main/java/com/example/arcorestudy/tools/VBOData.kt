@@ -41,6 +41,7 @@ class VBOData(
             glBindBuffer(GL_ARRAY_BUFFER, it)
             vboId = it
         }
+        vertex.position(0)
         glBufferData(
             GL_ARRAY_BUFFER,
             Float.SIZE_BYTES * vertex.capacity(),

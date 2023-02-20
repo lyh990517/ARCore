@@ -35,23 +35,19 @@ class ArObjectRendering(
     fun draw() {
         try {
             program.use()
-            glEnable(GL_CULL_FACE)
-            glCullFace(GL_FRONT)
-            glFrontFace(GL_CW)
             glActiveTexture(GL_TEXTURE0)
             glBindTexture(GL_TEXTURE_2D, diffuse.getId())
             glActiveTexture(GL_TEXTURE1)
             glBindTexture(GL_TEXTURE_2D, specular.getId())
-            program.setInt("diffuse", 0)
-            program.setInt("bump", 1)
+            glUniform1i(glGetUniformLocation(program.getProgram(),"diffuse"),0)
+            glUniform1i(glGetUniformLocation(program.getProgram(),"bump"),1)
             try {
                 objPosition.forEach {
                     val model =
-                        glm.translate(Mat4(), it) * glm.scale(Mat4(), Vec3(0.05, 0.05, 0.05))
+                        glm.translate(Mat4(), it)
                     program.setUniformMat4("mvp", proj * view * model)
                     mesh.draw()
                 }
-                glDisable(GL_CULL_FACE)
             } catch (e: Exception) {
 
             }
@@ -80,11 +76,11 @@ class ArObjectRendering(
         fun create(context: Context): ArObjectRendering {
             val resources = context.resources
             return ArObjectRendering(
-                fromAssets(context, "backpack.obj"),
+                fromAssets(context, "NOSE.obj"),
                 resources.readRawTextFile(R.raw.asset_vertex),
                 resources.readRawTextFile(R.raw.asset_fragment),
-                Texture(loadBitmap(context, R.raw.diffuse)),
-                Texture(loadBitmap(context, R.raw.specular))
+                Texture(loadBitmap(context, R.raw.nose_fur)),
+                Texture(loadBitmap(context, R.raw.nose_fur))
             )
         }
 
@@ -96,7 +92,7 @@ class ArObjectRendering(
                 indices = ObjData.getFaceVertexIndices(obj),
                 vertices = ObjData.getVertices(obj),
                 normals = ObjData.getNormals(obj),
-                texCoords = ObjData.getTexCoords(obj, 2)
+                texCoords = ObjData.getTexCoords(obj,2)
             )
         }
     }

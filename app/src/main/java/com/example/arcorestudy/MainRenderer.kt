@@ -28,15 +28,18 @@ class MainRenderer(private val sessionManager: SessionManager) :
     val yLiveData = MutableLiveData<Float>()
     val zLiveData = MutableLiveData<Float>()
     var isFrontCamera = false
-    override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {}
-
-    override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
-        glViewport(0, 0, width, height)
+    override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) = with(sessionManager) {
         mCamera.init()
         mPointCloud.init()
         cubeScene.init()
         arObjectScene.init()
-        faceRendering.init()
+        noseRendering.init()
+        rightEarRendering.init()
+        leftEarRendering.init()
+    }
+
+    override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
+        glViewport(0, 0, width, height)
         isViewportChanged = true
         mViewportWidth = width
         mViewportHeight = height
@@ -59,8 +62,10 @@ class MainRenderer(private val sessionManager: SessionManager) :
         }
         cubeScene.draw()
         arObjectScene.draw()
-        if(isFrontCamera){
-            faceRendering.draw()
+        if (isFrontCamera) {
+            noseRendering.draw()
+            leftEarRendering.draw()
+            rightEarRendering.draw()
         }
     }
 
@@ -81,25 +86,19 @@ class MainRenderer(private val sessionManager: SessionManager) :
             } else {
                 detectPlane()
             }
-        } catch (e: SessionPausedException) {
+        } catch (_: SessionPausedException) {
 
         }
     }
 
-    private fun detectFace() {
+    private fun detectFace() = with(sessionManager){
         val faces =
-            sessionManager.mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
+            mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
         faces?.forEach { face ->
             if (face.trackingState == TrackingState.TRACKING) {
-                val uvs = face.meshTextureCoordinates
-                val indices = face.meshTriangleIndices
-                val facePose = face.centerPose
-                val faceVertices = face.meshVertices
-                val faceNormals = face.meshNormals
-                sessionManager.faceRendering.setFace(
-                    faceVertices, indices,
-                    Vec3(facePose.tx(), facePose.ty(), facePose.tz()), uvs, faceNormals
-                )
+                rightEarRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT))
+                leftEarRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT))
+                noseRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP))
             }
         }
         if (faces.isNullOrEmpty()) {
@@ -129,40 +128,14 @@ class MainRenderer(private val sessionManager: SessionManager) :
             val trackable = it.trackable
             trackable is DepthPoint
         }
-        when (drawingMode.value) {
-            "near" -> {
-                if (results.size > 0) {
-                    val distance = results[0].distance
-                    distanceLiveData.postValue(distance)
-                    val pose = results[0].hitPose
-                    addPoint(Vec3(pose.tx(), pose.ty(), pose.tz()))
-                    xLiveData.postValue(pose.tx())
-                    yLiveData.postValue(pose.ty())
-                    zLiveData.postValue(pose.tz())
-                }
-            }
-            "far" -> {
-                if (results.size > 0) {
-                    val distance = results[results.size - 1].distance
-                    distanceLiveData.postValue(distance)
-                    val pose = results[results.size - 1].hitPose
-                    addPoint(Vec3(pose.tx(), pose.ty(), pose.tz()))
-                    xLiveData.postValue(pose.tx())
-                    yLiveData.postValue(pose.ty())
-                    zLiveData.postValue(pose.tz())
-                }
-            }
-            "all" -> {
-                results.forEach { hitResult ->
-                    val distance = hitResult.distance
-                    distanceLiveData.postValue(distance)
-                    val pose = hitResult.hitPose
-                    addPoint(Vec3(pose.tx(), pose.ty(), pose.tz()))
-                    xLiveData.postValue(pose.tx())
-                    yLiveData.postValue(pose.ty())
-                    zLiveData.postValue(pose.tz())
-                }
-            }
+        results.forEach {
+            val distance = it.distance
+            distanceLiveData.postValue(distance)
+            val pose = it.hitPose
+            addPoint(Vec3(pose.tx(), pose.ty(), pose.tz()))
+            xLiveData.postValue(pose.tx())
+            yLiveData.postValue(pose.ty())
+            zLiveData.postValue(pose.tz())
         }
     }
 
@@ -186,8 +159,12 @@ class MainRenderer(private val sessionManager: SessionManager) :
         cubeScene.setViewMatrix(view)
         arObjectScene.setProjectionMatrix(projection)
         arObjectScene.setViewMatrix(view)
-        faceRendering.setViewMatrix(view)
-        faceRendering.setProjectionMatrix(projection)
+        noseRendering.setProjectionMatrix(projection)
+        noseRendering.setViewMatrix(view)
+        rightEarRendering.setProjectionMatrix(projection)
+        rightEarRendering.setViewMatrix(view)
+        leftEarRendering.setProjectionMatrix(projection)
+        leftEarRendering.setViewMatrix(view)
     }
 
     private fun extractMatrixFromCamera(frame: Frame): Pair<FloatArray, FloatArray> {

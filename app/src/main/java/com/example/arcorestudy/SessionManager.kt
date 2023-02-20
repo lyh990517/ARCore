@@ -8,9 +8,14 @@ import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getSystemService
 import com.example.arcorestudy.rendering.*
+import com.example.arcorestudy.rendering.Face.FaceRendering
+import com.example.arcorestudy.tools.Mesh
 import com.google.ar.core.*
 import com.google.ar.core.Session.Feature
 import com.google.ar.core.exceptions.UnsupportedConfigurationException
+import de.javagl.obj.ObjData
+import de.javagl.obj.ObjReader
+import de.javagl.obj.ObjUtils
 import java.lang.UnsupportedOperationException
 
 class SessionManager(private val context: Context) {
@@ -33,12 +38,25 @@ class SessionManager(private val context: Context) {
     val mPointCloud: PointCloudRendering = PointCloudRendering.create(context)
     val cubeScene: CubeRendering = CubeRendering.create(context)
     val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
-    val faceRendering: FaceRendering = FaceRendering.create(context)
+    val noseRendering: FaceRendering = FaceRendering.create(context,fromAssets("NOSE.obj"),R.raw.nose_fur)
+    val rightEarRendering : FaceRendering = FaceRendering.create(context,fromAssets("FOREHEAD_RIGHT.obj"),R.raw.ear_fur)
+    val leftEarRendering : FaceRendering = FaceRendering.create(context,fromAssets("FOREHEAD_LEFT.obj"),R.raw.ear_fur)
 
     fun create() {
         getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(
             displayListener,
             null
+        )
+    }
+    fun fromAssets(assetPath: String): Mesh {
+        val obj = context.assets.open(assetPath)
+            .let { stream -> ObjReader.read(stream) }
+            .let { objStream -> ObjUtils.convertToRenderable(objStream) }
+        return Mesh(
+            indices = ObjData.getFaceVertexIndices(obj),
+            vertices = ObjData.getVertices(obj),
+            normals = ObjData.getNormals(obj),
+            texCoords = ObjData.getTexCoords(obj, 2)
         )
     }
 
@@ -71,7 +89,7 @@ class SessionManager(private val context: Context) {
         }
     }
 
-    fun config(session: Session): Config = Config(session).apply {
+    private fun config(session: Session): Config = Config(session).apply {
         try {
             updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
             augmentedFaceMode = Config.AugmentedFaceMode.MESH3D
