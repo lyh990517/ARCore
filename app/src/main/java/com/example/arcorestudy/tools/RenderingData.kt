@@ -2,34 +2,19 @@ package com.example.arcorestudy.tools
 
 import android.opengl.GLES20
 import android.opengl.GLES30
-import com.example.gllibrary.toFloatBuffer
-import com.example.gllibrary.toIntBuffer
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
-import java.nio.ShortBuffer
 
-class DataVertex(
+class RenderingData(
     private val vertices: FloatBuffer,
     private val indices: IntBuffer?,
     private val stride: Int,
     private val drawMode: Int = GLES20.GL_STATIC_DRAW
 ) {
 
-    constructor(
-        vertices: FloatArray,
-        indices: IntBuffer?,
-        stride: Int,
-        drawMode: Int = GLES20.GL_STATIC_DRAW
-    ) : this(vertices.toFloatBuffer(), indices, stride, drawMode)
-
     private val attributes = mutableListOf<Attribute>()
 
     private var vaoId: Int? = null
-
-    private var vboId: Int? = null
-
-    fun addAttribute(attribute: Attribute) = attributes.add(attribute)
-
     fun addAttribute(location: Int, size: Int, offset: Int) {
         attributes.add(
             Attribute(
@@ -102,19 +87,4 @@ class DataVertex(
         val stride: Int? = null,
         val divisor: Int? = null
     )
-
-    companion object {
-        //기능추가
-        fun apply(location: Int, size: Int, buffer: FloatBuffer) {
-            GLES30.glEnableVertexAttribArray(location)
-            GLES30.glVertexAttribPointer(
-                location,
-                size,
-                GLES20.GL_FLOAT,
-                false,
-                0,
-                buffer
-            )
-        }
-    }
 }

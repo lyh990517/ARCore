@@ -10,13 +10,9 @@ import com.example.arcorestudy.tools.*
 import com.example.arcorestudy.tools.Mesh
 import com.example.gllibrary.*
 import com.google.ar.core.Pose
-import glm_.func.deg
 import glm_.glm
 import glm_.mat4x4.Mat4
-import glm_.quat.Quat
 import glm_.size
-import glm_.toDouble
-import glm_.toFloat
 import glm_.vec3.Vec3
 import kotlin.math.acos
 
@@ -24,30 +20,29 @@ class FaceRendering(
     private val vShader: String,
     private val fShader: String,
     private val diffuse: Texture,
-    private val noseMesh: Mesh
+    private val mesh: Mesh
 ) {
-    private var nosePosition: Vec3? = null
+    private var position: Vec3? = null
     private var pose: Pose? = null
 
     private lateinit var program: Program
     private var proj = Mat4()
     private var view = Mat4()
-    private var vertexData: DataVertex? = null
-    private var quat = Quat()
+    private var renderingData: RenderingData? = null
     fun init() {
         program = Program.create(vShader, fShader)
         diffuse.load()
-        val buffer = createFloatBuffer(noseMesh.vertices.capacity() + noseMesh.texCoords.capacity())
-        noseMesh.vertices.position(0)
-        noseMesh.texCoords.position(0)
-        while (noseMesh.vertices.hasRemaining()) {
-            buffer.put(noseMesh.vertices.get())
-            buffer.put(noseMesh.vertices.get())
-            buffer.put(noseMesh.vertices.get())
-            buffer.put(noseMesh.texCoords.get())
-            buffer.put(1 - noseMesh.texCoords.get())
+        val buffer = createFloatBuffer(mesh.vertices.capacity() + mesh.texCoords.capacity())
+        mesh.vertices.position(0)
+        mesh.texCoords.position(0)
+        while (mesh.vertices.hasRemaining()) {
+            buffer.put(mesh.vertices.get())
+            buffer.put(mesh.vertices.get())
+            buffer.put(mesh.vertices.get())
+            buffer.put(mesh.texCoords.get())
+            buffer.put(1 - mesh.texCoords.get())
         }
-        vertexData = DataVertex(buffer, noseMesh.indices, 5).apply {
+        renderingData = RenderingData(buffer, mesh.indices, 5).apply {
             addAttribute(program.getAttributeLocation("aPos"), 3, 0)
             addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
             bind()
@@ -60,30 +55,28 @@ class FaceRendering(
         program.use()
         glActiveTexture(GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_2D, diffuse.getId())
-        nosePosition?.let { position ->
-            glBindVertexArray(vertexData!!.getVaoId())
-            val rotationAngle = 2.0f * kotlin.math.acos(pose!!.qw())
-            Log.e("angle","$rotationAngle")
-            val rotationVector = Vec3(pose!!.qx(),pose!!.qy(),pose!!.qz())
-            val model = glm.translate(Mat4(), position) * glm.rotate(Mat4(),rotationAngle,rotationVector)
+        position?.let { position ->
+            glBindVertexArray(renderingData!!.getVaoId())
+            val rotationAngle = 2.0f * acos(pose!!.qw())
+            Log.e("angle", "$rotationAngle")
+            val rotationVector = Vec3(pose!!.qx(), pose!!.qy(), pose!!.qz())
+            val model =
+                glm.translate(Mat4(), position) * glm.rotate(Mat4(), rotationAngle, rotationVector)
             program.setUniformMat4("mvp", proj * view * model)
-            GLES20.glDrawElements(GL_TRIANGLE_STRIP, noseMesh.vertices.size, GL_UNSIGNED_INT, 0)
+            GLES20.glDrawElements(GL_TRIANGLE_STRIP, mesh.vertices.size, GL_UNSIGNED_INT, 0)
             glBindVertexArray(0)
         }
-        nosePosition = null
+        position = null
     }
 
-    private fun getAngle() =
-        if (pose!!.qz() <= 0) (2 * kotlin.math.cos(pose!!.qz().toDouble)).toFloat * glm.PIf else -(2 * kotlin.math.cos(
-            pose!!.qz().toDouble
-        )).toFloat * glm.PIf
 
     fun setPose(
         pose: Pose
     ) {
-        this.pose = pose
-        nosePosition = Vec3(pose.tx(), pose.ty(), pose.tz())
-        quat = Quat(pose.qx(),pose.qy(),pose.qz(),pose.qw())
+        pose.let {
+            this.pose = it
+            position = Vec3(it.tx(), it.ty(), it.tz())
+        }
     }
 
     fun setProjectionMatrix(projMatrix: FloatArray) {
