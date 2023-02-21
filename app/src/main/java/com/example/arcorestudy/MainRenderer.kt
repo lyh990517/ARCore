@@ -65,11 +65,11 @@ class MainRenderer(private val sessionManager: SessionManager) :
         cubeScene.draw()
         arObjectScene.draw()
         if (isFrontCamera) {
-            noseRendering.draw()
-            leftEarRendering.draw()
-            rightEarRendering.draw()
-            faceFilterRendering.draw()
-            //faceFilterRendering.drawMesh()
+            //noseRendering.draw()
+            //leftEarRendering.draw()
+            //rightEarRendering.draw()
+            //faceFilterRendering.draw()
+            faceFilterRendering.drawMesh()
         }
     }
 

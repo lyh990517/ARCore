@@ -85,8 +85,6 @@ class FaceFilterRendering(
         facePos = null
     }
     fun drawMesh() {
-        GLES30.glEnable(GLES30.GL_BLEND)
-        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
         program.use()
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
@@ -95,10 +93,10 @@ class FaceFilterRendering(
             val rotationAngle = 2.0f * acos(pose!!.qw())
             val rotationVector = Vec3(pose!!.qx(), pose!!.qy(), pose!!.qz())
             val model =
-                glm.translate(Mat4(), position) * glm.rotate(Mat4(), rotationAngle, rotationVector)
+                glm.translate(Mat4(), position) * glm.rotate(Mat4(), rotationAngle, rotationVector) * glm.scale(Mat4(),Vec3(1.4f,1.4f,1.4f))
             program.setUniformMat4("mvp", proj * view * model)
             GLES20.glDrawElements(
-                GLES30.GL_TRIANGLE_STRIP, mesh!!.vertices.size,
+                GLES30.GL_TRIANGLES, mesh!!.vertices.size,
                 GLES30.GL_UNSIGNED_INT, 0)
             GLES30.glBindVertexArray(0)
         }
@@ -116,7 +114,7 @@ class FaceFilterRendering(
         faceIndices = indices
         faceUVS = uvs
         faceNormals = normals
-        facePos = Vec3(pose.tx(), pose.ty(), pose.tz())
+        facePos = Vec3(pose.tx(), pose.ty(), pose.tz() + 0.2f)
         this.pose = pose
         val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
         vertex.position(0)
