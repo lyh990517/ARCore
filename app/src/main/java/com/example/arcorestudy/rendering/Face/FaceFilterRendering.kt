@@ -4,6 +4,7 @@ import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLES30
 import android.util.Log
+import androidx.annotation.RawRes
 import com.example.arcorestudy.R
 import com.example.arcorestudy.tools.RenderingData
 import com.example.arcorestudy.tools.RenderingDataShort
@@ -17,7 +18,7 @@ import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 import kotlin.math.acos
 
-class FaceFilterRendering (
+class FaceFilterRendering(
     private val vShader: String,
     private val fShader: String,
     private val diffuse: Texture
@@ -33,7 +34,7 @@ class FaceFilterRendering (
     private var proj = Mat4()
     private var view = Mat4()
     private var vertexData: RenderingDataShort? = null
-    private var pose : Pose? = null
+    private var pose: Pose? = null
     fun init() {
         program = Program.create(vShader, fShader)
         diffuse.load()
@@ -64,16 +65,15 @@ class FaceFilterRendering (
     fun setFace(
         vertex: FloatBuffer,
         indices: ShortBuffer,
-        pos: Vec3,
         uvs: FloatBuffer,
         normals: FloatBuffer,
         pose: Pose
     ) {
         faceVertex = vertex
         faceIndices = indices
-        facePos = pos
         faceUVS = uvs
         faceNormals = normals
+        facePos = Vec3(pose.tx(), pose.ty(), pose.tz())
         this.pose = pose
         val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
         vertex.position(0)
@@ -101,12 +101,12 @@ class FaceFilterRendering (
     }
 
     companion object {
-        fun create(context: Context): FaceFilterRendering {
+        fun create(context: Context, @RawRes texture: Int): FaceFilterRendering {
             val resource = context.resources
             return FaceFilterRendering(
                 resource.readRawTextFile(R.raw.face_vertex),
                 resource.readRawTextFile(R.raw.face_fragment),
-                Texture(loadBitmap(context, R.raw.freckles))
+                Texture(loadBitmap(context, texture))
             )
         }
     }

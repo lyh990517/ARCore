@@ -104,7 +104,6 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 faceFilterRendering.setFace(
                     face.meshVertices,
                     face.meshTriangleIndices,
-                    Vec3(face.centerPose.tx(),face.centerPose.ty(),face.centerPose.tz()),
                     face.meshTextureCoordinates,
                     face.meshNormals,
                     face.centerPose
