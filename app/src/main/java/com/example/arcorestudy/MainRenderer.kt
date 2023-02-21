@@ -7,6 +7,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
+import com.example.arcorestudy.tools.DepthTexture
 import com.google.ar.core.*
 import com.google.ar.core.exceptions.SessionPausedException
 import glm_.vec3.Vec3
@@ -27,9 +28,11 @@ class MainRenderer(private val sessionManager: SessionManager) :
     val xLiveData = MutableLiveData<Float>()
     val yLiveData = MutableLiveData<Float>()
     val zLiveData = MutableLiveData<Float>()
+    private val depthTexture = DepthTexture()
     var isFrontCamera = false
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) = with(sessionManager) {
         mCamera.init()
+        depthTexture.createTexture()
         mPointCloud.init()
         cubeScene.init()
         arObjectScene.init()
@@ -38,6 +41,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         leftEarRendering.init()
         faceFilterRendering.init()
         faceFilterRendering.initMesh()
+        faceFilterRendering.setDepthTexture(depthTexture.getDepthTexture())
     }
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
@@ -82,6 +86,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
             if (frame.hasDisplayGeometryChanged()) {
                 mCamera.transformDisplayGeometry(frame)
             }
+            depthTexture.update(frame)
             renderPointCloud(frame)
             extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }
             getHitPose(frame)

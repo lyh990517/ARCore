@@ -5,6 +5,7 @@ import android.opengl.GLES11Ext
 import android.opengl.GLES20
 import android.opengl.GLES30.*
 import com.example.arcorestudy.R
+import com.example.arcorestudy.tools.DepthTexture
 import com.example.gllibrary.*
 import com.google.ar.core.Frame
 import java.nio.FloatBuffer

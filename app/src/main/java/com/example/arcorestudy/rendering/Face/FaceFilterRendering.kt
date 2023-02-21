@@ -6,6 +6,7 @@ import android.opengl.GLES30
 import android.util.Log
 import androidx.annotation.RawRes
 import com.example.arcorestudy.R
+import com.example.arcorestudy.tools.DepthTexture
 import com.example.arcorestudy.tools.RenderingData
 import com.example.arcorestudy.tools.RenderingDataShort
 import com.example.gllibrary.*
@@ -37,6 +38,7 @@ class FaceFilterRendering(
     private var vertexData: RenderingDataShort? = null
     private lateinit var renderingData: RenderingData
     private var pose: Pose? = null
+    private var depthTexture: Int? = null
     fun init() {
         program = Program.create(vShader, fShader)
         diffuse.load()
@@ -88,6 +90,10 @@ class FaceFilterRendering(
         program.use()
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
+        GLES30.glUniform1i(GLES30.glGetUniformLocation(program.getProgram(),"texture1"),0)
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE1)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, depthTexture!!)
+        GLES30.glUniform1i(GLES30.glGetUniformLocation(program.getProgram(),"depthTexture"),1)
         facePos?.let { position ->
             GLES30.glBindVertexArray(renderingData.getVaoId())
             val rotationAngle = 2.0f * acos(pose!!.qw())
@@ -132,7 +138,9 @@ class FaceFilterRendering(
             bind()
         }
     }
-
+    fun setDepthTexture(depthTexture: Int) {
+        this.depthTexture = depthTexture
+    }
     fun setProjectionMatrix(projMatrix: FloatArray) {
         proj = projMatrix.toMat4().transpose_()
     }

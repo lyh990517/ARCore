@@ -76,7 +76,7 @@ class SessionManager(private val context: Context) {
                 mConfig = Config(mSession)
                 if (mSession!!.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
                     mConfig?.depthMode = Config.DepthMode.AUTOMATIC
-                    Log.e("session", "support DepthMode")
+                    Log.e("435", "support DepthMode")
                 }
                 mSession!!.configure(mConfig)
                 if (feature.isNotEmpty()) {
@@ -96,6 +96,12 @@ class SessionManager(private val context: Context) {
             updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
             augmentedFaceMode = Config.AugmentedFaceMode.MESH3D
             focusMode = Config.FocusMode.AUTO
+            Log.e("s123", "yunho")
+            val isDepthSupported = mSession!!.isDepthModeSupported(Config.DepthMode.AUTOMATIC)
+            if (isDepthSupported) {
+                depthMode = Config.DepthMode.AUTOMATIC
+                Log.e("s123", "support DepthMode")
+            }
         } catch (e: UnsupportedConfigurationException) {
 
         }
