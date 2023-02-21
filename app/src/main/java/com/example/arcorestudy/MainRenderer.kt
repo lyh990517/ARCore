@@ -37,6 +37,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         rightEarRendering.init()
         leftEarRendering.init()
         faceFilterRendering.init()
+        faceFilterRendering.initMesh()
     }
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
@@ -68,6 +69,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
             leftEarRendering.draw()
             rightEarRendering.draw()
             faceFilterRendering.draw()
+            //faceFilterRendering.drawMesh()
         }
     }
 

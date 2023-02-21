@@ -21,7 +21,8 @@ import kotlin.math.acos
 class FaceFilterRendering(
     private val vShader: String,
     private val fShader: String,
-    private val diffuse: Texture
+    private val diffuse: Texture,
+    private val mesh: com.example.arcorestudy.tools.Mesh? = null
 ) {
 
     private var faceVertex: FloatBuffer? = null
@@ -34,10 +35,32 @@ class FaceFilterRendering(
     private var proj = Mat4()
     private var view = Mat4()
     private var vertexData: RenderingDataShort? = null
+    private lateinit var renderingData: RenderingData
     private var pose: Pose? = null
     fun init() {
         program = Program.create(vShader, fShader)
         diffuse.load()
+    }
+    fun initMesh() {
+        program = Program.create(vShader, fShader)
+        diffuse.load()
+        mesh?.let {
+            val buffer = createFloatBuffer(mesh.vertices.capacity() + mesh.texCoords.capacity())
+            mesh.vertices.position(0)
+            mesh.texCoords.position(0)
+            while (mesh.vertices.hasRemaining()) {
+                buffer.put(mesh.vertices.get())
+                buffer.put(mesh.vertices.get())
+                buffer.put(mesh.vertices.get())
+                buffer.put(mesh.texCoords.get())
+                buffer.put(1 - mesh.texCoords.get())
+            }
+            renderingData = RenderingData(buffer, mesh.indices, 5).apply {
+                addAttribute(program.getAttributeLocation("aPos"), 3, 0)
+                addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
+                bind()
+            }
+        }
     }
 
     fun draw() {
@@ -57,6 +80,26 @@ class FaceFilterRendering(
                 GLES30.GL_TRIANGLES, faceIndices?.size ?: 0,
                 GLES30.GL_UNSIGNED_SHORT, 0
             )
+            GLES30.glBindVertexArray(0)
+        }
+        facePos = null
+    }
+    fun drawMesh() {
+        GLES30.glEnable(GLES30.GL_BLEND)
+        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+        program.use()
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
+        facePos?.let { position ->
+            GLES30.glBindVertexArray(renderingData.getVaoId())
+            val rotationAngle = 2.0f * acos(pose!!.qw())
+            val rotationVector = Vec3(pose!!.qx(), pose!!.qy(), pose!!.qz())
+            val model =
+                glm.translate(Mat4(), position) * glm.rotate(Mat4(), rotationAngle, rotationVector)
+            program.setUniformMat4("mvp", proj * view * model)
+            GLES20.glDrawElements(
+                GLES30.GL_TRIANGLE_STRIP, mesh!!.vertices.size,
+                GLES30.GL_UNSIGNED_INT, 0)
             GLES30.glBindVertexArray(0)
         }
         facePos = null
@@ -107,6 +150,15 @@ class FaceFilterRendering(
                 resource.readRawTextFile(R.raw.face_vertex),
                 resource.readRawTextFile(R.raw.face_fragment),
                 Texture(loadBitmap(context, texture))
+            )
+        }
+        fun create(context: Context, mesh: com.example.arcorestudy.tools.Mesh, @RawRes texture: Int): FaceFilterRendering {
+            val resource = context.resources
+            return FaceFilterRendering(
+                resource.readRawTextFile(R.raw.face_vertex),
+                resource.readRawTextFile(R.raw.face_fragment),
+                Texture(loadBitmap(context, texture)),
+                mesh
             )
         }
     }
