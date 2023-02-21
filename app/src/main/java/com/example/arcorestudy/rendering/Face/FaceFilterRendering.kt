@@ -93,7 +93,7 @@ class FaceFilterRendering(
             val rotationAngle = 2.0f * acos(pose!!.qw())
             val rotationVector = Vec3(pose!!.qx(), pose!!.qy(), pose!!.qz())
             val model =
-                glm.translate(Mat4(), position) * glm.rotate(Mat4(), rotationAngle, rotationVector) * glm.scale(Mat4(),Vec3(1.4f,1.4f,1.4f))
+                glm.translate(Mat4(), position) * glm.rotate(Mat4(), rotationAngle, rotationVector) * glm.scale(Mat4(),Vec3(1.0f,1.0f,1.0f))
             program.setUniformMat4("mvp", proj * view * model)
             GLES20.glDrawElements(
                 GLES30.GL_TRIANGLES, mesh!!.vertices.size,
@@ -114,7 +114,7 @@ class FaceFilterRendering(
         faceIndices = indices
         faceUVS = uvs
         faceNormals = normals
-        facePos = Vec3(pose.tx(), pose.ty(), pose.tz() + 0.2f)
+        facePos = Vec3(pose.tx(), pose.ty() -0.015f, pose.tz() + 0.1f)
         this.pose = pose
         val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
         vertex.position(0)
