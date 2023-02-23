@@ -4,6 +4,7 @@ import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.Matrix
+import android.util.Log
 import androidx.annotation.RawRes
 import com.example.arcorestudy.R
 import com.example.arcorestudy.tools.RenderingData
@@ -72,12 +73,14 @@ class FaceObjectRendering(
             GLES20.glGetUniformLocation(program.getProgram(), "u_ColorCorrectionParameters")
         colorUniform = GLES20.glGetUniformLocation(program.getProgram(), "u_ObjColor")
         materialParametersUniform = GLES20.glGetUniformLocation(program.getProgram(), "u_MaterialParameters")
-        textureUniform = GLES20.glGetUniformLocation(program.getProgram(), "u_Texture")
+        textureUniform = GLES20.glGetUniformLocation(program.getProgram(), "texture1")
         diffuse.load()
         mesh?.let {
-            val buffer = createFloatBuffer(mesh.vertices.capacity() + mesh.texCoords.capacity())
+            Log.e("mesh","${mesh.normals.size}")
+            val buffer = createFloatBuffer(mesh.vertices.capacity() + mesh.texCoords.capacity() + mesh.normals.capacity())
             mesh.vertices.position(0)
             mesh.texCoords.position(0)
+            mesh.normals.position(0)
             while (mesh.vertices.hasRemaining()) {
                 buffer.put(mesh.vertices.get())
                 buffer.put(mesh.vertices.get())
@@ -89,9 +92,9 @@ class FaceObjectRendering(
                 buffer.put(mesh.normals.get())
             }
             renderingData = RenderingData(buffer, mesh.indices, 8).apply {
-                addAttribute(program.getAttributeLocation("aPos"), 3, 0)
-                addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
-                addAttribute(program.getAttributeLocation("aNormal"), 3, 5)
+                addAttribute(0, 3, 0)
+                addAttribute(1, 2, 3)
+                addAttribute(2, 3, 5)
                 bind()
             }
         }
@@ -175,8 +178,9 @@ class FaceObjectRendering(
             buffer.put(1 - uvs.get())
         }
         vertexData = RenderingDataShort(buffer, indices, 5).apply {
-            addAttribute(program.getAttributeLocation("aPos"), 3, 0)
-            addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
+            addAttribute(0, 3, 0)
+            addAttribute(1, 2, 3)
+            addAttribute(2, 3, 5)
             bind()
         }
     }

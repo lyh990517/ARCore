@@ -9,7 +9,7 @@ uniform vec4 u_MaterialParameters;
 uniform vec4 u_ColorCorrectionParameters;
 
 in vec3 v_ViewPosition;
-in vec3 v_ViewNormal;
+uniform vec3 v_ViewNormal;
 in vec2 v_TexCoord;
 uniform vec4 u_ObjColor;
 

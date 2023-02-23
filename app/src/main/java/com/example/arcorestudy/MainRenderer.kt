@@ -34,10 +34,10 @@ class MainRenderer(private val sessionManager: SessionManager) :
         mPointCloud.init()
         cubeScene.init()
         arObjectScene.init()
-        noseRendering.init()
-        rightEarRendering.init()
-        leftEarRendering.init()
-        faceFilterRendering.init()
+       // noseRendering.init()
+       // rightEarRendering.init()
+       // leftEarRendering.init()
+       // faceFilterRendering.init()
         faceObjectRendering.initMesh()
     }
 
@@ -127,13 +127,13 @@ class MainRenderer(private val sessionManager: SessionManager) :
                     face.meshNormals,
                     face.centerPose
                 )
-                faceFilterRendering.setFace(
-                    face.meshVertices,
-                    face.meshTriangleIndices,
-                    face.meshTextureCoordinates,
-                    face.meshNormals,
-                    face.centerPose
-                )
+//                faceFilterRendering.setFace(
+//                    face.meshVertices,
+//                    face.meshTriangleIndices,
+//                    face.meshTextureCoordinates,
+//                    face.meshNormals,
+//                    face.centerPose
+//                )
             }
         }
         if (faces.isNullOrEmpty()) {
