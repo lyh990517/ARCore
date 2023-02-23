@@ -43,24 +43,25 @@ class MainActivity : AppCompatActivity() {
         initialize()
     }
 
-    fun switchCamera() {
+    fun switchCamera() = with(sessionManager) {
         // Set a camera configuration that usese the front-facing camera
         renderer.isFrontCamera = !renderer.isFrontCamera
         if (renderer.isFrontCamera) {
-            sessionManager.pause()
-            sessionManager.resume(setOf(Session.Feature.FRONT_CAMERA))
+            pause()
+            resume(setOf(Session.Feature.FRONT_CAMERA))
         } else {
-            sessionManager.pause()
-            sessionManager.resume(setOf())
+            pause()
+            resume(setOf())
         }
     }
 
     @SuppressLint("SetTextI18n")
     private fun initialize() {
         sessionManager = SessionManager.create(binding.glSurfaceView.context!!.applicationContext)
-        renderingManager = RenderingManager.create(binding.glSurfaceView.context!!.applicationContext)
+        renderingManager =
+            RenderingManager.create(binding.glSurfaceView.context!!.applicationContext)
         sessionManager.create()
-        renderer = MainRenderer(sessionManager,renderingManager)
+        renderer = MainRenderer(sessionManager, renderingManager)
         binding.glSurfaceView.apply {
             preserveEGLContextOnPause = true
             setEGLContextClientVersion(3)
@@ -294,24 +295,24 @@ class MainActivity : AppCompatActivity() {
         onDestroy()
     }
 
-    override fun onPause() {
+    override fun onPause() = with(sessionManager) {
         super.onPause()
         Log.e("activity", "onPause")
         binding.glSurfaceView.onPause()
-        sessionManager.pause()
+        pause()
     }
 
-    override fun onResume() {
+    override fun onResume() = with(sessionManager) {
         super.onResume()
         Log.e("activity", "onResume")
         requestCameraPermission()
-        sessionManager.resume(setOf())
+        resume(setOf())
         binding.glSurfaceView.onResume()
     }
 
-    override fun onDestroy() {
+    override fun onDestroy() = with(sessionManager) {
         Log.e("activity", "onDestroy")
-        sessionManager.destroy()
+        destroy()
         super.onDestroy()
     }
 

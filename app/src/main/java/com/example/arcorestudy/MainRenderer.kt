@@ -201,9 +201,9 @@ class MainRenderer(private val sessionManager: SessionManager, private val rende
         return Pair(projMatrix, viewMatrix)
     }
 
-    private fun renderPointCloud(frame: Frame) {
+    private fun renderPointCloud(frame: Frame) = with(renderingManager) {
         val pointCloud: PointCloud = frame.acquirePointCloud()
-        renderingManager.mPointCloud.update(pointCloud)
+        mPointCloud.update(pointCloud)
         pointCloud.release()
     }
 
@@ -212,17 +212,17 @@ class MainRenderer(private val sessionManager: SessionManager, private val rende
         currentY = y
     }
 
-    fun getRGB(red: Float, green: Float, blue: Float) {
-        renderingManager.cubeScene.cubeRGB(red, green, blue)
+    fun getRGB(red: Float, green: Float, blue: Float)  = with(renderingManager){
+        cubeScene.cubeRGB(red, green, blue)
     }
 
-    fun getXYZ(x: Float, y: Float, z: Float) {
-        renderingManager.faceObjectRendering.getXYZ(x, y, z)
+    fun getXYZ(x: Float, y: Float, z: Float) = with(renderingManager){
+        faceObjectRendering.getXYZ(x, y, z)
     }
 
-    fun setSize(size: Float) {
-        renderingManager.cubeScene.size = size
-        renderingManager.faceObjectRendering.setSize(size)
+    fun setSize(size: Float) = with(renderingManager){
+        cubeScene.size = size
+        faceObjectRendering.setSize(size)
     }
 
     private val textureId: Int

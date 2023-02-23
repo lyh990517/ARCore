@@ -15,6 +15,7 @@ import de.javagl.obj.ObjReader
 import de.javagl.obj.ObjUtils
 
 class RenderingManager(private val context: Context) {
+
     val mCamera: CameraTextureRendering = CameraTextureRendering.create(context)
     val mPointCloud: PointCloudRendering = PointCloudRendering.create(context)
     val cubeScene: CubeRendering = CubeRendering.create(context)
@@ -59,7 +60,7 @@ class RenderingManager(private val context: Context) {
         }
     }
 
-    fun fromAssets(assetPath: String): Mesh {
+    private fun fromAssets(assetPath: String): Mesh {
         val obj = context.assets.open(assetPath)
             .let { stream -> ObjReader.read(stream) }
             .let { objStream -> ObjUtils.convertToRenderable(objStream) }
