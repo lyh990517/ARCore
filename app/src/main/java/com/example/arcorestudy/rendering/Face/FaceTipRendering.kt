@@ -3,7 +3,6 @@ package com.example.arcorestudy.rendering.Face
 import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLES30.*
-import android.util.Log
 import androidx.annotation.RawRes
 import com.example.arcorestudy.R
 import com.example.arcorestudy.tools.*
@@ -16,7 +15,7 @@ import glm_.size
 import glm_.vec3.Vec3
 import kotlin.math.acos
 
-class FaceRendering(
+class FaceTipRendering(
     private val vShader: String,
     private val fShader: String,
     private val diffuse: Texture,
@@ -88,9 +87,9 @@ class FaceRendering(
     }
 
     companion object {
-        fun create(context: Context, mesh: Mesh, @RawRes texture: Int): FaceRendering {
+        fun create(context: Context, mesh: Mesh, @RawRes texture: Int): FaceTipRendering {
             val resource = context.resources
-            return FaceRendering(
+            return FaceTipRendering(
                 resource.readRawTextFile(R.raw.face_vertex),
                 resource.readRawTextFile(R.raw.face_fragment),
                 Texture(loadBitmap(context, texture)),

@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import com.example.arcorestudy.rendering.*
 import com.example.arcorestudy.rendering.Face.FaceFilterRendering
 import com.example.arcorestudy.rendering.Face.FaceObjectRendering
-import com.example.arcorestudy.rendering.Face.FaceRendering
+import com.example.arcorestudy.rendering.Face.FaceTipRendering
 import com.example.arcorestudy.tools.Mesh
 import com.google.ar.core.*
 import com.google.ar.core.Session.Feature
@@ -41,12 +41,12 @@ class SessionManager(private val context: Context) {
     val mPointCloud: PointCloudRendering = PointCloudRendering.create(context)
     val cubeScene: CubeRendering = CubeRendering.create(context)
     val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
-    var noseRendering: FaceRendering =
-        FaceRendering.create(context, fromAssets("NOSE.obj"), R.raw.nose_fur)
-    var rightEarRendering: FaceRendering =
-        FaceRendering.create(context, fromAssets("FOREHEAD_RIGHT.obj"), R.raw.ear_fur)
-    var leftEarRendering: FaceRendering =
-        FaceRendering.create(context, fromAssets("FOREHEAD_LEFT.obj"), R.raw.ear_fur)
+    var noseRendering: FaceTipRendering =
+        FaceTipRendering.create(context, fromAssets("NOSE.obj"), R.raw.nose_fur)
+    var rightEarRendering: FaceTipRendering =
+        FaceTipRendering.create(context, fromAssets("FOREHEAD_RIGHT.obj"), R.raw.ear_fur)
+    var leftEarRendering: FaceTipRendering =
+        FaceTipRendering.create(context, fromAssets("FOREHEAD_LEFT.obj"), R.raw.ear_fur)
     var faceObjectRendering: FaceObjectRendering =
         FaceObjectRendering.create(context, fromAssets("PlagueMask_sketchfab.obj"), R.raw.plagmask)
     var faceFilterRendering: FaceFilterRendering =
@@ -65,18 +65,18 @@ class SessionManager(private val context: Context) {
     ) {
         when (type) {
             "faceMask" -> {
-                faceObjectRendering = FaceObjectRendering.create(context, objId!!)
+                faceFilterRendering = FaceFilterRendering.create(context, objId!!)
             }
             "faceObject" -> {
                 faceObjectRendering =
                     FaceObjectRendering.create(context, fromAssets(objPath!!), objId!!)
             }
             "faceTips" -> {
-                noseRendering = FaceRendering.create(context, fromAssets(nosePath!!), nose!!)
+                noseRendering = FaceTipRendering.create(context, fromAssets(nosePath!!), nose!!)
                 rightEarRendering =
-                    FaceRendering.create(context, fromAssets(rightEarPath!!), rightEar!!)
+                    FaceTipRendering.create(context, fromAssets(rightEarPath!!), rightEar!!)
                 leftEarRendering =
-                    FaceRendering.create(context, fromAssets(leftEarPath!!), leftEar!!)
+                    FaceTipRendering.create(context, fromAssets(leftEarPath!!), leftEar!!)
             }
         }
     }

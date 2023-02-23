@@ -69,28 +69,6 @@ class FaceObjectRendering(
         }
     }
 
-    fun draw() {
-        GLES30.glEnable(GLES30.GL_BLEND)
-        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
-        program.use()
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
-        facePos?.let {
-            GLES30.glBindVertexArray(vertexData!!.getVaoId())
-            val rotationAngle = 2.0f * acos(pose!!.qw())
-            val rotationVector = Vec3(pose!!.qx(), pose!!.qy(), pose!!.qz())
-            val model =
-                glm.translate(Mat4(), it) * glm.rotate(Mat4(), rotationAngle, rotationVector)
-            program.setUniformMat4("mvp", proj * view * model)
-            GLES20.glDrawElements(
-                GLES30.GL_TRIANGLES, faceIndices?.size ?: 0,
-                GLES30.GL_UNSIGNED_SHORT, 0
-            )
-            GLES30.glBindVertexArray(0)
-        }
-        facePos = null
-    }
-
     fun drawMesh() {
         program.use()
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
@@ -164,15 +142,6 @@ class FaceObjectRendering(
     }
 
     companion object {
-        fun create(context: Context, @RawRes texture: Int): FaceObjectRendering {
-            val resource = context.resources
-            return FaceObjectRendering(
-                resource.readRawTextFile(R.raw.face_vertex),
-                resource.readRawTextFile(R.raw.face_fragment),
-                Texture(loadBitmap(context, texture))
-            )
-        }
-
         fun create(
             context: Context,
             mesh: com.example.arcorestudy.tools.Mesh,
