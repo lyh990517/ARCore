@@ -68,7 +68,6 @@ class MainRenderer(private val sessionManager: SessionManager) :
         if (isFrontCamera) {
             when(faceType.value){
                 "faceFilter" -> {
-                    Log.e("filter","draw")
                     faceFilterRendering.draw()
                 }
                 "faceObject" -> {

@@ -75,9 +75,7 @@ class FaceFilterRendering (
         program.use()
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
-        Log.e("pose","cgeck")
         facePos?.let {
-            Log.e("pose","$it")
             GLES30.glBindVertexArray(vertexData!!.getVaoId())
             val rotationAngle = 2.0f * acos(pose!!.qw())
             val rotationVector = Vec3(pose!!.qx(), pose!!.qy(), pose!!.qz())
