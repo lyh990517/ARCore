@@ -37,10 +37,16 @@ class FaceFilterRendering(
     private var vertexData: RenderingDataShort? = null
     private lateinit var renderingData: RenderingData
     private var pose: Pose? = null
+    private var x: Float = 0f
+    private var y: Float = 0f
+    private var z: Float = 0f
+    private var size: Float = 0f
+
     fun init() {
         program = Program.create(vShader, fShader)
         diffuse.load()
     }
+
     fun initMesh() {
         program = Program.create(vShader, fShader)
         diffuse.load()
@@ -84,6 +90,7 @@ class FaceFilterRendering(
         }
         facePos = null
     }
+
     fun drawMesh() {
         program.use()
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
@@ -93,11 +100,16 @@ class FaceFilterRendering(
             val rotationAngle = 2.0f * acos(pose!!.qw())
             val rotationVector = Vec3(pose!!.qx(), pose!!.qy(), pose!!.qz())
             val model =
-                glm.translate(Mat4(), position) * glm.rotate(Mat4(), rotationAngle, rotationVector) * glm.scale(Mat4(),Vec3(1.0f,1.0f,1.0f))
+                glm.translate(Mat4(), position) * glm.rotate(
+                    Mat4(),
+                    rotationAngle,
+                    rotationVector
+                ) * glm.scale(Mat4(), Vec3(1.0f + size, 1.0f + size, 1.0f + size))
             program.setUniformMat4("mvp", proj * view * model)
             GLES20.glDrawElements(
                 GLES30.GL_TRIANGLES, mesh!!.vertices.size,
-                GLES30.GL_UNSIGNED_INT, 0)
+                GLES30.GL_UNSIGNED_INT, 0
+            )
             GLES30.glBindVertexArray(0)
         }
         facePos = null
@@ -114,7 +126,7 @@ class FaceFilterRendering(
         faceIndices = indices
         faceUVS = uvs
         faceNormals = normals
-        facePos = Vec3(pose.tx(), pose.ty() -0.015f, pose.tz() + 0.1f)
+        facePos = Vec3(pose.tx() + x, pose.ty() + y, pose.tz() + z)
         this.pose = pose
         val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
         vertex.position(0)
@@ -141,6 +153,16 @@ class FaceFilterRendering(
         view = viewMatrix.toMat4().transpose_()
     }
 
+    fun getXYZ(x: Float, y: Float, z: Float) {
+        this.x = x
+        this.y = y
+        this.z = z
+    }
+
+    fun setSize(size: Float) {
+        this.size = size
+    }
+
     companion object {
         fun create(context: Context, @RawRes texture: Int): FaceFilterRendering {
             val resource = context.resources
@@ -150,7 +172,12 @@ class FaceFilterRendering(
                 Texture(loadBitmap(context, texture))
             )
         }
-        fun create(context: Context, mesh: com.example.arcorestudy.tools.Mesh, @RawRes texture: Int): FaceFilterRendering {
+
+        fun create(
+            context: Context,
+            mesh: com.example.arcorestudy.tools.Mesh,
+            @RawRes texture: Int
+        ): FaceFilterRendering {
             val resource = context.resources
             return FaceFilterRendering(
                 resource.readRawTextFile(R.raw.face_vertex),

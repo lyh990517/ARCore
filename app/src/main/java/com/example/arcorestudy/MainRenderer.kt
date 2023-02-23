@@ -95,7 +95,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         }
     }
 
-    private fun detectFace() = with(sessionManager){
+    private fun detectFace() = with(sessionManager) {
         val faces =
             mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
         faces?.forEach { face ->
@@ -204,8 +204,13 @@ class MainRenderer(private val sessionManager: SessionManager) :
         sessionManager.cubeScene.cubeRGB(red, green, blue)
     }
 
+    fun getXYZ(x: Float, y: Float, z: Float) {
+        sessionManager.faceFilterRendering.getXYZ(x, y, z)
+    }
+
     fun setSize(size: Float) {
         sessionManager.cubeScene.size = size
+        sessionManager.faceFilterRendering.setSize(size)
     }
 
     private val textureId: Int
