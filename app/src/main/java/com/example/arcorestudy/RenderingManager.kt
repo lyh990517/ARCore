@@ -1,6 +1,7 @@
 package com.example.arcorestudy
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.RawRes
 import com.example.arcorestudy.rendering.ArObjectRendering
 import com.example.arcorestudy.rendering.CameraTextureRendering
@@ -47,8 +48,9 @@ class RenderingManager(private val context: Context) {
                 faceFilterRendering = FaceFilterRendering.create(context, objId!!)
             }
             "faceObject" -> {
+                Log.e("click","face")
                 faceObjectRendering =
-                    FaceObjectRendering.create(context, fromAssets(objPath!!), objId!!)
+                    FaceObjectRendering.create(context, fromAssets("Doughnut_OBJ.obj"), R.raw.nose_fur)
             }
             "faceTips" -> {
                 noseRendering = FaceTipRendering.create(context, fromAssets(nosePath!!), nose!!)

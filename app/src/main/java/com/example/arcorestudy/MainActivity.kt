@@ -117,6 +117,7 @@ class MainActivity : AppCompatActivity() {
             idx2++
             if (idx2 == 3) idx2 = 0
             renderer.faceType.value = arr2[idx2]
+            renderingManager.selectFace("faceObject")
         }
         var arr = arrayOf("near", "far", "all")
         var idx = 0

@@ -2,6 +2,7 @@ package com.example.arcorestudy.rendering.Face
 
 import android.content.Context
 import android.opengl.GLES30.*
+import android.util.Log
 import androidx.annotation.RawRes
 import com.example.arcorestudy.R
 import com.example.arcorestudy.tools.RenderingData
@@ -29,8 +30,9 @@ class FaceObjectRendering(
     private var y: Float = 0f
     private var z: Float = 0f
     private var size: Float = 0f
-
+    private var isInitialized = false
     fun init() {
+        isInitialized = true
         program = Program.create(vShader, fShader)
         diffuse.load()
         mesh?.let {
@@ -53,6 +55,7 @@ class FaceObjectRendering(
     }
 
     fun draw() {
+        if(!isInitialized) init()
         program.use()
         glActiveTexture(GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_2D, diffuse.getId())
