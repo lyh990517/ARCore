@@ -1,7 +1,6 @@
 package com.example.arcorestudy.rendering.Face
 
 import android.content.Context
-import android.opengl.GLES20
 import android.opengl.GLES30.*
 import androidx.annotation.RawRes
 import com.example.arcorestudy.R
@@ -61,7 +60,7 @@ class FaceTipRendering(
             val model =
                 glm.translate(Mat4(), position) * glm.rotate(Mat4(), rotationAngle, rotationVector)
             program.setUniformMat4("mvp", proj * view * model)
-            GLES20.glDrawElements(GL_TRIANGLE_STRIP, mesh.vertices.size, GL_UNSIGNED_INT, 0)
+            glDrawElements(GL_TRIANGLE_STRIP, mesh.vertices.size, GL_UNSIGNED_INT, 0)
             glBindVertexArray(0)
         }
         glDisable(GL_BLEND)

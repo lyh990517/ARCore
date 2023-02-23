@@ -1,7 +1,7 @@
 package com.example.arcorestudy.tools
 
 import android.opengl.GLES20
-import android.opengl.GLES30
+import android.opengl.GLES30.*
 import com.example.gllibrary.Program
 import com.example.gllibrary.VertexData
 import com.example.gllibrary.createFloatBuffer
@@ -28,32 +28,32 @@ data class Mesh(
             buffer.put(vertices.get())
         }
         buffer.position(0)
-        data = VBOData(buffer, GLES30.GL_STATIC_DRAW, 5)
+        data = VBOData(buffer, GL_STATIC_DRAW, 5)
     }
 
     fun bind(program: Program) {
         data.bind()
-        data.addAttribute(GLES30.glGetAttribLocation(program.getProgram(),"aPos"), 3, 0)
-        data.addAttribute(GLES30.glGetAttribLocation(program.getProgram(),"aTexCoord"), 2, 3)
+        data.addAttribute(glGetAttribLocation(program.getProgram(),"aPos"), 3, 0)
+        data.addAttribute(glGetAttribLocation(program.getProgram(),"aTexCoord"), 2, 3)
         bindIndices()
     }
 
     fun draw() {
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, data.getVBO())
+        glBindBuffer(GL_ARRAY_BUFFER, data.getVBO())
         data.applyAttributes()
-        GLES20.glDrawElements(GLES30.GL_TRIANGLES, indices.capacity(), GLES30.GL_UNSIGNED_INT, 0)
+        glDrawElements(GL_TRIANGLES, indices.capacity(), GL_UNSIGNED_INT, 0)
         data.disabledAttributes()
     }
 
     private fun bindIndices() = indices.takeIf { it.capacity() > 0 }?.also {
         val ebo = IntBuffer.allocate(1)
-        GLES30.glGenBuffers(1, ebo)
-        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, ebo[0])
-        GLES30.glBufferData(
-            GLES30.GL_ELEMENT_ARRAY_BUFFER,
+        glGenBuffers(1, ebo)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo[0])
+        glBufferData(
+            GL_ELEMENT_ARRAY_BUFFER,
             Int.SIZE_BYTES * indices.capacity(),
             indices,
-            GLES30.GL_STATIC_DRAW
+            GL_STATIC_DRAW
         )
     }
 }

@@ -1,7 +1,6 @@
 package com.example.arcorestudy.tools
 
-import android.opengl.GLES20
-import android.opengl.GLES30
+import android.opengl.GLES30.*
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 
@@ -9,7 +8,7 @@ class RenderingData(
     private val vertices: FloatBuffer,
     private val indices: IntBuffer?,
     private val stride: Int,
-    private val drawMode: Int = GLES20.GL_STATIC_DRAW
+    private val drawMode: Int = GL_STATIC_DRAW
 ) {
 
     private val attributes = mutableListOf<Attribute>()
@@ -27,19 +26,19 @@ class RenderingData(
 
     fun bind() {
         val vbo = IntBuffer.allocate(1)
-        GLES30.glGenBuffers(1, vbo)
+        glGenBuffers(1, vbo)
         val vao = IntBuffer.allocate(1)
-        GLES30.glGenVertexArrays(1, vao)
+        glGenVertexArrays(1, vao)
 
         vao[0].also {
             vaoId = it
-            GLES30.glBindVertexArray(it)
+            glBindVertexArray(it)
         }
 
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, vbo[0])
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[0])
         vertices.position(0)
-        GLES30.glBufferData(
-            GLES30.GL_ARRAY_BUFFER,
+        glBufferData(
+            GL_ARRAY_BUFFER,
             Float.SIZE_BYTES * vertices.capacity(),
             vertices,
             drawMode
@@ -48,32 +47,32 @@ class RenderingData(
         applyAttributes()
         bindIndices()
 
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
-        GLES30.glBindVertexArray(0)
-        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, 0)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        glBindVertexArray(0)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
     }
 
     fun getVaoId() = vaoId ?: throw IllegalStateException("Call bind() before accessing VAO")
 
     private fun applyAttributes() = attributes.forEach { attribute ->
-        GLES30.glEnableVertexAttribArray(attribute.location)
-        GLES30.glVertexAttribPointer(
+        glEnableVertexAttribArray(attribute.location)
+        glVertexAttribPointer(
             attribute.location,
             attribute.size,
-            GLES20.GL_FLOAT,
+            GL_FLOAT,
             false,
             (attribute.stride ?: stride) * Float.SIZE_BYTES,
             attribute.offset * Float.SIZE_BYTES
         )
-        attribute.divisor?.also { GLES30.glVertexAttribDivisor(attribute.location, it) }
+        attribute.divisor?.also { glVertexAttribDivisor(attribute.location, it) }
     }
 
     private fun bindIndices() = indices?.takeIf { it.capacity() > 0 }?.also {
         val ebo = IntBuffer.allocate(1)
-        GLES30.glGenBuffers(1, ebo)
-        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, ebo[0])
-        GLES30.glBufferData(
-            GLES30.GL_ELEMENT_ARRAY_BUFFER,
+        glGenBuffers(1, ebo)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo[0])
+        glBufferData(
+            GL_ELEMENT_ARRAY_BUFFER,
             Int.SIZE_BYTES * indices.capacity(),
             indices,
             drawMode

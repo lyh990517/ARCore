@@ -37,8 +37,8 @@ class CameraTextureRendering(
         VertexData.apply(program.getAttributeLocation("aPosition"),3,mVertices)
         VertexData.apply(program.getAttributeLocation("aTexCoord"),2,mTexCoordsTransformed)
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
-        GLES20.glDisableVertexAttribArray(program.getAttributeLocation("aPosition"))
-        GLES20.glDisableVertexAttribArray(program.getAttributeLocation("aTexCoord"))
+        glDisableVertexAttribArray(program.getAttributeLocation("aPosition"))
+        glDisableVertexAttribArray(program.getAttributeLocation("aTexCoord"))
     }
 
     fun init() {

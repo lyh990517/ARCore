@@ -1,12 +1,9 @@
 package com.example.arcorestudy.rendering.Face
 
 import android.content.Context
-import android.opengl.GLES20
-import android.opengl.GLES30
-import android.util.Log
+import android.opengl.GLES30.*
 import androidx.annotation.RawRes
 import com.example.arcorestudy.R
-import com.example.arcorestudy.tools.RenderingData
 import com.example.arcorestudy.tools.RenderingDataShort
 import com.example.gllibrary.*
 import com.google.ar.core.Pose
@@ -44,23 +41,23 @@ class FaceFilterRendering (
         diffuse.load()
     }
     fun draw() {
-        GLES30.glEnable(GLES30.GL_BLEND)
-        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         program.use()
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
+        glActiveTexture(GL_TEXTURE0)
+        glBindTexture(GL_TEXTURE_2D, diffuse.getId())
         facePos?.let {
-            GLES30.glBindVertexArray(vertexData!!.getVaoId())
+            glBindVertexArray(vertexData!!.getVaoId())
             val rotationAngle = 2.0f * acos(pose!!.qw())
             val rotationVector = Vec3(pose!!.qx(), pose!!.qy(), pose!!.qz())
             val model =
                 glm.translate(Mat4(), it) * glm.rotate(Mat4(), rotationAngle, rotationVector)
             program.setUniformMat4("mvp", proj * view * model)
-            GLES20.glDrawElements(
-                GLES30.GL_TRIANGLES, faceIndices?.size ?: 0,
-                GLES30.GL_UNSIGNED_SHORT, 0
+            glDrawElements(
+                GL_TRIANGLES, faceIndices?.size ?: 0,
+                GL_UNSIGNED_SHORT, 0
             )
-            GLES30.glBindVertexArray(0)
+            glBindVertexArray(0)
         }
         facePos = null
     }

@@ -38,7 +38,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         rightEarRendering.init()
         leftEarRendering.init()
         faceFilterRendering.init()
-        faceObjectRendering.initMesh()
+        faceObjectRendering.init()
     }
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
@@ -71,7 +71,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
                     faceFilterRendering.draw()
                 }
                 "faceObject" -> {
-                    faceObjectRendering.drawMesh()
+                    faceObjectRendering.draw()
                 }
                 "faceTips" -> {
                     noseRendering.draw()
@@ -112,13 +112,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 rightEarRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT))
                 leftEarRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT))
                 noseRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP))
-                faceObjectRendering.setFace(
-                    face.meshVertices,
-                    face.meshTriangleIndices,
-                    face.meshTextureCoordinates,
-                    face.meshNormals,
-                    face.centerPose
-                )
+                faceObjectRendering.setFace(face.centerPose)
                 faceFilterRendering.setFace(
                     face.meshVertices,
                     face.meshTriangleIndices,
