@@ -187,51 +187,79 @@ class MainActivity : AppCompatActivity() {
             binding.r.text = "x"
             binding.g.text = "y"
             binding.b.text = "z"
+            binding.red.progress = 50
+            binding.blue.progress = 50
+            binding.green.progress = 50
             binding.red.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    x = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
-                    renderer.getXYZ(x, y, z)
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    if (progress <= 50) {
+                        x = (50 - progress).toFloat().times(0.01f)
+                        renderer.getXYZ(x, y, z)
+                    } else {
+                        x = -(progress - 50).toFloat().times(0.01f)
+                        renderer.getXYZ(x, y, z)
+                    }
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                    x = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
-                    renderer.getXYZ(x, y, z)
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 }
             })
             binding.green.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    y = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
-                    renderer.getXYZ(x, y, z)
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    if (progress <= 50) {
+                        y = (50 - progress).toFloat().times(0.01f)
+                        renderer.getXYZ(x, y, z)
+                    } else {
+                        y = -(progress - 50).toFloat().times(0.01f)
+                        renderer.getXYZ(x, y, z)
+                    }
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                    y = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
-                    renderer.getXYZ(x, y, z)
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 }
             })
             binding.blue.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    z = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
-                    renderer.getXYZ(x, y, z)
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    if (progress <= 50) {
+                        z = (50 - progress).toFloat().times(0.01f)
+                        renderer.getXYZ(x, y, z)
+                    } else {
+                        z = -(progress - 50).toFloat().times(0.01f)
+                        renderer.getXYZ(x, y, z)
+                    }
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                    z = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
-                    renderer.getXYZ(x, y, z)
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 }
             })
             binding.size.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    size = seekBar?.progress?.toFloat()?.times(0.001f) ?: 0f
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    size = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
                     renderer.setSize(size)
                 }
 
