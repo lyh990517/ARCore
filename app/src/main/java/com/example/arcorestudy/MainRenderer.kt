@@ -66,7 +66,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         cubeScene.draw()
         arObjectScene.draw()
         if (isFrontCamera) {
-            when(faceType.value){
+            when (faceType.value) {
                 "faceFilter" -> {
                     faceFilterRendering.draw()
                 }
@@ -91,6 +91,10 @@ class MainRenderer(private val sessionManager: SessionManager) :
             if (frame.hasDisplayGeometryChanged()) {
                 mCamera.transformDisplayGeometry(frame)
             }
+            val colorCorrectionRgba = FloatArray(4)
+            frame.lightEstimate.getColorCorrection(colorCorrectionRgba, 0)
+            setLight(colorCorrectionRgba)
+            Log.e("light","${colorCorrectionRgba[0]} ${colorCorrectionRgba[1]} ${colorCorrectionRgba[2]} ${colorCorrectionRgba[3]}")
             renderPointCloud(frame)
             extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }
             getHitPose(frame)
@@ -102,6 +106,10 @@ class MainRenderer(private val sessionManager: SessionManager) :
         } catch (_: SessionPausedException) {
 
         }
+    }
+
+    private fun setLight(colorCorrectionRgba: FloatArray) {
+        sessionManager.faceObjectRendering.setLight(colorCorrectionRgba)
     }
 
     private fun detectFace() = with(sessionManager) {

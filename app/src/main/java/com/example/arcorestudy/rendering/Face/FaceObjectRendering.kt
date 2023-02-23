@@ -3,11 +3,12 @@ package com.example.arcorestudy.rendering.Face
 import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLES30
-import android.util.Log
+import android.opengl.Matrix
 import androidx.annotation.RawRes
 import com.example.arcorestudy.R
 import com.example.arcorestudy.tools.RenderingData
 import com.example.arcorestudy.tools.RenderingDataShort
+import com.example.arcorestudy.tools.toFloatArray
 import com.example.gllibrary.*
 import com.google.ar.core.Pose
 import glm_.glm
@@ -42,6 +43,22 @@ class FaceObjectRendering(
     private var z: Float = 0f
     private var size: Float = 0f
 
+
+    private var light: FloatArray = FloatArray(4)
+    private val LIGHT_DIRECTION = floatArrayOf(0.250f, 0.866f, 0.433f, 0.0f)
+    private val OBJECT_COLOR = floatArrayOf(139.0f, 195.0f, 74.0f, 255.0f)
+    private var viewLightDirection = FloatArray(4)
+    private var lightingParametersUniform = 0
+    private var colorCorrectionParameterUniform = 0
+    private var colorUniform = 0
+    private var materialParametersUniform = 0
+    private var textureUniform = 0
+    private val ambient = 0.3f
+    private val diffuser = 1.0f
+    private val specular = 1.0f
+    private val specularPower = 6.0f
+
+
     fun init() {
         program = Program.create(vShader, fShader)
         diffuse.load()
@@ -49,6 +66,13 @@ class FaceObjectRendering(
 
     fun initMesh() {
         program = Program.create(vShader, fShader)
+        lightingParametersUniform =
+            GLES20.glGetUniformLocation(program.getProgram(), "u_LightingParameters")
+        colorCorrectionParameterUniform =
+            GLES20.glGetUniformLocation(program.getProgram(), "u_ColorCorrectionParameters")
+        colorUniform = GLES20.glGetUniformLocation(program.getProgram(), "u_ObjColor")
+        materialParametersUniform = GLES20.glGetUniformLocation(program.getProgram(), "u_MaterialParameters")
+        textureUniform = GLES20.glGetUniformLocation(program.getProgram(), "u_Texture")
         diffuse.load()
         mesh?.let {
             val buffer = createFloatBuffer(mesh.vertices.capacity() + mesh.texCoords.capacity())
@@ -60,10 +84,14 @@ class FaceObjectRendering(
                 buffer.put(mesh.vertices.get())
                 buffer.put(mesh.texCoords.get())
                 buffer.put(1 - mesh.texCoords.get())
+                buffer.put(mesh.normals.get())
+                buffer.put(mesh.normals.get())
+                buffer.put(mesh.normals.get())
             }
-            renderingData = RenderingData(buffer, mesh.indices, 5).apply {
+            renderingData = RenderingData(buffer, mesh.indices, 8).apply {
                 addAttribute(program.getAttributeLocation("aPos"), 3, 0)
                 addAttribute(program.getAttributeLocation("aTexCoord"), 2, 3)
+                addAttribute(program.getAttributeLocation("aNormal"), 3, 5)
                 bind()
             }
         }
@@ -73,6 +101,7 @@ class FaceObjectRendering(
         program.use()
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuse.getId())
+        GLES20.glUniform1i(textureUniform, 0)
         facePos?.let { position ->
             GLES30.glBindVertexArray(renderingData.getVaoId())
             val rotationAngle = 2.0f * acos(pose!!.qw())
@@ -83,6 +112,27 @@ class FaceObjectRendering(
                     rotationAngle,
                     rotationVector
                 ) * glm.scale(Mat4(), Vec3(1.0f + size, 1.0f + size, 1.0f + size))
+            Matrix.multiplyMV(
+                viewLightDirection,
+                0,
+                (view * model).toFloatArray(),
+                0,
+                LIGHT_DIRECTION,
+                0
+            )
+            normalizeVec3(viewLightDirection)
+            GLES30.glUniform4f(
+                lightingParametersUniform,
+                viewLightDirection[0],
+                viewLightDirection[1],
+                viewLightDirection[2],
+                1f
+            )
+            GLES30.glUniform4fv(colorCorrectionParameterUniform,1,light,0)
+            GLES20.glUniform4fv(colorUniform, 1, OBJECT_COLOR, 0)
+
+            // Set the object material properties.
+            GLES20.glUniform4f(materialParametersUniform, ambient, diffuser, specular, specularPower)
             program.setUniformMat4("mvp", proj * view * model)
             GLES20.glDrawElements(
                 GLES30.GL_TRIANGLES, mesh!!.vertices.size,
@@ -91,6 +141,14 @@ class FaceObjectRendering(
             GLES30.glBindVertexArray(0)
         }
         facePos = null
+    }
+
+    private fun normalizeVec3(v: FloatArray) {
+        val reciprocalLength =
+            1.0f / Math.sqrt((v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).toDouble()).toFloat()
+        v[0] *= reciprocalLength
+        v[1] *= reciprocalLength
+        v[2] *= reciprocalLength
     }
 
     fun setFace(
@@ -139,6 +197,10 @@ class FaceObjectRendering(
 
     fun setSize(size: Float) {
         this.size = size
+    }
+
+    fun setLight(light: FloatArray) {
+        this.light = light
     }
 
     companion object {
