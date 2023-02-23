@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         renderer.mode.observe(this) {
             binding.change.text = it
         }
-        renderer.faceType.observe(this){
+        renderer.faceType.observe(this) {
             binding.faceType.text = it
         }
         binding.change.setOnClickListener {

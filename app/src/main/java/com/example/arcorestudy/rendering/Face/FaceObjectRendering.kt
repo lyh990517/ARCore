@@ -18,7 +18,7 @@ import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 import kotlin.math.acos
 
-class FaceFilterRendering (
+class FaceObjectRendering(
     private val vShader: String,
     private val fShader: String,
     private val diffuse: Texture,
@@ -166,9 +166,9 @@ class FaceFilterRendering (
     }
 
     companion object {
-        fun create(context: Context, @RawRes texture: Int): FaceFilterRendering {
+        fun create(context: Context, @RawRes texture: Int): FaceObjectRendering {
             val resource = context.resources
-            return FaceFilterRendering(
+            return FaceObjectRendering(
                 resource.readRawTextFile(R.raw.face_vertex),
                 resource.readRawTextFile(R.raw.face_fragment),
                 Texture(loadBitmap(context, texture))
@@ -179,9 +179,9 @@ class FaceFilterRendering (
             context: Context,
             mesh: com.example.arcorestudy.tools.Mesh,
             @RawRes texture: Int
-        ): FaceFilterRendering {
+        ): FaceObjectRendering {
             val resource = context.resources
-            return FaceFilterRendering(
+            return FaceObjectRendering(
                 resource.readRawTextFile(R.raw.face_vertex),
                 resource.readRawTextFile(R.raw.face_fragment),
                 Texture(loadBitmap(context, texture)),

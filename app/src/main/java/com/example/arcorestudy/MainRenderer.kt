@@ -7,8 +7,6 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
-import com.example.arcorestudy.rendering.Face.FaceFilterRendering
-import com.example.arcorestudy.rendering.Face.FaceRendering
 import com.google.ar.core.*
 import com.google.ar.core.exceptions.SessionPausedException
 import glm_.vec3.Vec3
@@ -40,7 +38,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         rightEarRendering.init()
         leftEarRendering.init()
         faceFilterRendering.init()
-        faceFilterRendering.initMesh()
+        faceObjectRendering.initMesh()
     }
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
@@ -69,11 +67,12 @@ class MainRenderer(private val sessionManager: SessionManager) :
         arObjectScene.draw()
         if (isFrontCamera) {
             when(faceType.value){
-                "faceMask" -> {
+                "faceFilter" -> {
+                    Log.e("filter","draw")
                     faceFilterRendering.draw()
                 }
                 "faceObject" -> {
-                    faceFilterRendering.drawMesh()
+                    faceObjectRendering.drawMesh()
                 }
                 "faceTips" -> {
                     noseRendering.draw()
@@ -114,6 +113,13 @@ class MainRenderer(private val sessionManager: SessionManager) :
                 rightEarRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT))
                 leftEarRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT))
                 noseRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP))
+                faceObjectRendering.setFace(
+                    face.meshVertices,
+                    face.meshTriangleIndices,
+                    face.meshTextureCoordinates,
+                    face.meshNormals,
+                    face.centerPose
+                )
                 faceFilterRendering.setFace(
                     face.meshVertices,
                     face.meshTriangleIndices,
@@ -187,6 +193,8 @@ class MainRenderer(private val sessionManager: SessionManager) :
         rightEarRendering.setViewMatrix(view)
         leftEarRendering.setProjectionMatrix(projection)
         leftEarRendering.setViewMatrix(view)
+        faceObjectRendering.setProjectionMatrix(projection)
+        faceObjectRendering.setViewMatrix(view)
         faceFilterRendering.setProjectionMatrix(projection)
         faceFilterRendering.setViewMatrix(view)
     }
@@ -216,12 +224,12 @@ class MainRenderer(private val sessionManager: SessionManager) :
     }
 
     fun getXYZ(x: Float, y: Float, z: Float) {
-        sessionManager.faceFilterRendering.getXYZ(x, y, z)
+        sessionManager.faceObjectRendering.getXYZ(x, y, z)
     }
 
     fun setSize(size: Float) {
         sessionManager.cubeScene.size = size
-        sessionManager.faceFilterRendering.setSize(size)
+        sessionManager.faceObjectRendering.setSize(size)
     }
 
     private val textureId: Int

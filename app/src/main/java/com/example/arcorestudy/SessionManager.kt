@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getSystemService
 import com.example.arcorestudy.rendering.*
 import com.example.arcorestudy.rendering.Face.FaceFilterRendering
+import com.example.arcorestudy.rendering.Face.FaceObjectRendering
 import com.example.arcorestudy.rendering.Face.FaceRendering
 import com.example.arcorestudy.tools.Mesh
 import com.google.ar.core.*
@@ -46,9 +47,10 @@ class SessionManager(private val context: Context) {
         FaceRendering.create(context, fromAssets("FOREHEAD_RIGHT.obj"), R.raw.ear_fur)
     var leftEarRendering: FaceRendering =
         FaceRendering.create(context, fromAssets("FOREHEAD_LEFT.obj"), R.raw.ear_fur)
+    var faceObjectRendering: FaceObjectRendering =
+        FaceObjectRendering.create(context, fromAssets("PlagueMask_sketchfab.obj"), R.raw.plagmask)
     var faceFilterRendering: FaceFilterRendering =
-        FaceFilterRendering.create(context, fromAssets("PlagueMask_sketchfab.obj"), R.raw.plagmask)
-
+        FaceFilterRendering.create(context, R.raw.freckles)
 
     fun selectFace(
         type: String,
@@ -63,16 +65,18 @@ class SessionManager(private val context: Context) {
     ) {
         when (type) {
             "faceMask" -> {
-                faceFilterRendering = FaceFilterRendering.create(context, objId!!)
+                faceObjectRendering = FaceObjectRendering.create(context, objId!!)
             }
             "faceObject" -> {
-                faceFilterRendering =
-                    FaceFilterRendering.create(context, fromAssets(objPath!!), objId!!)
+                faceObjectRendering =
+                    FaceObjectRendering.create(context, fromAssets(objPath!!), objId!!)
             }
             "faceTips" -> {
                 noseRendering = FaceRendering.create(context, fromAssets(nosePath!!), nose!!)
-                rightEarRendering = FaceRendering.create(context, fromAssets(rightEarPath!!), rightEar!!)
-                leftEarRendering = FaceRendering.create(context, fromAssets(leftEarPath!!), leftEar!!)
+                rightEarRendering =
+                    FaceRendering.create(context, fromAssets(rightEarPath!!), rightEar!!)
+                leftEarRendering =
+                    FaceRendering.create(context, fromAssets(leftEarPath!!), leftEar!!)
             }
         }
     }
