@@ -7,6 +7,8 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
+import com.example.arcorestudy.rendering.Face.FaceFilterRendering
+import com.example.arcorestudy.rendering.Face.FaceRendering
 import com.google.ar.core.*
 import com.google.ar.core.exceptions.SessionPausedException
 import glm_.vec3.Vec3
@@ -28,6 +30,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
     val yLiveData = MutableLiveData<Float>()
     val zLiveData = MutableLiveData<Float>()
     var isFrontCamera = false
+    val faceType = MutableLiveData("faceObject")
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) = with(sessionManager) {
         mCamera.init()
         mPointCloud.init()
@@ -65,11 +68,19 @@ class MainRenderer(private val sessionManager: SessionManager) :
         cubeScene.draw()
         arObjectScene.draw()
         if (isFrontCamera) {
-            //noseRendering.draw()
-            //leftEarRendering.draw()
-            //rightEarRendering.draw()
-            //faceFilterRendering.draw()
-            faceFilterRendering.drawMesh()
+            when(faceType.value){
+                "faceMask" -> {
+                    faceFilterRendering.draw()
+                }
+                "faceObject" -> {
+                    faceFilterRendering.drawMesh()
+                }
+                "faceTips" -> {
+                    noseRendering.draw()
+                    leftEarRendering.draw()
+                    rightEarRendering.draw()
+                }
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import android.hardware.display.DisplayManager
 import android.os.Build
 import android.util.Log
 import android.view.Display
+import androidx.annotation.RawRes
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getSystemService
 import com.example.arcorestudy.rendering.*
@@ -39,10 +40,42 @@ class SessionManager(private val context: Context) {
     val mPointCloud: PointCloudRendering = PointCloudRendering.create(context)
     val cubeScene: CubeRendering = CubeRendering.create(context)
     val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
-    val noseRendering: FaceRendering = FaceRendering.create(context,fromAssets("NOSE.obj"),R.raw.nose_fur)
-    val rightEarRendering : FaceRendering = FaceRendering.create(context,fromAssets("FOREHEAD_RIGHT.obj"),R.raw.ear_fur)
-    val leftEarRendering : FaceRendering = FaceRendering.create(context,fromAssets("FOREHEAD_LEFT.obj"),R.raw.ear_fur)
-    val faceFilterRendering: FaceFilterRendering = FaceFilterRendering.create(context,fromAssets("mesh.obj"),R.raw.catmask)
+    var noseRendering: FaceRendering =
+        FaceRendering.create(context, fromAssets("NOSE.obj"), R.raw.nose_fur)
+    var rightEarRendering: FaceRendering =
+        FaceRendering.create(context, fromAssets("FOREHEAD_RIGHT.obj"), R.raw.ear_fur)
+    var leftEarRendering: FaceRendering =
+        FaceRendering.create(context, fromAssets("FOREHEAD_LEFT.obj"), R.raw.ear_fur)
+    var faceFilterRendering: FaceFilterRendering =
+        FaceFilterRendering.create(context, fromAssets("PlagueMask_sketchfab.obj"), R.raw.plagmask)
+
+
+    fun selectFace(
+        type: String,
+        objPath: String? = null,
+        @RawRes objId: Int? = null,
+        nosePath: String? = null,
+        rightEarPath: String? = null,
+        leftEarPath: String? = null,
+        @RawRes nose: Int? = null,
+        @RawRes rightEar: Int? = null,
+        @RawRes leftEar: Int? = null
+    ) {
+        when (type) {
+            "faceMask" -> {
+                faceFilterRendering = FaceFilterRendering.create(context, objId!!)
+            }
+            "faceObject" -> {
+                faceFilterRendering =
+                    FaceFilterRendering.create(context, fromAssets(objPath!!), objId!!)
+            }
+            "faceTips" -> {
+                noseRendering = FaceRendering.create(context, fromAssets(nosePath!!), nose!!)
+                rightEarRendering = FaceRendering.create(context, fromAssets(rightEarPath!!), rightEar!!)
+                leftEarRendering = FaceRendering.create(context, fromAssets(leftEarPath!!), leftEar!!)
+            }
+        }
+    }
 
     fun create() {
         getSystemService(context, DisplayManager::class.java)!!.registerDisplayListener(
@@ -50,6 +83,7 @@ class SessionManager(private val context: Context) {
             null
         )
     }
+
     fun fromAssets(assetPath: String): Mesh {
         val obj = context.assets.open(assetPath)
             .let { stream -> ObjReader.read(stream) }

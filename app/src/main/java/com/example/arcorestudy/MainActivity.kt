@@ -70,6 +70,7 @@ class MainActivity : AppCompatActivity() {
             sessionManager.arObjectScene.clear()
             renderer.distanceLiveData.value = 0f
         }
+        binding.faceType.isGone = true
         renderer.distanceLiveData.observe(this) {
             binding.distance.text = "$it m"
         }
@@ -78,6 +79,9 @@ class MainActivity : AppCompatActivity() {
         }
         renderer.mode.observe(this) {
             binding.change.text = it
+        }
+        renderer.faceType.observe(this){
+            binding.faceType.text = it
         }
         binding.change.setOnClickListener {
             if (renderer.mode.value == "arObject") {
@@ -103,6 +107,13 @@ class MainActivity : AppCompatActivity() {
         }
         renderer.zLiveData.observe(this) {
             binding.zVal.text = it.toString()
+        }
+        var arr2 = arrayOf("faceObject", "faceFilter", "faceTips")
+        var idx2 = 0
+        binding.faceType.setOnClickListener {
+            idx2++
+            if (idx2 == 3) idx2 = 0
+            renderer.faceType.value = arr2[idx2]
         }
         var arr = arrayOf("near", "far", "all")
         var idx = 0
@@ -183,7 +194,7 @@ class MainActivity : AppCompatActivity() {
             binding.yVal.isGone = !binding.yVal.isGone
             binding.zVal.isGone = !binding.zVal.isGone
             binding.distance.isGone = !binding.distance.isGone
-
+            binding.faceType.isGone = !binding.faceType.isGone
             binding.r.text = "x"
             binding.g.text = "y"
             binding.b.text = "z"
