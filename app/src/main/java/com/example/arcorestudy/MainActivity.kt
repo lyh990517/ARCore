@@ -26,6 +26,7 @@ import glm_.toLong
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var sessionManager: SessionManager
+    private lateinit var renderingManager: RenderingManager
     private lateinit var renderer: MainRenderer
     private var r = 0f
     private var g = 0f
@@ -57,8 +58,9 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun initialize() {
         sessionManager = SessionManager.create(binding.glSurfaceView.context!!.applicationContext)
+        renderingManager = RenderingManager.create(binding.glSurfaceView.context!!.applicationContext)
         sessionManager.create()
-        renderer = MainRenderer(sessionManager)
+        renderer = MainRenderer(sessionManager,renderingManager)
         binding.glSurfaceView.apply {
             preserveEGLContextOnPause = true
             setEGLContextClientVersion(3)
@@ -66,8 +68,8 @@ class MainActivity : AppCompatActivity() {
             renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
         }
         binding.reset.setOnClickListener {
-            sessionManager.cubeScene.clear()
-            sessionManager.arObjectScene.clear()
+            renderingManager.cubeScene.clear()
+            renderingManager.arObjectScene.clear()
             renderer.distanceLiveData.value = 0f
         }
         binding.faceType.isGone = true

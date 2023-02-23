@@ -12,7 +12,7 @@ import com.google.ar.core.exceptions.SessionPausedException
 import glm_.vec3.Vec3
 import javax.microedition.khronos.egl.EGLConfig
 
-class MainRenderer(private val sessionManager: SessionManager) :
+class MainRenderer(private val sessionManager: SessionManager, private val renderingManager: RenderingManager) :
     GLSurfaceView.Renderer {
     private var mViewportWidth = 0
     private var mViewportHeight = 0
@@ -29,7 +29,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
     val zLiveData = MutableLiveData<Float>()
     var isFrontCamera = false
     val faceType = MutableLiveData("faceObject")
-    override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) = with(sessionManager) {
+    override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) = with(renderingManager) {
         mCamera.init()
         mPointCloud.init()
         cubeScene.init()
@@ -56,7 +56,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         render()
     }
 
-    private fun render() = with(sessionManager) {
+    private fun render() = with(renderingManager) {
         glDepthMask(false)
         mCamera.draw()
         glDepthMask(true)
@@ -89,7 +89,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         try {
             val frame = mSession!!.update()
             if (frame.hasDisplayGeometryChanged()) {
-                mCamera.transformDisplayGeometry(frame)
+                renderingManager.mCamera.transformDisplayGeometry(frame)
             }
             renderPointCloud(frame)
             extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }
@@ -104,9 +104,9 @@ class MainRenderer(private val sessionManager: SessionManager) :
         }
     }
 
-    private fun detectFace() = with(sessionManager) {
+    private fun detectFace() = with(renderingManager) {
         val faces =
-            mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
+            sessionManager.mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
         faces?.forEach { face ->
             if (face.trackingState == TrackingState.TRACKING) {
                 rightEarRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT))
@@ -160,7 +160,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         }
     }
 
-    private fun addPoint(vec3: Vec3) = with(sessionManager) {
+    private fun addPoint(vec3: Vec3) = with(renderingManager) {
         if (onTouch) {
             when (mode.value) {
                 "cube" -> {
@@ -173,7 +173,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
         }
     }
 
-    private fun setMatrix(projection: FloatArray, view: FloatArray) = with(sessionManager) {
+    private fun setMatrix(projection: FloatArray, view: FloatArray) = with(renderingManager) {
         mPointCloud.setProjectionMatrix(projection)
         mPointCloud.setViewMatrix(view)
         cubeScene.setProjectionMatrix(projection)
@@ -203,7 +203,7 @@ class MainRenderer(private val sessionManager: SessionManager) :
 
     private fun renderPointCloud(frame: Frame) {
         val pointCloud: PointCloud = frame.acquirePointCloud()
-        sessionManager.mPointCloud.update(pointCloud)
+        renderingManager.mPointCloud.update(pointCloud)
         pointCloud.release()
     }
 
@@ -213,19 +213,19 @@ class MainRenderer(private val sessionManager: SessionManager) :
     }
 
     fun getRGB(red: Float, green: Float, blue: Float) {
-        sessionManager.cubeScene.cubeRGB(red, green, blue)
+        renderingManager.cubeScene.cubeRGB(red, green, blue)
     }
 
     fun getXYZ(x: Float, y: Float, z: Float) {
-        sessionManager.faceObjectRendering.getXYZ(x, y, z)
+        renderingManager.faceObjectRendering.getXYZ(x, y, z)
     }
 
     fun setSize(size: Float) {
-        sessionManager.cubeScene.size = size
-        sessionManager.faceObjectRendering.setSize(size)
+        renderingManager.cubeScene.size = size
+        renderingManager.faceObjectRendering.setSize(size)
     }
 
     private val textureId: Int
-        get() = sessionManager.mCamera.textureId ?: -1
+        get() = renderingManager.mCamera.textureId ?: -1
 
 }
