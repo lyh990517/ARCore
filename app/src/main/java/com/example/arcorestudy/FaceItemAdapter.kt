@@ -33,9 +33,11 @@ class FaceItemAdapter : RecyclerView.Adapter<FaceItemAdapter.ViewHolder>() {
         holder.bind(list[position])
     }
 
-    fun setItem(faceItem: FaceItem, listener: (FaceItem) -> Unit) {
+    fun setItem(faceItem: FaceItem) {
         list.add(faceItem)
-        this.listener = listener
         notifyDataSetChanged()
+    }
+    fun setTouchListener(listener: (FaceItem) -> Unit){
+        this.listener = listener
     }
 }

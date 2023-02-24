@@ -35,12 +35,15 @@ class FaceFilterRendering (
     private var x: Float = 0f
     private var y: Float = 0f
     private var z: Float = 0f
+    private var isInitialized = false
 
     fun init() {
+        isInitialized = true
         program = Program.create(vShader, fShader)
         diffuse.load()
     }
     fun draw() {
+        if(!isInitialized) init()
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         program.use()
@@ -69,6 +72,7 @@ class FaceFilterRendering (
         normals: FloatBuffer,
         pose: Pose
     ) {
+        if(!isInitialized) init()
         faceVertex = vertex
         faceIndices = indices
         faceUVS = uvs

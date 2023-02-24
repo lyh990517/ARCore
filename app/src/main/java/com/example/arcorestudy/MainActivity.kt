@@ -67,8 +67,44 @@ class MainActivity : AppCompatActivity() {
         sessionManager.create()
         binding.faceList.layoutManager = LinearLayoutManager(this)
         binding.faceList.adapter = adapter
-        adapter.setItem(FaceItem("hello")) {
+
+        adapter.setItem(
+            FaceItem(
+                "faceMask",
+                objId = R.raw.freckles
+            )
+        )
+        adapter.setItem(
+            FaceItem(
+                "faceObject",
+                objPath = "PlagueMask_sketchfab.obj",
+                R.raw.plagmask
+            )
+        )
+        adapter.setItem(
+            FaceItem(
+                "faceTips",
+                nosePath = "NOSE.obj",
+                nose = R.raw.nose_fur,
+                leftEarPath = "FOREHEAD_LEFT.obj",
+                leftEar = R.raw.ear_fur,
+                rightEarPath = "FOREHEAD_RIGHT.obj",
+                rightEar = R.raw.ear_fur
+            )
+        )
+        adapter.setTouchListener {
             Toast.makeText(this, "$it", Toast.LENGTH_SHORT).show()
+            renderingManager.selectFace(
+                type = it.type,
+                objPath = it.objPath,
+                objId = it.objId,
+                nose = it.nose,
+                nosePath = it.nosePath,
+                leftEar = it.leftEar,
+                leftEarPath = it.leftEarPath,
+                rightEar = it.rightEar,
+                rightEarPath = it.rightEarPath
+            )
         }
         renderer = MainRenderer(sessionManager, renderingManager)
         binding.glSurfaceView.apply {
