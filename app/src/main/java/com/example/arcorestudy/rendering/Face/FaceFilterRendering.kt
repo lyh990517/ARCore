@@ -62,6 +62,7 @@ class FaceFilterRendering (
             )
             glBindVertexArray(0)
         }
+        glDisable(GL_BLEND)
         facePos = null
     }
 

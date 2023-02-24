@@ -70,20 +70,30 @@ class MainActivity : AppCompatActivity() {
 
         adapter.setItem(
             FaceItem(
-                "faceFilter",
+                name = "darkCircle",
+                type = "faceFilter",
                 objId = R.raw.freckles
             )
         )
         adapter.setItem(
             FaceItem(
-                "faceObject",
+                name = "temp",
+                type = "faceFilter",
+                objId = R.raw.ear_fur
+            )
+        )
+        adapter.setItem(
+            FaceItem(
+                name = "plagueMask",
+                type = "faceObject",
                 objPath = "PlagueMask_sketchfab.obj",
                 R.raw.plagmask
             )
         )
         adapter.setItem(
             FaceItem(
-                "faceTips",
+                name = "foxFace",
+                type = "faceTips",
                 nosePath = "NOSE.obj",
                 nose = R.raw.nose_fur,
                 leftEarPath = "FOREHEAD_LEFT.obj",

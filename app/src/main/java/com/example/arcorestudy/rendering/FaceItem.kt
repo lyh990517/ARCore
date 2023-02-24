@@ -3,6 +3,7 @@ package com.example.arcorestudy.rendering
 import androidx.annotation.RawRes
 
 data class FaceItem(
+    val name: String,
     val type: String,
     val objPath: String? = null,
     @RawRes val objId: Int? = null,

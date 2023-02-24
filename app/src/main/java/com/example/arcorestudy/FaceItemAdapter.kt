@@ -15,7 +15,7 @@ class FaceItemAdapter : RecyclerView.Adapter<FaceItemAdapter.ViewHolder>() {
     inner class ViewHolder(private val binding: ItemFaceBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(faceItem: FaceItem) {
-            binding.faceName.text = faceItem.type
+            binding.faceName.text = faceItem.name
             binding.root.setOnClickListener {
                 listener(faceItem)
             }
