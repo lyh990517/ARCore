@@ -44,7 +44,7 @@ class RenderingManager(private val context: Context) {
         @RawRes leftEar: Int? = null
     ) {
         when (type) {
-            "faceMask" -> {
+            "faceFilter" -> {
                 faceFilterRendering = FaceFilterRendering.create(context, objId!!)
             }
             "faceObject" -> {

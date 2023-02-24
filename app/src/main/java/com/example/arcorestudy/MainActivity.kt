@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
 
         adapter.setItem(
             FaceItem(
-                "faceMask",
+                "faceFilter",
                 objId = R.raw.freckles
             )
         )
@@ -105,6 +105,7 @@ class MainActivity : AppCompatActivity() {
                 rightEar = it.rightEar,
                 rightEarPath = it.rightEarPath
             )
+            renderer.faceType.value = it.type
         }
         renderer = MainRenderer(sessionManager, renderingManager)
         binding.glSurfaceView.apply {
