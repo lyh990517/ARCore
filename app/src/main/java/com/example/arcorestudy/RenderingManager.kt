@@ -50,7 +50,7 @@ class RenderingManager(private val context: Context) {
             "faceObject" -> {
                 Log.e("click","face")
                 faceObjectRendering =
-                    FaceObjectRendering.create(context, fromAssets("Doughnut_OBJ.obj"), R.raw.nose_fur)
+                    FaceObjectRendering.create(context, fromAssets(objPath!!), objId!!)
             }
             "faceTips" -> {
                 noseRendering = FaceTipRendering.create(context, fromAssets(nosePath!!), nose!!)

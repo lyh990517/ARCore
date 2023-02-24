@@ -16,7 +16,7 @@
     <View
         android:id="@+id/bottomView"
         android:layout_width="0dp"
-        android:layout_height="120dp"
+        android:layout_height="240dp"
         android:background="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,9 +28,9 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@color/red"
         android:text="FaceObject"
+        app:layout_constraintBottom_toTopOf="@+id/bottomView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/bottomView" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 
     <TextView
@@ -125,10 +125,9 @@
         android:id="@+id/reset"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="120dp"
         android:backgroundTint="@color/red"
         android:text="reset"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottomView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -255,5 +254,14 @@
         app:layout_constraintEnd_toStartOf="@+id/blue"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/size" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/item_face"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/s" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
