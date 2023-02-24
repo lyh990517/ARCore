@@ -11,11 +11,14 @@ import android.view.MotionEvent
 import android.view.Window
 import android.view.WindowManager
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.arcorestudy.databinding.ActivityMainBinding
+import com.example.arcorestudy.rendering.FaceItem
 import com.google.ar.core.CameraConfig
 import com.google.ar.core.CameraConfigFilter
 import com.google.ar.core.Config
@@ -28,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sessionManager: SessionManager
     private lateinit var renderingManager: RenderingManager
     private lateinit var renderer: MainRenderer
+    private val adapter = FaceItemAdapter()
     private var r = 0f
     private var g = 0f
     private var b = 0f
@@ -61,6 +65,11 @@ class MainActivity : AppCompatActivity() {
         renderingManager =
             RenderingManager.create(binding.glSurfaceView.context!!.applicationContext)
         sessionManager.create()
+        binding.faceList.layoutManager = LinearLayoutManager(this)
+        binding.faceList.adapter = adapter
+        adapter.setItem(FaceItem("hello")) {
+            Toast.makeText(this, "$it", Toast.LENGTH_SHORT).show()
+        }
         renderer = MainRenderer(sessionManager, renderingManager)
         binding.glSurfaceView.apply {
             preserveEGLContextOnPause = true
@@ -117,7 +126,11 @@ class MainActivity : AppCompatActivity() {
             idx2++
             if (idx2 == 3) idx2 = 0
             renderer.faceType.value = arr2[idx2]
-            renderingManager.selectFace("faceObject", objPath = "PlagueMask_sketchfab.obj", objId = R.raw.plagmask)
+            renderingManager.selectFace(
+                "faceObject",
+                objPath = "PlagueMask_sketchfab.obj",
+                objId = R.raw.plagmask
+            )
         }
         var arr = arrayOf("near", "far", "all")
         var idx = 0
