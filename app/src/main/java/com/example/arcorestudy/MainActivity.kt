@@ -87,7 +87,31 @@ class MainActivity : AppCompatActivity() {
                 name = "plagueMask",
                 type = "faceObject",
                 objPath = "PlagueMask_sketchfab.obj",
-                R.raw.plagmask
+                objId = R.raw.plagmask
+            )
+        )
+        adapter.setItem(
+            FaceItem(
+                name = "venice Mask",
+                type = "faceObject",
+                objPath = "veniceMask.obj",
+                objId = R.raw.venice_mask
+            )
+        )
+        adapter.setItem(
+            FaceItem(
+                name = "catMask",
+                type = "faceObject",
+                objPath = "mesh.obj",
+                objId = R.raw.catmask
+            )
+        )
+        adapter.setItem(
+            FaceItem(
+                name = "demonMask",
+                type = "faceObject",
+                objPath = "deon_mask_low.obj",
+                objId = R.raw.demon_mask
             )
         )
         adapter.setItem(
@@ -115,6 +139,10 @@ class MainActivity : AppCompatActivity() {
                 rightEar = it.rightEar,
                 rightEarPath = it.rightEarPath
             )
+            binding.red.progress = 50
+            binding.blue.progress = 50
+            binding.green.progress = 50
+            binding.size.progress = 50
             renderer.faceType.value = it.type
         }
         renderer = MainRenderer(sessionManager, renderingManager)
@@ -265,6 +293,7 @@ class MainActivity : AppCompatActivity() {
             binding.red.progress = 50
             binding.blue.progress = 50
             binding.green.progress = 50
+            binding.size.progress = 50
             binding.red.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(
                     seekBar: SeekBar?,
@@ -334,8 +363,13 @@ class MainActivity : AppCompatActivity() {
                     progress: Int,
                     fromUser: Boolean
                 ) {
-                    size = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
-                    renderer.setSize(size)
+                    if (progress <= 50) {
+                        size = (50 - progress).toFloat().times(0.1f)
+                        renderer.setSize(size)
+                    } else {
+                        size = -(progress - 50).toFloat().times(0.1f)
+                        renderer.setSize(size)
+                    }
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
