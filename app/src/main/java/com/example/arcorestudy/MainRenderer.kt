@@ -34,11 +34,6 @@ class MainRenderer(private val sessionManager: SessionManager, private val rende
         mPointCloud.init()
         cubeScene.init()
         arObjectScene.init()
-        noseRendering.init()
-        rightEarRendering.init()
-        leftEarRendering.init()
-        faceFilterRendering.init()
-        faceObjectRendering.init()
     }
 
     override fun onSurfaceChanged(gl10: GL10, width: Int, height: Int) = with(sessionManager) {
@@ -68,15 +63,15 @@ class MainRenderer(private val sessionManager: SessionManager, private val rende
         if (isFrontCamera) {
             when(faceType.value){
                 "faceFilter" -> {
-                    faceFilterRendering.draw()
+                    faceFilterRendering?.draw()
                 }
                 "faceObject" -> {
-                    faceObjectRendering.draw()
+                    faceObjectRendering?.draw()
                 }
                 "faceTips" -> {
-                    noseRendering.draw()
-                    leftEarRendering.draw()
-                    rightEarRendering.draw()
+                    noseRendering?.draw()
+                    leftEarRendering?.draw()
+                    rightEarRendering?.draw()
                 }
             }
         }
@@ -109,11 +104,11 @@ class MainRenderer(private val sessionManager: SessionManager, private val rende
             sessionManager.mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
         faces?.forEach { face ->
             if (face.trackingState == TrackingState.TRACKING) {
-                rightEarRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT))
-                leftEarRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT))
-                noseRendering.setPose(face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP))
-                faceObjectRendering.setFace(face.centerPose)
-                faceFilterRendering.setFace(
+                rightEarRendering?.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT))
+                leftEarRendering?.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT))
+                noseRendering?.setPose(face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP))
+                faceObjectRendering?.setFace(face.centerPose)
+                faceFilterRendering?.setFace(
                     face.meshVertices,
                     face.meshTriangleIndices,
                     face.meshTextureCoordinates,
@@ -180,16 +175,16 @@ class MainRenderer(private val sessionManager: SessionManager, private val rende
         cubeScene.setViewMatrix(view)
         arObjectScene.setProjectionMatrix(projection)
         arObjectScene.setViewMatrix(view)
-        noseRendering.setProjectionMatrix(projection)
-        noseRendering.setViewMatrix(view)
-        rightEarRendering.setProjectionMatrix(projection)
-        rightEarRendering.setViewMatrix(view)
-        leftEarRendering.setProjectionMatrix(projection)
-        leftEarRendering.setViewMatrix(view)
-        faceObjectRendering.setProjectionMatrix(projection)
-        faceObjectRendering.setViewMatrix(view)
-        faceFilterRendering.setProjectionMatrix(projection)
-        faceFilterRendering.setViewMatrix(view)
+        noseRendering?.setProjectionMatrix(projection)
+        noseRendering?.setViewMatrix(view)
+        rightEarRendering?.setProjectionMatrix(projection)
+        rightEarRendering?.setViewMatrix(view)
+        leftEarRendering?.setProjectionMatrix(projection)
+        leftEarRendering?.setViewMatrix(view)
+        faceObjectRendering?.setProjectionMatrix(projection)
+        faceObjectRendering?.setViewMatrix(view)
+        faceFilterRendering?.setProjectionMatrix(projection)
+        faceFilterRendering?.setViewMatrix(view)
     }
 
     private fun extractMatrixFromCamera(frame: Frame): Pair<FloatArray, FloatArray> {
@@ -217,12 +212,12 @@ class MainRenderer(private val sessionManager: SessionManager, private val rende
     }
 
     fun getXYZ(x: Float, y: Float, z: Float) = with(renderingManager){
-        faceObjectRendering.getXYZ(x, y, z)
+        faceObjectRendering?.getXYZ(x, y, z)
     }
 
     fun setSize(size: Float) = with(renderingManager){
         cubeScene.size = size
-        faceObjectRendering.setSize(size)
+        faceObjectRendering?.setSize(size)
     }
 
     private val textureId: Int

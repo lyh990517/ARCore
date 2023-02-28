@@ -32,9 +32,6 @@ class FaceFilterRendering (
     private var view = Mat4()
     private var vertexData: RenderingDataShort? = null
     private var pose: Pose? = null
-    private var x: Float = 0f
-    private var y: Float = 0f
-    private var z: Float = 0f
     private var isInitialized = false
 
     fun init() {
@@ -78,7 +75,7 @@ class FaceFilterRendering (
         faceIndices = indices
         faceUVS = uvs
         faceNormals = normals
-        facePos = Vec3(pose.tx() + x, pose.ty() + y, pose.tz() + z)
+        facePos = Vec3(pose.tx(), pose.ty(), pose.tz())
         this.pose = pose
         val buffer = createFloatBuffer(vertex.capacity() + uvs.capacity())
         vertex.position(0)

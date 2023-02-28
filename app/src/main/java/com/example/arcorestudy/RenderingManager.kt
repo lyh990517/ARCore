@@ -21,16 +21,11 @@ class RenderingManager(private val context: Context) {
     val mPointCloud: PointCloudRendering = PointCloudRendering.create(context)
     val cubeScene: CubeRendering = CubeRendering.create(context)
     val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
-    var noseRendering: FaceTipRendering =
-        FaceTipRendering.create(context, fromAssets("NOSE.obj"), R.raw.nose_fur)
-    var rightEarRendering: FaceTipRendering =
-        FaceTipRendering.create(context, fromAssets("FOREHEAD_RIGHT.obj"), R.raw.ear_fur)
-    var leftEarRendering: FaceTipRendering =
-        FaceTipRendering.create(context, fromAssets("FOREHEAD_LEFT.obj"), R.raw.ear_fur)
-    var faceObjectRendering: FaceObjectRendering =
-        FaceObjectRendering.create(context, fromAssets("PlagueMask_sketchfab.obj"), R.raw.plagmask)
-    var faceFilterRendering: FaceFilterRendering =
-        FaceFilterRendering.create(context, R.raw.freckles)
+    var noseRendering: FaceTipRendering? = null
+    var rightEarRendering: FaceTipRendering? = null
+    var leftEarRendering: FaceTipRendering? = null
+    var faceObjectRendering: FaceObjectRendering? = null
+    var faceFilterRendering: FaceFilterRendering? = null
 
     fun selectFace(
         type: String,
@@ -48,7 +43,6 @@ class RenderingManager(private val context: Context) {
                 faceFilterRendering = FaceFilterRendering.create(context, objId!!)
             }
             "faceObject" -> {
-                Log.e("click","face")
                 faceObjectRendering =
                     FaceObjectRendering.create(context, fromAssets(objPath!!), objId!!)
             }
