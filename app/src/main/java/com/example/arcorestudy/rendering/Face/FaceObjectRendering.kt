@@ -75,6 +75,7 @@ class FaceObjectRendering(
                 GL_UNSIGNED_INT, 0
             )
             glBindVertexArray(0)
+            program
         }
         facePos = null
     }
