@@ -78,7 +78,7 @@ class FaceObjectRendering(
             program
         }
         facePos = null
-        1
+        2
     }
 
     fun setFace(
