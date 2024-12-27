@@ -85,11 +85,11 @@ class ArObjectRendering(
         fun create(context: Context): ArObjectRendering {
             val resources = context.resources
             return ArObjectRendering(
-                fromAssets(context, "NOSE.obj"),
+                fromAssets(context, "backpack.obj"),
                 resources.readRawTextFile(R.raw.asset_vertex),
                 resources.readRawTextFile(R.raw.asset_fragment),
-                Texture(loadBitmap(context, R.raw.nose_fur)),
-                Texture(loadBitmap(context, R.raw.nose_fur))
+                Texture(loadBitmap(context, R.raw.diffuse)),
+                Texture(loadBitmap(context, R.raw.specular))
             )
         }
 
