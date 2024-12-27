@@ -5,14 +5,12 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.opengl.GLSurfaceView
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.arcorestudy.databinding.ActivityMainBinding
 
-@Suppress("UNREACHABLE_CODE", "DEPRECATED_IDENTITY_EQUALS")
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var sessionManager: SessionManager
@@ -46,24 +44,21 @@ class MainActivity : AppCompatActivity() {
         onDestroy()
     }
 
-    override fun onPause() = with(sessionManager) {
+    override fun onPause() {
         super.onPause()
-        Log.e("activity", "onPause")
         binding.glSurfaceView.onPause()
-        pause()
+        sessionManager.pause()
     }
 
-    override fun onResume() = with(sessionManager) {
+    override fun onResume() {
         super.onResume()
-        Log.e("activity", "onResume")
         requestCameraPermission()
-        resume(setOf())
+        sessionManager.resume(setOf())
         binding.glSurfaceView.onResume()
     }
 
-    override fun onDestroy() = with(sessionManager) {
-        Log.e("activity", "onDestroy")
-        destroy()
+    override fun onDestroy() {
+        sessionManager.destroy()
         super.onDestroy()
     }
 
@@ -92,5 +87,4 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 0)
         }
     }
-
 }

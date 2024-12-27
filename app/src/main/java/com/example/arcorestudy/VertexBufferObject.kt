@@ -12,7 +12,7 @@ import android.opengl.GLES30.glVertexAttribPointer
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 
-class VBOData(
+class VertexBufferObject(
     private val vertex: FloatBuffer,
     private val drawMode: Int = GL_STATIC_DRAW,
     private val stride: Int,
@@ -64,10 +64,5 @@ class VBOData(
 
     fun disabledAttributes() = attributes.forEach { attribute ->
         glDisableVertexAttribArray(attribute.location)
-    }
-
-    fun draw() {
-        glBindBuffer(GL_ARRAY_BUFFER, vboId)
-        applyAttributes()
     }
 }

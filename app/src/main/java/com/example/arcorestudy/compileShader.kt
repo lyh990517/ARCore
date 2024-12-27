@@ -17,7 +17,6 @@ import glm_.vec4.Vec4
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
-import java.nio.IntBuffer
 
 fun compileShader(type: Int, code: String) = glCreateShader(type).also { shader ->
     glShaderSource(shader, code)
@@ -60,19 +59,6 @@ fun createFloatBuffer(capacity: Int): FloatBuffer =
     ByteBuffer.allocateDirect(capacity * Float.SIZE_BYTES)
         .order(ByteOrder.nativeOrder()).asFloatBuffer()
 
-fun FloatArray.toFloatBuffer(): FloatBuffer = ByteBuffer
-    .allocateDirect(this.size * Float.SIZE_BYTES)
-    .order(ByteOrder.nativeOrder())
-    .asFloatBuffer().also {
-        it.put(this).position(0)
-    }
-
-fun IntArray.toIntBuffer(): IntBuffer = ByteBuffer
-    .allocateDirect(this.size * Int.SIZE_BYTES)
-    .order(ByteOrder.nativeOrder())
-    .asIntBuffer().also {
-        it.put(this).position(0)
-    }
 
 fun loadBitmap(context: Context, @RawRes textureId: Int) = BitmapFactory.decodeResource(
     context.resources,

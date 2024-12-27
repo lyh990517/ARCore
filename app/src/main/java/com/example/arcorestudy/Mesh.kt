@@ -1,6 +1,15 @@
 package com.example.arcorestudy
 
-import android.opengl.GLES30.*
+import android.opengl.GLES30.GL_ARRAY_BUFFER
+import android.opengl.GLES30.GL_ELEMENT_ARRAY_BUFFER
+import android.opengl.GLES30.GL_STATIC_DRAW
+import android.opengl.GLES30.GL_TRIANGLES
+import android.opengl.GLES30.GL_UNSIGNED_INT
+import android.opengl.GLES30.glBindBuffer
+import android.opengl.GLES30.glBufferData
+import android.opengl.GLES30.glDrawElements
+import android.opengl.GLES30.glGenBuffers
+import android.opengl.GLES30.glGetAttribLocation
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 
@@ -10,9 +19,9 @@ data class Mesh(
     val texCoords: FloatBuffer,
     val indices: IntBuffer,
 ) {
-    private val data: VBOData
     private val capacity = vertices.capacity() + texCoords.capacity()
     private val buffer = createFloatBuffer(capacity)
+    private val data: VertexBufferObject = VertexBufferObject(buffer, GL_STATIC_DRAW, 5)
 
     init {
         while (vertices.hasRemaining() && texCoords.hasRemaining()) {
@@ -23,7 +32,6 @@ data class Mesh(
             buffer.put(texCoords.get())  // v
         }
         buffer.position(0)
-        data = VBOData(buffer, GL_STATIC_DRAW, 5)
     }
 
     fun bind(program: Program) {

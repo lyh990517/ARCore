@@ -8,13 +8,13 @@ import android.opengl.GLES30.glActiveTexture
 import android.opengl.GLES30.glBindTexture
 import android.opengl.GLES30.glGetUniformLocation
 import android.opengl.GLES30.glUniform1i
+import com.example.arcorestudy.Mesh
 import com.example.arcorestudy.Program
 import com.example.arcorestudy.R
 import com.example.arcorestudy.Texture
 import com.example.arcorestudy.loadBitmap
 import com.example.arcorestudy.readRawTextFile
 import com.example.arcorestudy.toMat4
-import com.example.arcorestudy.Mesh
 import de.javagl.obj.ObjData
 import de.javagl.obj.ObjReader
 import de.javagl.obj.ObjUtils

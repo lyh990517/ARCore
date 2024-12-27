@@ -1,6 +1,22 @@
 package com.example.arcorestudy
 
-import android.opengl.GLES30.*
+import android.opengl.GLES30.GL_ACTIVE_ATTRIBUTES
+import android.opengl.GLES30.GL_ACTIVE_UNIFORMS
+import android.opengl.GLES30.GL_FRAGMENT_SHADER
+import android.opengl.GLES30.GL_VERTEX_SHADER
+import android.opengl.GLES30.glAttachShader
+import android.opengl.GLES30.glCreateProgram
+import android.opengl.GLES30.glDeleteShader
+import android.opengl.GLES30.glGetActiveAttrib
+import android.opengl.GLES30.glGetActiveUniform
+import android.opengl.GLES30.glGetAttribLocation
+import android.opengl.GLES30.glGetProgramiv
+import android.opengl.GLES30.glGetUniformLocation
+import android.opengl.GLES30.glLinkProgram
+import android.opengl.GLES30.glUniform1f
+import android.opengl.GLES30.glUniform1i
+import android.opengl.GLES30.glUniformMatrix4fv
+import android.opengl.GLES30.glUseProgram
 import android.util.Log
 import glm_.mat4x4.Mat4
 import java.nio.IntBuffer
