@@ -27,8 +27,7 @@ import javax.microedition.khronos.opengles.GL10
 class MainRenderer(
     private val context: Context,
     private val sessionManager: SessionManager,
-) :
-    GLSurfaceView.Renderer {
+) : GLSurfaceView.Renderer {
     private val mCamera: CameraTextureRendering = CameraTextureRendering.create(context)
     val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
 
@@ -55,10 +54,6 @@ class MainRenderer(
         glEnable(GL_DEPTH_TEST)
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
         preRender()
-        render()
-    }
-
-    private fun render() {
         glDepthMask(false)
         mCamera.draw()
         glDepthMask(true)
@@ -66,16 +61,36 @@ class MainRenderer(
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
-    fun preRender() = with(sessionManager) {
-        updateSession(mViewportWidth, mViewportHeight)
-        mSession?.setCameraTextureName(textureId)
+    fun preRender() {
+        sessionManager.updateSession(mViewportWidth, mViewportHeight)
+        sessionManager.mSession?.setCameraTextureName(textureId)
+
         try {
-            val frame = mSession!!.update()
+            val frame = sessionManager.mSession!!.update()
+
             if (frame.hasDisplayGeometryChanged()) {
                 mCamera.transformDisplayGeometry(frame)
             }
-            renderPointCloud(frame)
-            extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }
+
+            val pointCloud: PointCloud = frame.acquirePointCloud()
+            val mNumPoints = pointCloud.points.remaining() / 4
+
+            glBindBuffer(GL_ARRAY_BUFFER, -1)
+            glBufferSubData(GL_ARRAY_BUFFER, 0, mNumPoints * 16, pointCloud.points)
+            glBindBuffer(GL_ARRAY_BUFFER, 0)
+            pointCloud.release()
+
+            val camera = frame.camera
+
+            val projMatrix = FloatArray(16)
+            camera.getProjectionMatrix(projMatrix, 0, 0.1f, 100.0f)
+
+            val viewMatrix = FloatArray(16)
+            camera.getViewMatrix(viewMatrix, 0)
+
+            arObjectScene.setProjectionMatrix(projMatrix)
+            arObjectScene.setViewMatrix(viewMatrix)
+
             getHitPose(frame)
         } catch (_: SessionPausedException) {
 
@@ -97,29 +112,6 @@ class MainRenderer(
         if (onTouch) {
             arObjectScene.addPosition(vec3)
         }
-    }
-
-    private fun setMatrix(projection: FloatArray, view: FloatArray) {
-        arObjectScene.setProjectionMatrix(projection)
-        arObjectScene.setViewMatrix(view)
-    }
-
-    private fun extractMatrixFromCamera(frame: Frame): Pair<FloatArray, FloatArray> {
-        val camera = frame.camera
-        val projMatrix = FloatArray(16)
-        camera.getProjectionMatrix(projMatrix, 0, 0.1f, 100.0f)
-        val viewMatrix = FloatArray(16)
-        camera.getViewMatrix(viewMatrix, 0)
-        return Pair(projMatrix, viewMatrix)
-    }
-
-    private fun renderPointCloud(frame: Frame) {
-        val pointCloud: PointCloud = frame.acquirePointCloud()
-        val mNumPoints = pointCloud.points.remaining() / 4
-        glBindBuffer(GL_ARRAY_BUFFER, -1)
-        glBufferSubData(GL_ARRAY_BUFFER, 0, mNumPoints * 16, pointCloud.points)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-        pointCloud.release()
     }
 
     fun getXY(x: Float, y: Float) {
