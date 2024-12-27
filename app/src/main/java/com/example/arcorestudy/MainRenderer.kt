@@ -1,16 +1,22 @@
 package com.example.arcorestudy
 
+import android.opengl.GLES30.GL_COLOR_BUFFER_BIT
+import android.opengl.GLES30.GL_DEPTH_BUFFER_BIT
+import android.opengl.GLES30.GL_DEPTH_TEST
+import android.opengl.GLES30.glClear
+import android.opengl.GLES30.glDepthMask
+import android.opengl.GLES30.glEnable
+import android.opengl.GLES30.glViewport
 import android.opengl.GLSurfaceView
-import javax.microedition.khronos.opengles.GL10
-import android.opengl.GLES30.*
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.MutableLiveData
-import com.google.ar.core.*
+import com.google.ar.core.DepthPoint
+import com.google.ar.core.Frame
+import com.google.ar.core.PointCloud
 import com.google.ar.core.exceptions.SessionPausedException
 import glm_.vec3.Vec3
 import javax.microedition.khronos.egl.EGLConfig
+import javax.microedition.khronos.opengles.GL10
 
 class MainRenderer(
     private val sessionManager: SessionManager,
@@ -22,20 +28,9 @@ class MainRenderer(
     private var currentX = 0f
     private var currentY = 0f
     var onTouch = false
-    val mode = MutableLiveData("cube")
-    val drawingMode = MutableLiveData("near")
-    val distanceLiveData = MutableLiveData<Float>()
-    val planeLiveData = MutableLiveData<String>()
-    val pointCloudLiveData = MutableLiveData(false)
-    val xLiveData = MutableLiveData<Float>()
-    val yLiveData = MutableLiveData<Float>()
-    val zLiveData = MutableLiveData<Float>()
-    var isFrontCamera = false
-    val faceType = MutableLiveData("faceObject")
+
     override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) = with(renderingManager) {
         mCamera.init()
-        mPointCloud.init()
-        cubeScene.init()
         arObjectScene.init()
     }
 
@@ -73,53 +68,8 @@ class MainRenderer(
             renderPointCloud(frame)
             extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }
             getHitPose(frame)
-            if (isFrontCamera) {
-                detectFace()
-            } else {
-                detectPlane()
-            }
         } catch (_: SessionPausedException) {
 
-        }
-    }
-
-    private fun detectFace() = with(renderingManager) {
-        val faces =
-            sessionManager.mSession?.getAllTrackables(com.google.ar.core.AugmentedFace::class.java)
-        faces?.forEach { face ->
-            if (face.trackingState == TrackingState.TRACKING) {
-                rightEarRendering?.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_RIGHT))
-                leftEarRendering?.setPose(face.getRegionPose(AugmentedFace.RegionType.FOREHEAD_LEFT))
-                noseRendering?.setPose(face.getRegionPose(AugmentedFace.RegionType.NOSE_TIP))
-                faceObjectRendering?.setFace(face.centerPose)
-                faceFilterRendering?.setFace(
-                    face.meshVertices,
-                    face.meshTriangleIndices,
-                    face.meshTextureCoordinates,
-                    face.meshNormals,
-                    face.centerPose
-                )
-            }
-        }
-        if (faces.isNullOrEmpty()) {
-            planeLiveData.postValue("nothing detected...")
-        } else {
-            planeLiveData.postValue("face is detected!!")
-        }
-    }
-
-    private fun detectPlane() = with(sessionManager) {
-        var isPlane = false
-        val planes = mSession!!.getAllTrackables(Plane::class.java)
-        planes.forEach { plane ->
-            if (plane.trackingState == TrackingState.TRACKING && plane.subsumedBy == null) {
-                isPlane = true
-            }
-        }
-        if (isPlane) {
-            planeLiveData.postValue("plane is detected!!")
-        } else {
-            planeLiveData.postValue("nothing detected...")
         }
     }
 
@@ -129,47 +79,20 @@ class MainRenderer(
             trackable is DepthPoint
         }
         results.forEach {
-            val distance = it.distance
-            distanceLiveData.postValue(distance)
             val pose = it.hitPose
             addPoint(Vec3(pose.tx(), pose.ty(), pose.tz()))
-            xLiveData.postValue(pose.tx())
-            yLiveData.postValue(pose.ty())
-            zLiveData.postValue(pose.tz())
         }
     }
 
     private fun addPoint(vec3: Vec3) = with(renderingManager) {
         if (onTouch) {
-            when (mode.value) {
-                "cube" -> {
-                    cubeScene.addPosition(vec3)
-                }
-
-                "arObject" -> {
-                    arObjectScene.addPosition(vec3)
-                }
-            }
+            arObjectScene.addPosition(vec3)
         }
     }
 
     private fun setMatrix(projection: FloatArray, view: FloatArray) = with(renderingManager) {
-        mPointCloud.setProjectionMatrix(projection)
-        mPointCloud.setViewMatrix(view)
-        cubeScene.setProjectionMatrix(projection)
-        cubeScene.setViewMatrix(view)
         arObjectScene.setProjectionMatrix(projection)
         arObjectScene.setViewMatrix(view)
-        noseRendering?.setProjectionMatrix(projection)
-        noseRendering?.setViewMatrix(view)
-        rightEarRendering?.setProjectionMatrix(projection)
-        rightEarRendering?.setViewMatrix(view)
-        leftEarRendering?.setProjectionMatrix(projection)
-        leftEarRendering?.setViewMatrix(view)
-        faceObjectRendering?.setProjectionMatrix(projection)
-        faceObjectRendering?.setViewMatrix(view)
-        faceFilterRendering?.setProjectionMatrix(projection)
-        faceFilterRendering?.setViewMatrix(view)
     }
 
     private fun extractMatrixFromCamera(frame: Frame): Pair<FloatArray, FloatArray> {
@@ -190,19 +113,6 @@ class MainRenderer(
     fun getXY(x: Float, y: Float) {
         currentX = x
         currentY = y
-    }
-
-    fun getRGB(red: Float, green: Float, blue: Float) = with(renderingManager) {
-        cubeScene.cubeRGB(red, green, blue)
-    }
-
-    fun getXYZ(x: Float, y: Float, z: Float) = with(renderingManager) {
-        faceObjectRendering?.getXYZ(x, y, z)
-    }
-
-    fun setSize(size: Float) = with(renderingManager) {
-        cubeScene.size = size
-        faceObjectRendering?.setSize(size)
     }
 
     private val textureId: Int

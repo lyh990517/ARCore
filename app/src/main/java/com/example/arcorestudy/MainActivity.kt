@@ -9,16 +9,10 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.Window
 import android.view.WindowManager
-import android.widget.SeekBar
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.isGone
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.arcorestudy.databinding.ActivityMainBinding
-import com.example.arcorestudy.rendering.FaceItem
-import com.google.ar.core.Session
 
 @Suppress("UNREACHABLE_CODE", "DEPRECATED_IDENTITY_EQUALS")
 class MainActivity : AppCompatActivity() {
@@ -28,22 +22,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var renderer: MainRenderer
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        hideStatusBarAndTitleBar()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initialize()
-    }
-
-    fun switchCamera() = with(sessionManager) {
-        // Set a camera configuration that usese the front-facing camera
-        renderer.isFrontCamera = !renderer.isFrontCamera
-        if (renderer.isFrontCamera) {
-            pause()
-            resume(setOf(Session.Feature.FRONT_CAMERA))
-        } else {
-            pause()
-            resume(setOf())
-        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -61,90 +42,7 @@ class MainActivity : AppCompatActivity() {
             renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
         }
         binding.reset.setOnClickListener {
-            renderingManager.cubeScene.clear()
             renderingManager.arObjectScene.clear()
-            renderer.distanceLiveData.value = 0f
-        }
-        binding.faceType.isGone = true
-        renderer.distanceLiveData.observe(this) {
-            binding.distance.text = "$it m"
-        }
-        renderer.planeLiveData.observe(this) {
-            binding.plane.text = it
-        }
-        renderer.mode.observe(this) {
-            binding.change.text = it
-        }
-        renderer.faceType.observe(this) {
-            binding.faceType.text = it
-        }
-        binding.change.setOnClickListener {
-            if (renderer.mode.value == "arObject") {
-                renderer.mode.value = "cube"
-            } else {
-                renderer.mode.value = "arObject"
-            }
-        }
-        binding.pointCloud.setOnClickListener {
-            if (binding.pointCloud.isChecked) {
-                Log.e("123", "check")
-                renderer.pointCloudLiveData.value = true
-            } else {
-                Log.e("123", "not check")
-                renderer.pointCloudLiveData.value = false
-            }
-        }
-        renderer.xLiveData.observe(this) {
-            binding.xVal.text = it.toString()
-        }
-        renderer.yLiveData.observe(this) {
-            binding.yVal.text = it.toString()
-        }
-        renderer.zLiveData.observe(this) {
-            binding.zVal.text = it.toString()
-        }
-        var arr2 = arrayOf("faceObject", "faceFilter", "faceTips")
-        var idx2 = 0
-        binding.faceType.setOnClickListener {
-            idx2++
-            if (idx2 == 3) idx2 = 0
-            renderer.faceType.value = arr2[idx2]
-            renderingManager.selectFace(
-                "faceObject",
-                objPath = "PlagueMask_sketchfab.obj",
-                objId = R.raw.plagmask
-            )
-        }
-        var arr = arrayOf("near", "far", "all")
-        var idx = 0
-        binding.draw.setOnClickListener {
-            idx++
-            if (idx == 3) idx = 0
-            renderer.drawingMode.value = arr[idx]
-        }
-        renderer.drawingMode.observe(this) {
-            binding.draw.text = it
-        }
-        binding.cameraMode.setOnClickListener {
-            switchCamera()
-            binding.reset.isGone = !binding.reset.isGone
-            binding.draw.isGone = !binding.draw.isGone
-            binding.change.isGone = !binding.change.isGone
-            binding.x.isGone = !binding.x.isGone
-            binding.y.isGone = !binding.y.isGone
-            binding.z.isGone = !binding.z.isGone
-            binding.xVal.isGone = !binding.xVal.isGone
-            binding.yVal.isGone = !binding.yVal.isGone
-            binding.zVal.isGone = !binding.zVal.isGone
-            binding.distance.isGone = !binding.distance.isGone
-            binding.faceType.isGone = !binding.faceType.isGone
-            binding.r.text = "x"
-            binding.g.text = "y"
-            binding.b.text = "z"
-            binding.red.progress = 50
-            binding.blue.progress = 50
-            binding.green.progress = 50
-            binding.size.progress = 50
         }
     }
 
@@ -198,14 +96,6 @@ class MainActivity : AppCompatActivity() {
         ) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 0)
         }
-    }
-
-    private fun hideStatusBarAndTitleBar() {
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
     }
 
 }

@@ -5,21 +5,13 @@ import android.hardware.display.DisplayManager
 import android.os.Build
 import android.util.Log
 import android.view.Display
-import androidx.annotation.RawRes
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getSystemService
-import com.example.arcorestudy.rendering.*
-import com.example.arcorestudy.rendering.Face.FaceFilterRendering
-import com.example.arcorestudy.rendering.Face.FaceObjectRendering
-import com.example.arcorestudy.rendering.Face.FaceTipRendering
-import com.example.arcorestudy.tools.Mesh
-import com.google.ar.core.*
+import com.google.ar.core.ArCoreApk
+import com.google.ar.core.Config
+import com.google.ar.core.Session
 import com.google.ar.core.Session.Feature
 import com.google.ar.core.exceptions.UnsupportedConfigurationException
-import de.javagl.obj.ObjData
-import de.javagl.obj.ObjReader
-import de.javagl.obj.ObjUtils
-import java.lang.UnsupportedOperationException
 
 class SessionManager(private val context: Context) {
     var mSession: Session? = null
