@@ -1,14 +1,19 @@
 package com.example.arcorestudy.rendering
 
 import android.content.Context
-import android.opengl.GLES30.*
+import android.opengl.GLES30.GL_STATIC_DRAW
+import android.opengl.GLES30.GL_TRIANGLES
+import android.opengl.GLES30.glDrawArrays
+import android.opengl.GLES30.glUniform4f
+import com.example.arcorestudy.Program
 import com.example.arcorestudy.R
-import com.example.gllibrary.*
+import com.example.arcorestudy.readRawTextFile
+import com.example.arcorestudy.toMat4
+import com.example.arcorestudy.tools.VBOData
+import com.example.arcorestudy.tools.cubeVertices
 import glm_.glm
 import glm_.mat4x4.Mat4
 import glm_.vec3.Vec3
-import com.example.arcorestudy.tools.VBOData
-import com.example.arcorestudy.tools.cubeVertices
 
 class CubeRendering(
     private val vertexShaderCode: String,
@@ -64,11 +69,11 @@ class CubeRendering(
     }
 
     fun setProjectionMatrix(projMatrix: FloatArray) {
-        proj = projMatrix.toMat4().transpose_()
+        proj = projMatrix.toMat4().transpose()
     }
 
     fun setViewMatrix(viewMatrix: FloatArray) {
-        view = viewMatrix.toMat4().transpose_()
+        view = viewMatrix.toMat4().transpose()
     }
 
     fun addPosition(vec3: Vec3) {

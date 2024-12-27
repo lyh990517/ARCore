@@ -3,14 +3,17 @@ package com.example.arcorestudy.rendering.Face
 import android.content.Context
 import android.opengl.GLES30.*
 import androidx.annotation.RawRes
+import com.example.arcorestudy.Program
 import com.example.arcorestudy.R
+import com.example.arcorestudy.Texture
+import com.example.arcorestudy.createFloatBuffer
+import com.example.arcorestudy.loadBitmap
+import com.example.arcorestudy.readRawTextFile
+import com.example.arcorestudy.toMat4
 import com.example.arcorestudy.tools.*
-import com.example.arcorestudy.tools.Mesh
-import com.example.gllibrary.*
 import com.google.ar.core.Pose
 import glm_.glm
 import glm_.mat4x4.Mat4
-import glm_.size
 import glm_.vec3.Vec3
 import kotlin.math.acos
 
@@ -63,7 +66,7 @@ class FaceTipRendering(
             val model =
                 glm.translate(Mat4(), position) * glm.rotate(Mat4(), rotationAngle, rotationVector)
             program.setUniformMat4("mvp", proj * view * model)
-            glDrawElements(GL_TRIANGLE_STRIP, mesh.vertices.size, GL_UNSIGNED_INT, 0)
+//            glDrawElements(GL_TRIANGLE_STRIP, mesh.vertices.size, GL_UNSIGNED_INT, 0)
             glBindVertexArray(0)
         }
         glDisable(GL_BLEND)
@@ -81,11 +84,11 @@ class FaceTipRendering(
     }
 
     fun setProjectionMatrix(projMatrix: FloatArray) {
-        proj = projMatrix.toMat4().transpose_()
+        proj = projMatrix.toMat4().transpose()
     }
 
     fun setViewMatrix(viewMatrix: FloatArray) {
-        view = viewMatrix.toMat4().transpose_()
+        view = viewMatrix.toMat4().transpose()
     }
 
     companion object {

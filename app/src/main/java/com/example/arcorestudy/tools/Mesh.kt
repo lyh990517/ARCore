@@ -1,10 +1,8 @@
 package com.example.arcorestudy.tools
 
-import android.opengl.GLES20
 import android.opengl.GLES30.*
-import com.example.gllibrary.Program
-import com.example.gllibrary.VertexData
-import com.example.gllibrary.createFloatBuffer
+import com.example.arcorestudy.Program
+import com.example.arcorestudy.createFloatBuffer
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 

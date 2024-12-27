@@ -2,7 +2,6 @@ package com.example.arcorestudy
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.pm.PackageManager
 import android.opengl.GLSurfaceView
 import android.os.Bundle
@@ -19,11 +18,7 @@ import androidx.core.view.isGone
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.arcorestudy.databinding.ActivityMainBinding
 import com.example.arcorestudy.rendering.FaceItem
-import com.google.ar.core.CameraConfig
-import com.google.ar.core.CameraConfigFilter
-import com.google.ar.core.Config
 import com.google.ar.core.Session
-import glm_.toLong
 
 @Suppress("UNREACHABLE_CODE", "DEPRECATED_IDENTITY_EQUALS")
 class MainActivity : AppCompatActivity() {

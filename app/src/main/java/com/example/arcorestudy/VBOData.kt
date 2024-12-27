@@ -1,17 +1,7 @@
-package com.example.arcorestudy.tools
+package com.example.arcorestudy
 
-import android.opengl.GLES30.GL_ARRAY_BUFFER
-import android.opengl.GLES30.GL_FLOAT
-import android.opengl.GLES30.GL_STATIC_DRAW
-import android.opengl.GLES30.glBindBuffer
-import android.opengl.GLES30.glBufferData
-import android.opengl.GLES30.glDisableVertexAttribArray
-import android.opengl.GLES30.glEnableVertexAttribArray
-import android.opengl.GLES30.glGenBuffers
-import android.opengl.GLES30.glVertexAttribPointer
-import com.example.arcorestudy.Attribute
-import com.example.arcorestudy.toFloatBuffer
 import java.nio.FloatBuffer
+import android.opengl.GLES30.*
 import java.nio.IntBuffer
 
 class VBOData(
@@ -47,14 +37,12 @@ class VBOData(
             glBindBuffer(GL_ARRAY_BUFFER, it)
             vboId = it
         }
-        vertex.position(0)
         glBufferData(
             GL_ARRAY_BUFFER,
             Float.SIZE_BYTES * vertex.capacity(),
             vertex,
             drawMode
         )
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
     }
 
     fun applyAttributes() = attributes.forEach { attribute ->
@@ -64,8 +52,8 @@ class VBOData(
             attribute.size,
             GL_FLOAT,
             false,
-            stride * Float.SIZE_BYTES,
-            attribute.offset * Float.SIZE_BYTES
+            stride,
+            attribute.offset
         )
     }
 

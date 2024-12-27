@@ -2,10 +2,16 @@ package com.example.arcorestudy.rendering
 
 import android.content.Context
 import android.opengl.GLES11Ext
-import android.opengl.GLES20
-import android.opengl.GLES30.*
+import android.opengl.GLES30.GL_TRIANGLE_STRIP
+import android.opengl.GLES30.glBindTexture
+import android.opengl.GLES30.glDisableVertexAttribArray
+import android.opengl.GLES30.glDrawArrays
+import com.example.arcorestudy.CameraTexture
+import com.example.arcorestudy.Program
 import com.example.arcorestudy.R
-import com.example.gllibrary.*
+import com.example.arcorestudy.VertexData
+import com.example.arcorestudy.createFloatBuffer
+import com.example.arcorestudy.readRawTextFile
 import com.google.ar.core.Frame
 import java.nio.FloatBuffer
 

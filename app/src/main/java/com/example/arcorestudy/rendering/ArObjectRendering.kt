@@ -1,16 +1,25 @@
 package com.example.arcorestudy.rendering
 
 import android.content.Context
-import android.opengl.GLES30.*
-import android.util.Log
+import android.opengl.GLES30.GL_TEXTURE0
+import android.opengl.GLES30.GL_TEXTURE1
+import android.opengl.GLES30.GL_TEXTURE_2D
+import android.opengl.GLES30.glActiveTexture
+import android.opengl.GLES30.glBindTexture
+import android.opengl.GLES30.glGetUniformLocation
+import android.opengl.GLES30.glUniform1i
+import com.example.arcorestudy.Program
 import com.example.arcorestudy.R
-import com.example.gllibrary.*
-import glm_.glm
-import glm_.mat4x4.Mat4
+import com.example.arcorestudy.Texture
+import com.example.arcorestudy.loadBitmap
+import com.example.arcorestudy.readRawTextFile
+import com.example.arcorestudy.toMat4
 import com.example.arcorestudy.tools.Mesh
 import de.javagl.obj.ObjData
 import de.javagl.obj.ObjReader
 import de.javagl.obj.ObjUtils
+import glm_.glm
+import glm_.mat4x4.Mat4
 import glm_.vec3.Vec3
 
 class ArObjectRendering(
@@ -57,11 +66,11 @@ class ArObjectRendering(
     }
 
     fun setProjectionMatrix(projMatrix: FloatArray) {
-        proj = projMatrix.toMat4().transpose_()
+        proj = projMatrix.toMat4().transpose()
     }
 
     fun setViewMatrix(viewMatrix: FloatArray) {
-        view = viewMatrix.toMat4().transpose_()
+        view = viewMatrix.toMat4().transpose()
     }
 
     fun addPosition(vec3: Vec3) {

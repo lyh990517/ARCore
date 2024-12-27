@@ -3,13 +3,17 @@ package com.example.arcorestudy.rendering.Face
 import android.content.Context
 import android.opengl.GLES30.*
 import androidx.annotation.RawRes
+import com.example.arcorestudy.Program
 import com.example.arcorestudy.R
+import com.example.arcorestudy.Texture
+import com.example.arcorestudy.createFloatBuffer
+import com.example.arcorestudy.loadBitmap
+import com.example.arcorestudy.readRawTextFile
+import com.example.arcorestudy.toMat4
 import com.example.arcorestudy.tools.RenderingDataShort
-import com.example.gllibrary.*
 import com.google.ar.core.Pose
 import glm_.glm
 import glm_.mat4x4.Mat4
-import glm_.size
 import glm_.vec3.Vec3
 import java.nio.FloatBuffer
 import java.nio.ShortBuffer
@@ -53,10 +57,10 @@ class FaceFilterRendering (
             val model =
                 glm.translate(Mat4(), it) * glm.rotate(Mat4(), rotationAngle, rotationVector)
             program.setUniformMat4("mvp", proj * view * model)
-            glDrawElements(
-                GL_TRIANGLES, faceIndices?.size ?: 0,
-                GL_UNSIGNED_SHORT, 0
-            )
+//            glDrawElements(
+//                GL_TRIANGLES, faceIndices?.size ?: 0,
+//                GL_UNSIGNED_SHORT, 0
+//            )
             glBindVertexArray(0)
         }
         glDisable(GL_BLEND)
@@ -95,11 +99,11 @@ class FaceFilterRendering (
     }
 
     fun setProjectionMatrix(projMatrix: FloatArray) {
-        proj = projMatrix.toMat4().transpose_()
+        proj = projMatrix.toMat4().transpose()
     }
 
     fun setViewMatrix(viewMatrix: FloatArray) {
-        view = viewMatrix.toMat4().transpose_()
+        view = viewMatrix.toMat4().transpose()
     }
 
 
