@@ -17,13 +17,12 @@ data class Mesh(
     private val buffer = createFloatBuffer(capacity)
 
     init {
-
-        while (vertices.hasRemaining()) {
-            buffer.put(texCoords.get())
-            buffer.put(texCoords.get())
-            buffer.put(vertices.get())
-            buffer.put(vertices.get())
-            buffer.put(vertices.get())
+        while (vertices.hasRemaining() && texCoords.hasRemaining()) {
+            buffer.put(vertices.get())   // x
+            buffer.put(vertices.get())   // y
+            buffer.put(vertices.get())   // z
+            buffer.put(texCoords.get())  // u
+            buffer.put(texCoords.get())  // v
         }
         buffer.position(0)
         data = VBOData(buffer, GL_STATIC_DRAW, 5)

@@ -12,7 +12,10 @@ import com.google.ar.core.exceptions.SessionPausedException
 import glm_.vec3.Vec3
 import javax.microedition.khronos.egl.EGLConfig
 
-class MainRenderer(private val sessionManager: SessionManager, private val renderingManager: RenderingManager) :
+class MainRenderer(
+    private val sessionManager: SessionManager,
+    private val renderingManager: RenderingManager,
+) :
     GLSurfaceView.Renderer {
     private var mViewportWidth = 0
     private var mViewportHeight = 0
@@ -55,26 +58,7 @@ class MainRenderer(private val sessionManager: SessionManager, private val rende
         glDepthMask(false)
         mCamera.draw()
         glDepthMask(true)
-        if (pointCloudLiveData.value == true) {
-            mPointCloud.draw()
-        }
-        cubeScene.draw()
         arObjectScene.draw()
-        if (isFrontCamera) {
-            when(faceType.value){
-                "faceFilter" -> {
-                    faceFilterRendering?.draw()
-                }
-                "faceObject" -> {
-                    faceObjectRendering?.draw()
-                }
-                "faceTips" -> {
-                    noseRendering?.draw()
-                    leftEarRendering?.draw()
-                    rightEarRendering?.draw()
-                }
-            }
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -161,6 +145,7 @@ class MainRenderer(private val sessionManager: SessionManager, private val rende
                 "cube" -> {
                     cubeScene.addPosition(vec3)
                 }
+
                 "arObject" -> {
                     arObjectScene.addPosition(vec3)
                 }
@@ -207,15 +192,15 @@ class MainRenderer(private val sessionManager: SessionManager, private val rende
         currentY = y
     }
 
-    fun getRGB(red: Float, green: Float, blue: Float)  = with(renderingManager){
+    fun getRGB(red: Float, green: Float, blue: Float) = with(renderingManager) {
         cubeScene.cubeRGB(red, green, blue)
     }
 
-    fun getXYZ(x: Float, y: Float, z: Float) = with(renderingManager){
+    fun getXYZ(x: Float, y: Float, z: Float) = with(renderingManager) {
         faceObjectRendering?.getXYZ(x, y, z)
     }
 
-    fun setSize(size: Float) = with(renderingManager){
+    fun setSize(size: Float) = with(renderingManager) {
         cubeScene.size = size
         faceObjectRendering?.setSize(size)
     }
