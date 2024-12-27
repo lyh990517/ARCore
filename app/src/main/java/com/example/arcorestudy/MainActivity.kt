@@ -26,14 +26,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sessionManager: SessionManager
     private lateinit var renderingManager: RenderingManager
     private lateinit var renderer: MainRenderer
-    private val adapter = FaceItemAdapter()
-    private var r = 0f
-    private var g = 0f
-    private var b = 0f
-    private var x = 0f
-    private var y = 0f
-    private var z = 0f
-    private var size = 0f
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hideStatusBarAndTitleBar()
@@ -60,86 +52,7 @@ class MainActivity : AppCompatActivity() {
         renderingManager =
             RenderingManager.create(binding.glSurfaceView.context!!.applicationContext)
         sessionManager.create()
-        binding.faceList.layoutManager = LinearLayoutManager(this)
-        binding.faceList.adapter = adapter
 
-        adapter.setItem(
-            FaceItem(
-                name = "darkCircle",
-                type = "faceFilter",
-                objId = R.raw.freckles
-            )
-        )
-        adapter.setItem(
-            FaceItem(
-                name = "temp",
-                type = "faceFilter",
-                objId = R.raw.ear_fur
-            )
-        )
-        adapter.setItem(
-            FaceItem(
-                name = "plagueMask",
-                type = "faceObject",
-                objPath = "PlagueMask_sketchfab.obj",
-                objId = R.raw.plagmask
-            )
-        )
-        adapter.setItem(
-            FaceItem(
-                name = "venice Mask",
-                type = "faceObject",
-                objPath = "veniceMask.obj",
-                objId = R.raw.venice_mask
-            )
-        )
-        adapter.setItem(
-            FaceItem(
-                name = "catMask",
-                type = "faceObject",
-                objPath = "mesh.obj",
-                objId = R.raw.catmask
-            )
-        )
-        adapter.setItem(
-            FaceItem(
-                name = "demonMask",
-                type = "faceObject",
-                objPath = "deon_mask_low.obj",
-                objId = R.raw.demon_mask
-            )
-        )
-        adapter.setItem(
-            FaceItem(
-                name = "foxFace",
-                type = "faceTips",
-                nosePath = "NOSE.obj",
-                nose = R.raw.nose_fur,
-                leftEarPath = "FOREHEAD_LEFT.obj",
-                leftEar = R.raw.ear_fur,
-                rightEarPath = "FOREHEAD_RIGHT.obj",
-                rightEar = R.raw.ear_fur
-            )
-        )
-        adapter.setTouchListener {
-            Toast.makeText(this, "$it", Toast.LENGTH_SHORT).show()
-            renderingManager.selectFace(
-                type = it.type,
-                objPath = it.objPath,
-                objId = it.objId,
-                nose = it.nose,
-                nosePath = it.nosePath,
-                leftEar = it.leftEar,
-                leftEarPath = it.leftEarPath,
-                rightEar = it.rightEar,
-                rightEarPath = it.rightEarPath
-            )
-            binding.red.progress = 50
-            binding.blue.progress = 50
-            binding.green.progress = 50
-            binding.size.progress = 50
-            renderer.faceType.value = it.type
-        }
         renderer = MainRenderer(sessionManager, renderingManager)
         binding.glSurfaceView.apply {
             preserveEGLContextOnPause = true
@@ -212,63 +125,6 @@ class MainActivity : AppCompatActivity() {
         renderer.drawingMode.observe(this) {
             binding.draw.text = it
         }
-        binding.red.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                r = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
-                renderer.getRGB(r, g, b)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                r = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
-                renderer.getRGB(r, g, b)
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            }
-        })
-        binding.green.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                g = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
-                renderer.getRGB(r, g, b)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                g = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
-                renderer.getRGB(r, g, b)
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            }
-        })
-        binding.blue.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                b = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
-                renderer.getRGB(r, g, b)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                b = seekBar?.progress?.toFloat()?.times(0.01f) ?: 0f
-                renderer.getRGB(r, g, b)
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            }
-        })
-        binding.size.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                size = seekBar?.progress?.toFloat()?.times(0.001f) ?: 0f
-                renderer.setSize(size)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-        })
         binding.cameraMode.setOnClickListener {
             switchCamera()
             binding.reset.isGone = !binding.reset.isGone
@@ -289,94 +145,6 @@ class MainActivity : AppCompatActivity() {
             binding.blue.progress = 50
             binding.green.progress = 50
             binding.size.progress = 50
-            binding.red.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(
-                    seekBar: SeekBar?,
-                    progress: Int,
-                    fromUser: Boolean
-                ) {
-                    if (progress <= 50) {
-                        x = (50 - progress).toFloat().times(0.01f)
-                        renderer.getXYZ(x, y, z)
-                    } else {
-                        x = -(progress - 50).toFloat().times(0.01f)
-                        renderer.getXYZ(x, y, z)
-                    }
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                }
-
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                }
-            })
-            binding.green.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(
-                    seekBar: SeekBar?,
-                    progress: Int,
-                    fromUser: Boolean
-                ) {
-                    if (progress <= 50) {
-                        y = (50 - progress).toFloat().times(0.01f)
-                        renderer.getXYZ(x, y, z)
-                    } else {
-                        y = -(progress - 50).toFloat().times(0.01f)
-                        renderer.getXYZ(x, y, z)
-                    }
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                }
-
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                }
-            })
-            binding.blue.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(
-                    seekBar: SeekBar?,
-                    progress: Int,
-                    fromUser: Boolean
-                ) {
-                    if (progress <= 50) {
-                        z = (50 - progress).toFloat().times(0.01f)
-                        renderer.getXYZ(x, y, z)
-                    } else {
-                        z = -(progress - 50).toFloat().times(0.01f)
-                        renderer.getXYZ(x, y, z)
-                    }
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                }
-
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                }
-            })
-            binding.size.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(
-                    seekBar: SeekBar?,
-                    progress: Int,
-                    fromUser: Boolean
-                ) {
-                    if (progress <= 50) {
-                        size = (50 - progress).toFloat().times(0.1f)
-                        renderer.setSize(size)
-                    } else {
-                        size = -(progress - 50).toFloat().times(0.1f)
-                        renderer.setSize(size)
-                    }
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-                }
-
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-                }
-
-            })
-
         }
     }
 
@@ -412,9 +180,11 @@ class MainActivity : AppCompatActivity() {
                 renderer.onTouch = true
                 renderer.getXY(event.x, event.y)
             }
+
             MotionEvent.ACTION_MOVE -> {
                 renderer.getXY(event.x, event.y)
             }
+
             MotionEvent.ACTION_UP -> {
                 renderer.onTouch = false
             }
