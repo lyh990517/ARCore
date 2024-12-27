@@ -1,4 +1,5 @@
 package com.example.arcorestudy
+
 import android.opengl.GLES20.GL_FLOAT
 import android.opengl.GLES20.GL_STATIC_DRAW
 import android.opengl.GLES30.GL_ARRAY_BUFFER
@@ -18,33 +19,11 @@ class VertexData(
     private val vertices: FloatBuffer,
     private val indices: IntBuffer?,
     private val stride: Int,
-    private val drawMode: Int = GL_STATIC_DRAW
+    private val drawMode: Int = GL_STATIC_DRAW,
 ) {
-
-    constructor(
-        vertices: FloatArray,
-        indices: IntArray?,
-        stride: Int,
-        drawMode: Int = GL_STATIC_DRAW
-    ) : this(vertices.toFloatBuffer(), indices?.toIntBuffer(), stride, drawMode)
-
     private val attributes = mutableListOf<Attribute>()
 
     private var vaoId: Int? = null
-
-    private var vboId: Int? = null
-
-    fun addAttribute(attribute: Attribute) = attributes.add(attribute)
-
-    fun addAttribute(location: Int, size: Int, offset: Int) {
-        attributes.add(
-            Attribute(
-                location = location,
-                size = size,
-                offset = offset
-            )
-        )
-    }
 
     fun bind() {
         val vbo = IntBuffer.allocate(1)
@@ -72,8 +51,6 @@ class VertexData(
         glBindVertexArray(0)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
     }
-
-    fun getVaoId() = vaoId ?: throw IllegalStateException("Call bind() before accessing VAO")
 
     private fun applyAttributes() = attributes.forEach { attribute ->
         glEnableVertexAttribArray(attribute.location)
@@ -105,11 +82,10 @@ class VertexData(
         val size: Int,
         val offset: Int,
         val stride: Int? = null,
-        val divisor: Int? = null
+        val divisor: Int? = null,
     )
 
     companion object {
-        //기능추가
         fun apply(location: Int, size: Int, buffer: FloatBuffer) {
             glEnableVertexAttribArray(location)
             glVertexAttribPointer(

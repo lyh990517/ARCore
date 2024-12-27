@@ -3,15 +3,16 @@ package com.example.arcorestudy
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.BitmapFactory
-import android.opengl.GLES20.*
+import android.opengl.GLES20.GL_COMPILE_STATUS
+import android.opengl.GLES20.GL_FRAGMENT_SHADER
+import android.opengl.GLES20.GL_VERTEX_SHADER
+import android.opengl.GLES20.glCompileShader
+import android.opengl.GLES20.glCreateShader
+import android.opengl.GLES20.glGetShaderiv
+import android.opengl.GLES20.glShaderSource
 import android.util.Log
 import androidx.annotation.RawRes
-import de.javagl.obj.ObjData
-import de.javagl.obj.ObjReader
-import de.javagl.obj.ObjUtils
-import glm_.glm
 import glm_.mat4x4.Mat4
-import glm_.vec3.Vec3
 import glm_.vec4.Vec4
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -30,20 +31,6 @@ fun compileShader(type: Int, code: String) = glCreateShader(type).also { shader 
     }
 }
 
-fun fromAssets(context: Context, assetPath: String): Mesh {
-    val obj = context.assets.open(assetPath)
-        .let { stream -> ObjReader.read(stream) }
-        .let { objStream -> ObjUtils.convertToRenderable(objStream) }
-    return Mesh(
-        indices = ObjData.getFaceVertexIndices(obj),
-        vertices = ObjData.getVertices(obj),
-        normals = ObjData.getNormals(obj),
-        texCoords = ObjData.getTexCoords(obj, 2)
-    )
-}
-
-var deviceSize = Pair(0, 0)
-var angle = 0f
 fun toFloatArray(mat4: Mat4): FloatArray {
     var a: FloatArray = floatArrayOf()
     with(mat4) {
@@ -68,15 +55,6 @@ fun FloatArray.toMat4(): Mat4 {
             Vec4(this[3], this[7], this[11], this[15])
         )
 }
-
-fun rotateX() = glm.rotate(Mat4(), glm.PIf * 0.5f, Vec3(1, 0, 0))
-fun rotateY() = glm.rotate(Mat4(), glm.PIf * 0.5f, Vec3(0, 1, 0))
-fun rotateZ() = glm.rotate(Mat4(), glm.PIf * 0.5f, Vec3(0, 0, 1))
-
-fun scaleUp() = glm.scale(Mat4(), Vec3(2f, 2f, 2f))
-fun scaleDown() = glm.scale(Mat4(), Vec3(0.5f, 0.5f, 0.5f))
-
-fun product(mat1: Mat4, mat2: Mat4) = glm.matrixCompMult(mat1, mat2)
 
 fun createFloatBuffer(capacity: Int): FloatBuffer =
     ByteBuffer.allocateDirect(capacity * Float.SIZE_BYTES)

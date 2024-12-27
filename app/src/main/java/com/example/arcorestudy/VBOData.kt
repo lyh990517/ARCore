@@ -1,19 +1,22 @@
 package com.example.arcorestudy
 
+import android.opengl.GLES30.GL_ARRAY_BUFFER
+import android.opengl.GLES30.GL_FLOAT
+import android.opengl.GLES30.GL_STATIC_DRAW
+import android.opengl.GLES30.glBindBuffer
+import android.opengl.GLES30.glBufferData
+import android.opengl.GLES30.glDisableVertexAttribArray
+import android.opengl.GLES30.glEnableVertexAttribArray
+import android.opengl.GLES30.glGenBuffers
+import android.opengl.GLES30.glVertexAttribPointer
 import java.nio.FloatBuffer
-import android.opengl.GLES30.*
 import java.nio.IntBuffer
 
 class VBOData(
     private val vertex: FloatBuffer,
     private val drawMode: Int = GL_STATIC_DRAW,
-    private val stride: Int
+    private val stride: Int,
 ) {
-    constructor(
-        vertex: FloatArray,
-        drawMode: Int = GL_STATIC_DRAW,
-        stride: Int
-    ) : this(vertex.toFloatBuffer(), drawMode, stride)
 
     private var vboId = -1
     private val attributes = mutableListOf<Attribute>()
@@ -37,12 +40,14 @@ class VBOData(
             glBindBuffer(GL_ARRAY_BUFFER, it)
             vboId = it
         }
+        vertex.position(0)
         glBufferData(
             GL_ARRAY_BUFFER,
             Float.SIZE_BYTES * vertex.capacity(),
             vertex,
             drawMode
         )
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
     }
 
     fun applyAttributes() = attributes.forEach { attribute ->
@@ -52,8 +57,8 @@ class VBOData(
             attribute.size,
             GL_FLOAT,
             false,
-            stride,
-            attribute.offset
+            stride * Float.SIZE_BYTES,
+            attribute.offset * Float.SIZE_BYTES
         )
     }
 

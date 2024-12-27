@@ -1,8 +1,8 @@
 package com.example.arcorestudy
 
-import android.opengl.GLES20
 import android.opengl.GLES30.*
-import java.nio.*
+import java.nio.FloatBuffer
+import java.nio.IntBuffer
 
 data class Mesh(
     val vertices: FloatBuffer,
@@ -10,36 +10,45 @@ data class Mesh(
     val texCoords: FloatBuffer,
     val indices: IntBuffer,
 ) {
-    private val data: VertexData
+    private val data: VBOData
+    private val capacity = vertices.capacity() + texCoords.capacity()
+    private val buffer = createFloatBuffer(capacity)
 
     init {
-        val capacity = vertices.capacity() + normals.capacity() + texCoords.capacity()
-        val buffer = createFloatBuffer(capacity)
-
-        while (vertices.hasRemaining()) {
-            buffer.put(vertices.get())
-            buffer.put(vertices.get())
-            buffer.put(vertices.get())
-            buffer.put(normals.get())
-            buffer.put(normals.get())
-            buffer.put(normals.get())
-            buffer.put(texCoords.get())
-            buffer.put(texCoords.get())
+        while (vertices.hasRemaining() && texCoords.hasRemaining()) {
+            buffer.put(vertices.get())   // x
+            buffer.put(vertices.get())   // y
+            buffer.put(vertices.get())   // z
+            buffer.put(texCoords.get())  // u
+            buffer.put(texCoords.get())  // v
         }
         buffer.position(0)
-        data = VertexData(buffer, indices, 8)
+        data = VBOData(buffer, GL_STATIC_DRAW, 5)
     }
 
     fun bind(program: Program) {
-        data.addAttribute(program.getAttributeLocation("aPos"), 3, 0)
-        data.addAttribute(program.getAttributeLocation("aNormals"), 3, 3)
-        data.addAttribute(program.getAttributeLocation("aTexCoord"), 2, 6)
         data.bind()
-        program.use()
+        data.addAttribute(glGetAttribLocation(program.getProgram(), "aPos"), 3, 0)
+        data.addAttribute(glGetAttribLocation(program.getProgram(), "aTexCoord"), 2, 3)
+        bindIndices()
     }
 
     fun draw() {
-        glBindVertexArray(data.getVaoId())
-        GLES20.glDrawElements(GL_TRIANGLES, indices.capacity(), GL_UNSIGNED_INT, 0)
+        glBindBuffer(GL_ARRAY_BUFFER, data.getVBO())
+        data.applyAttributes()
+        glDrawElements(GL_TRIANGLES, indices.capacity(), GL_UNSIGNED_INT, 0)
+        data.disabledAttributes()
+    }
+
+    private fun bindIndices() = indices.takeIf { it.capacity() > 0 }?.also {
+        val ebo = IntBuffer.allocate(1)
+        glGenBuffers(1, ebo)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo[0])
+        glBufferData(
+            GL_ELEMENT_ARRAY_BUFFER,
+            Int.SIZE_BYTES * indices.capacity(),
+            indices,
+            GL_STATIC_DRAW
+        )
     }
 }
