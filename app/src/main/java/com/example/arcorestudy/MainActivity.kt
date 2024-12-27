@@ -7,8 +7,6 @@ import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
-import android.view.Window
-import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -18,7 +16,6 @@ import com.example.arcorestudy.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var sessionManager: SessionManager
-    private lateinit var renderingManager: RenderingManager
     private lateinit var renderer: MainRenderer
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,11 +27,9 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun initialize() {
         sessionManager = SessionManager.create(binding.glSurfaceView.context!!.applicationContext)
-        renderingManager =
-            RenderingManager.create(binding.glSurfaceView.context!!.applicationContext)
         sessionManager.create()
 
-        renderer = MainRenderer(sessionManager, renderingManager)
+        renderer = MainRenderer(context = this, sessionManager = sessionManager)
         binding.glSurfaceView.apply {
             preserveEGLContextOnPause = true
             setEGLContextClientVersion(3)
@@ -42,7 +37,7 @@ class MainActivity : AppCompatActivity() {
             renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
         }
         binding.reset.setOnClickListener {
-            renderingManager.arObjectScene.clear()
+            renderer.arObjectScene.clear()
         }
     }
 

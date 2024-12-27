@@ -1,8 +1,12 @@
 package com.example.arcorestudy
 
+import android.content.Context
+import android.opengl.GLES30.GL_ARRAY_BUFFER
 import android.opengl.GLES30.GL_COLOR_BUFFER_BIT
 import android.opengl.GLES30.GL_DEPTH_BUFFER_BIT
 import android.opengl.GLES30.GL_DEPTH_TEST
+import android.opengl.GLES30.glBindBuffer
+import android.opengl.GLES30.glBufferSubData
 import android.opengl.GLES30.glClear
 import android.opengl.GLES30.glDepthMask
 import android.opengl.GLES30.glEnable
@@ -10,6 +14,8 @@ import android.opengl.GLES30.glViewport
 import android.opengl.GLSurfaceView
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.arcorestudy.rendering.ArObjectRendering
+import com.example.arcorestudy.rendering.CameraTextureRendering
 import com.google.ar.core.DepthPoint
 import com.google.ar.core.Frame
 import com.google.ar.core.PointCloud
@@ -19,17 +25,20 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 class MainRenderer(
+    private val context: Context,
     private val sessionManager: SessionManager,
-    private val renderingManager: RenderingManager,
 ) :
     GLSurfaceView.Renderer {
+    private val mCamera: CameraTextureRendering = CameraTextureRendering.create(context)
+    val arObjectScene: ArObjectRendering = ArObjectRendering.create(context)
+
     private var mViewportWidth = 0
     private var mViewportHeight = 0
     private var currentX = 0f
     private var currentY = 0f
     var onTouch = false
 
-    override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) = with(renderingManager) {
+    override fun onSurfaceCreated(gl10: GL10, eglConfig: EGLConfig) {
         mCamera.init()
         arObjectScene.init()
     }
@@ -49,7 +58,7 @@ class MainRenderer(
         render()
     }
 
-    private fun render() = with(renderingManager) {
+    private fun render() {
         glDepthMask(false)
         mCamera.draw()
         glDepthMask(true)
@@ -63,7 +72,7 @@ class MainRenderer(
         try {
             val frame = mSession!!.update()
             if (frame.hasDisplayGeometryChanged()) {
-                renderingManager.mCamera.transformDisplayGeometry(frame)
+                mCamera.transformDisplayGeometry(frame)
             }
             renderPointCloud(frame)
             extractMatrixFromCamera(frame).let { setMatrix(it.first, it.second) }
@@ -84,13 +93,13 @@ class MainRenderer(
         }
     }
 
-    private fun addPoint(vec3: Vec3) = with(renderingManager) {
+    private fun addPoint(vec3: Vec3) {
         if (onTouch) {
             arObjectScene.addPosition(vec3)
         }
     }
 
-    private fun setMatrix(projection: FloatArray, view: FloatArray) = with(renderingManager) {
+    private fun setMatrix(projection: FloatArray, view: FloatArray) {
         arObjectScene.setProjectionMatrix(projection)
         arObjectScene.setViewMatrix(view)
     }
@@ -104,9 +113,12 @@ class MainRenderer(
         return Pair(projMatrix, viewMatrix)
     }
 
-    private fun renderPointCloud(frame: Frame) = with(renderingManager) {
+    private fun renderPointCloud(frame: Frame) {
         val pointCloud: PointCloud = frame.acquirePointCloud()
-        mPointCloud.update(pointCloud)
+        val mNumPoints = pointCloud.points.remaining() / 4
+        glBindBuffer(GL_ARRAY_BUFFER, -1)
+        glBufferSubData(GL_ARRAY_BUFFER, 0, mNumPoints * 16, pointCloud.points)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
         pointCloud.release()
     }
 
@@ -116,6 +128,6 @@ class MainRenderer(
     }
 
     private val textureId: Int
-        get() = renderingManager.mCamera.textureId ?: -1
+        get() = mCamera.textureId
 
 }
