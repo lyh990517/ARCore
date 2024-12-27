@@ -27,7 +27,7 @@ class ArObjectRendering(
     private val vShader: String,
     private val fShader: String,
     private val diffuse: Texture,
-    private val specular: Texture
+    private val specular: Texture,
 ) {
     private var view = Mat4()
     private var proj = Mat4()
@@ -48,12 +48,15 @@ class ArObjectRendering(
             glBindTexture(GL_TEXTURE_2D, diffuse.getId())
             glActiveTexture(GL_TEXTURE1)
             glBindTexture(GL_TEXTURE_2D, specular.getId())
-            glUniform1i(glGetUniformLocation(program.getProgram(),"diffuse"),0)
-            glUniform1i(glGetUniformLocation(program.getProgram(),"bump"),1)
+            glUniform1i(glGetUniformLocation(program.getProgram(), "diffuse"), 0)
+            glUniform1i(glGetUniformLocation(program.getProgram(), "bump"), 1)
             try {
                 objPosition.forEach {
-                    val model =
-                        glm.translate(Mat4(), it)
+                    val model = glm.translate(Mat4(), it) * glm.scale(
+                        Mat4(),
+                        Vec3(0.1f)
+                    )
+
                     program.setUniformMat4("mvp", proj * view * model)
                     mesh.draw()
                 }
@@ -101,7 +104,7 @@ class ArObjectRendering(
                 indices = ObjData.getFaceVertexIndices(obj),
                 vertices = ObjData.getVertices(obj),
                 normals = ObjData.getNormals(obj),
-                texCoords = ObjData.getTexCoords(obj,2)
+                texCoords = ObjData.getTexCoords(obj, 2)
             )
         }
     }
